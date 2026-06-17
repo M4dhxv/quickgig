@@ -66,7 +66,10 @@ export default function Dashboard() {
     try {
       const city = profileLocation.split(',')[0].trim()
       const { jobs: raw, count } = await searchJobsMulti(term || 'warehouse logistics', city, pg, 10)
-      const scored = raw.map(j => ({ ...j, score: matchScore(j, profileLocation) }))
+      const local = city
+        ? raw.filter(j => j.location.toLowerCase().includes(city.toLowerCase()))
+        : raw
+      const scored = local.map(j => ({ ...j, score: matchScore(j, profileLocation) }))
         .sort((a, b) => b.score - a.score)
       setJobs(scored)
       setTotal(count)
