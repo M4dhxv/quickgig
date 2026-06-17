@@ -41,6 +41,7 @@ export function getMatchBreakdown(job: AdzunaJob): MatchBreakdown {
 
 export type AdzunaJob = {
   id: string
+  source?: string
   title: string
   company: string
   location: string
@@ -76,6 +77,34 @@ export async function searchJobs(what: string, where = '', page = 1, perPage = 1
   }))
 
   return { jobs, count: data.count ?? 0 }
+}
+
+// Multi-source aggregator — Adzuna + Amazon + Greenhouse + Lever + Workday + Reed
+export async function searchJobsMulti(what: string, where = '', page = 1, perPage = 10): Promise<{ jobs: AdzunaJob[]; count: number; sources?: Record<string, number | string> }> {
+  const { data, error } = await supabase.functions.invoke('aggregate-jobs', {
+    body: { what, where, page, perPage },
+  })
+  if (error) {
+    // Fall back to Adzuna-only if aggregator fails
+    return searchJobs(what, where, page, perPage)
+  }
+
+  const jobs: AdzunaJob[] = (data.results ?? []).map((r: any) => ({
+    id:            r.id,
+    title:         r.title,
+    company:       r.company ?? '',
+    location:      r.location ?? '',
+    salary_min:    r.salary_min ?? null,
+    salary_max:    r.salary_max ?? null,
+    description:   r.description ?? '',
+    contract_time: r.contract_time ?? null,
+    contract_type: r.contract_type ?? null,
+    redirect_url:  r.redirect_url,
+    category:      r.category ?? '',
+    posted_at:     r.posted_at ?? '',
+  }))
+
+  return { jobs, count: data.count ?? 0, sources: data.sources }
 }
 
 export function formatSalary(min: number | null, max: number | null): string {

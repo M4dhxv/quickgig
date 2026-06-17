@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { searchJobs, formatSalary, timeAgo, matchScore, getMatchBreakdown, type AdzunaJob } from '../lib/adzuna'
+import { searchJobsMulti, formatSalary, timeAgo, matchScore, getMatchBreakdown, type AdzunaJob } from '../lib/adzuna'
 import { textToSpeech, DeepgramSTT } from '../lib/deepgram'
 import { askSarah, type UserProfile } from '../lib/claude'
 
@@ -63,7 +63,7 @@ export default function Dashboard() {
     setLoading(true)
     setError('')
     try {
-      const { jobs: raw, count } = await searchJobs(term || 'warehouse logistics', '', pg, 10)
+      const { jobs: raw, count } = await searchJobsMulti(term || 'warehouse logistics', '', pg, 10)
       const scored = raw.map(j => ({ ...j, score: matchScore(j) }))
         .sort((a, b) => b.score - a.score)
       setJobs(scored)
@@ -329,7 +329,14 @@ export default function Dashboard() {
                     </div>
                     <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:4, flexShrink:0 }}>
                       <div style={{ padding:'3px 9px', borderRadius:100, fontSize:11, fontWeight:700, background:scoreColor(j.score)+'18', color:scoreColor(j.score), border:`1px solid ${scoreColor(j.score)}40` }}>{j.score}% match</div>
-                      <span style={{ fontSize:10, color:'#9ca3af' }}>{timeAgo(j.posted_at)}</span>
+                      <div style={{ display:'flex', alignItems:'center', gap:4 }}>
+                        {j.source && j.source !== 'adzuna' && (
+                          <span style={{ fontSize:9, fontWeight:700, color:'#6b7280', background:'#f3f4f6', border:'1px solid #e5e7eb', borderRadius:4, padding:'1px 5px', textTransform:'uppercase', letterSpacing:'0.05em' }}>
+                            {j.source === 'amazon' ? '🟠 Amazon' : j.source === 'workday' ? '🔵 Direct' : j.source === 'greenhouse' ? '🟢 GH' : j.source === 'reed' ? '🔴 Reed' : j.source}
+                          </span>
+                        )}
+                        <span style={{ fontSize:10, color:'#9ca3af' }}>{timeAgo(j.posted_at)}</span>
+                      </div>
                     </div>
                   </div>
 
