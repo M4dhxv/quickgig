@@ -45,6 +45,7 @@ export type AdzunaJob = {
   title: string
   company: string
   location: string
+  country?: string
   salary_min: number | null
   salary_max: number | null
   description: string
@@ -94,6 +95,7 @@ export async function searchJobsMulti(what: string, where = '', page = 1, perPag
     title:         r.title,
     company:       r.company ?? '',
     location:      r.location ?? '',
+    country:       r.country ?? '',
     salary_min:    r.salary_min ?? null,
     salary_max:    r.salary_max ?? null,
     description:   r.description ?? '',

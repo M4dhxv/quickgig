@@ -332,7 +332,12 @@ export default function Dashboard() {
                       <div style={{ display:'flex', alignItems:'center', gap:4 }}>
                         {j.source && j.source !== 'adzuna' && (
                           <span style={{ fontSize:9, fontWeight:700, color:'#6b7280', background:'#f3f4f6', border:'1px solid #e5e7eb', borderRadius:4, padding:'1px 5px', textTransform:'uppercase', letterSpacing:'0.05em' }}>
-                            {j.source === 'amazon' ? '🟠 Amazon' : j.source === 'workday' ? '🔵 Direct' : j.source === 'greenhouse' ? '🟢 GH' : j.source === 'reed' ? '🔴 Reed' : j.source}
+                            {j.source === 'amazon' ? '🟠 Amazon' : j.source === 'workday' ? '🔵 Direct' : j.source === 'greenhouse' ? '🟢 GH' : j.source === 'lever' ? '🟣 Lever' : j.source === 'reed' ? '🔴 Reed' : j.source}
+                          </span>
+                        )}
+                        {j.country && j.country !== 'United Kingdom' && (
+                          <span style={{ fontSize:9, fontWeight:700, color:'#6b7280', background:'#f3f4f6', border:'1px solid #e5e7eb', borderRadius:4, padding:'1px 5px', letterSpacing:'0.02em' }}>
+                            {(({'United States':'🇺🇸 US','Canada':'🇨🇦 CA','Australia':'🇦🇺 AU','New Zealand':'🇳🇿 NZ','Germany':'🇩🇪 DE','France':'🇫🇷 FR','Netherlands':'🇳🇱 NL','South Africa':'🇿🇦 ZA','Singapore':'🇸🇬 SG','India':'🇮🇳 IN','Japan':'🇯🇵 JP','Mexico':'🇲🇽 MX','Belgium':'🇧🇪 BE','Austria':'🇦🇹 AT','Italy':'🇮🇹 IT','Poland':'🇵🇱 PL','Brazil':'🇧🇷 BR','Global':'🌐 Global'} as Record<string,string>)[j.country]) ?? j.country}
                           </span>
                         )}
                         <span style={{ fontSize:10, color:'#9ca3af' }}>{timeAgo(j.posted_at)}</span>
