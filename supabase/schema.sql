@@ -5,8 +5,12 @@ create table if not exists sessions (
   id          uuid primary key default gen_random_uuid(),
   file_name   text,
   search_term text,
+  profile     jsonb,
   created_at  timestamptz default now()
 );
+
+-- Run this if the table already exists:
+-- alter table sessions add column if not exists profile jsonb;
 
 -- Cached Adzuna job results per session
 create table if not exists job_results (

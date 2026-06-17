@@ -55,7 +55,10 @@ function ScoreBadge({ score }: { score: number }) {
 export default function Results() {
   const navigate = useNavigate()
   const location = useLocation()
-  const jobCount = (location.state as { jobCount?: number })?.jobCount ?? ROLES.length
+  const state = location.state as { jobCount?: number; sessionId?: string; fileName?: string } | null
+  const jobCount = state?.jobCount ?? ROLES.length
+  const sessionId = state?.sessionId
+  const fileName  = state?.fileName
   const [selected, setSelected] = useState<string | null>(null)
 
   return (
@@ -147,7 +150,7 @@ export default function Results() {
                   border: 'none', borderRadius: 9, padding: '11px 0', fontSize: 14,
                   fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                 }}
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate('/dashboard', { state: { fileName, sessionId } })}
               >
                 {plan.cta} {plan.popular ? '→' : ''}
               </button>

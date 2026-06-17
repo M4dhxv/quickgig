@@ -88,9 +88,16 @@ export default function Landing() {
   const [fileName, setFileName] = useState('')
   const [dragging, setDragging] = useState(false)
 
-  function handleFile(f: File) {
+  async function handleFile(f: File) {
     setFileName(f.name)
-    setTimeout(() => navigate('/analyse', { state: { fileName: f.name } }), 400)
+    const sessionId = crypto.randomUUID()
+    const fileText = await new Promise<string>((resolve) => {
+      const reader = new FileReader()
+      reader.onload = (e) => resolve((e.target?.result as string) ?? '')
+      reader.onerror = () => resolve('')
+      reader.readAsText(f)
+    })
+    navigate('/analyse', { state: { fileName: f.name, sessionId, fileText: fileText.slice(0, 3000) } })
   }
 
   function onDrop(e: React.DragEvent) {

@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { searchJobs, formatSalary, timeAgo, matchScore, getMatchBreakdown, type AdzunaJob } from '../lib/adzuna'
 import { textToSpeech, DeepgramSTT } from '../lib/deepgram'
-import { askSarah } from '../lib/claude'
+import { askSarah, type UserProfile } from '../lib/claude'
 
 const SARAH_REPLIES: Record<string, string> = {
   default: "I've reviewed your matched roles. Your background looks strong for warehouse management and logistics coordination. Which role would you like me to help you prep for?",
@@ -48,6 +48,9 @@ export default function Dashboard() {
 
   const [transcript, setTranscript] = useState('')
   const [speakingReply, setSpeakingReply] = useState('')
+
+  const [profile, setProfile] = useState<UserProfile | null>(null)
+  const [profileOpen, setProfileOpen] = useState(false)
 
   const chatEndRef = useRef<HTMLDivElement>(null)
   const dgRef = useRef<DeepgramSTT | null>(null)
@@ -97,6 +100,11 @@ export default function Dashboard() {
 
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
 
+  useEffect(() => {
+    supabase.from('sessions').select('profile').eq('id', sessionId).single()
+      .then(({ data }) => { if (data?.profile) setProfile(data.profile as UserProfile) })
+  }, [sessionId])
+
   async function send(text: string) {
     if (!text.trim()) return
     const userMsg: Message = { from: 'user', text, ts: getTime() }
@@ -113,7 +121,7 @@ export default function Dashboard() {
     }))
 
     try {
-      const reply = await askSarah(history)
+      const reply = await askSarah(history, profile)
       setMessages(m => [...m, { from: 'sarah', text: reply, ts: getTime() }])
       await supabase.from('chat_messages').insert({ session_id: sessionId, role: 'sarah', content: reply })
     } catch {
@@ -176,7 +184,7 @@ export default function Dashboard() {
     const history = [...priorHistory, { role: 'user' as const, content: spokenText }]
 
     let reply = SARAH_REPLIES.default
-    try { reply = await askSarah(history) } catch {}
+    try { reply = await askSarah(history, profile) } catch {}
 
     setSpeakingReply(reply)
     setVoicePhase('speaking')
@@ -239,7 +247,11 @@ export default function Dashboard() {
 
         <div style={{ display:'flex', alignItems:'center', gap:12, flexShrink:0 }}>
           {!loading && <span style={{ fontSize:12, color:'#6b7280' }}>{total.toLocaleString()} jobs</span>}
-          <div style={{ width:32, height:32, borderRadius:'50%', background:'#10b981', color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:700, fontSize:13 }}>J</div>
+          <div
+            title={profile?.name ?? 'Your profile'}
+            onClick={() => setProfileOpen(o => !o)}
+            style={{ width:32, height:32, borderRadius:'50%', background:'#10b981', color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:700, fontSize:13, cursor:'pointer', flexShrink:0, userSelect:'none' }}
+          >{profile?.name?.[0]?.toUpperCase() ?? 'J'}</div>
         </div>
       </nav>
 
@@ -417,6 +429,106 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Profile slide-in panel */}
+      {profileOpen && (
+        <>
+          <div onClick={() => setProfileOpen(false)} style={{ position:'fixed', inset:0, zIndex:200 }} />
+          <div style={{
+            position:'fixed', top:56, right:0, bottom:0, width:320, background:'#fff',
+            borderLeft:'1px solid #e5e7eb', zIndex:201, overflowY:'auto',
+            boxShadow:'-4px 0 24px rgba(0,0,0,0.08)',
+            animation:'slideIn .22s ease-out',
+          }}>
+            <style>{`@keyframes slideIn { from { transform:translateX(100%); opacity:0; } to { transform:translateX(0); opacity:1; } }`}</style>
+
+            {/* Header */}
+            <div style={{ padding:'20px 20px 16px', borderBottom:'1px solid #f3f4f6', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+              <div style={{ fontWeight:700, fontSize:15 }}>Your Profile</div>
+              <button onClick={() => setProfileOpen(false)} style={{ background:'none', border:'none', cursor:'pointer', fontSize:18, color:'#9ca3af', lineHeight:1 }}>×</button>
+            </div>
+
+            {!profile ? (
+              <div style={{ padding:24, color:'#9ca3af', fontSize:13, textAlign:'center' }}>
+                <div style={{ fontSize:32, marginBottom:12 }}>📄</div>
+                Profile not loaded yet. Upload a CV to get started.
+              </div>
+            ) : (
+              <div style={{ padding:'16px 20px', display:'flex', flexDirection:'column', gap:20 }}>
+
+                {/* Identity */}
+                <div style={{ display:'flex', alignItems:'center', gap:14 }}>
+                  <div style={{ width:52, height:52, borderRadius:'50%', background:'#10b981', color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, fontWeight:700, flexShrink:0 }}>
+                    {profile.name?.[0]?.toUpperCase() ?? '?'}
+                  </div>
+                  <div>
+                    <div style={{ fontWeight:700, fontSize:16, color:'#111' }}>{profile.name || '—'}</div>
+                    <div style={{ fontSize:13, color:'#6b7280', marginTop:2 }}>{profile.currentRole || '—'}</div>
+                  </div>
+                </div>
+
+                {/* Contact */}
+                <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+                  <div style={{ fontSize:11, fontWeight:700, color:'#9ca3af', textTransform:'uppercase', letterSpacing:'0.07em' }}>Contact</div>
+                  {profile.location && <Row icon="📍" value={profile.location} />}
+                  {profile.phone    && <Row icon="📞" value={profile.phone} />}
+                  {profile.email    && <Row icon="✉️"  value={profile.email} />}
+                  {!profile.location && !profile.phone && !profile.email && <span style={{ fontSize:13, color:'#9ca3af' }}>No contact details extracted</span>}
+                </div>
+
+                {/* Summary */}
+                {profile.summary && (
+                  <div>
+                    <div style={{ fontSize:11, fontWeight:700, color:'#9ca3af', textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:6 }}>Summary</div>
+                    <p style={{ fontSize:13, color:'#374151', lineHeight:1.6, margin:0 }}>{profile.summary}</p>
+                  </div>
+                )}
+
+                {/* Skills */}
+                {profile.skills?.length > 0 && (
+                  <div>
+                    <div style={{ fontSize:11, fontWeight:700, color:'#9ca3af', textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:8 }}>Skills</div>
+                    <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
+                      {profile.skills.map(s => (
+                        <span key={s} style={{ fontSize:12, fontWeight:600, background:'#f0fdf4', color:'#059669', border:'1px solid #a7f3d0', borderRadius:100, padding:'3px 10px' }}>{s}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Certifications */}
+                {profile.certifications?.length > 0 && (
+                  <div>
+                    <div style={{ fontSize:11, fontWeight:700, color:'#9ca3af', textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:8 }}>Certifications</div>
+                    <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
+                      {profile.certifications.map(c => (
+                        <span key={c} style={{ fontSize:12, fontWeight:600, background:'#fefce8', color:'#92400e', border:'1px solid #fde68a', borderRadius:100, padding:'3px 10px' }}>{c}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Experience */}
+                {profile.experience?.length > 0 && (
+                  <div>
+                    <div style={{ fontSize:11, fontWeight:700, color:'#9ca3af', textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:10 }}>Experience</div>
+                    <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+                      {profile.experience.map((e, i) => (
+                        <div key={i} style={{ borderLeft:'2px solid #e5e7eb', paddingLeft:12 }}>
+                          <div style={{ fontWeight:600, fontSize:13, color:'#111' }}>{e.role}</div>
+                          <div style={{ fontSize:12, color:'#6b7280', marginTop:2 }}>{e.company}</div>
+                          {e.duration && <div style={{ fontSize:11, color:'#9ca3af', marginTop:2 }}>{e.duration}</div>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
       {/* Voice overlay */}
       {voiceMode && (
         <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.65)', backdropFilter:'blur(8px)', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', zIndex:100 }}>
@@ -463,6 +575,15 @@ export default function Dashboard() {
           </button>
         </div>
       )}
+    </div>
+  )
+}
+
+function Row({ icon, value }: { icon: string; value: string }) {
+  return (
+    <div style={{ display:'flex', alignItems:'center', gap:8, fontSize:13, color:'#374151' }}>
+      <span style={{ fontSize:14, flexShrink:0 }}>{icon}</span>
+      <span style={{ wordBreak:'break-all' }}>{value}</span>
     </div>
   )
 }
