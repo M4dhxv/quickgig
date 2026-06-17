@@ -254,7 +254,7 @@ export default function Dashboard() {
           <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:14, flexWrap:'wrap' }}>
             {filters.map(f => (
               <button key={f} onClick={() => setFilter(f)} style={{
-                padding:'5px 12px', borderRadius:100, fontSize:12, fontWeight:600, cursor:'pointer', border:'none',
+                padding:'5px 12px', borderRadius:100, fontSize:12, fontWeight:600, cursor:'pointer',
                 background: filter === f ? '#10b981' : '#fff',
                 color: filter === f ? '#fff' : '#6b7280',
                 border: `1px solid ${filter === f ? '#10b981' : '#e5e7eb'}`,
