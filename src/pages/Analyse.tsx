@@ -55,7 +55,7 @@ export default function Analyse() {
     })
     timers.push(setTimeout(() => {
       setDone([0, 1, 2, 3])
-      setTimeout(() => navigate('/results', { state: { fileName, sessionId, jobCount } }), 600)
+      setTimeout(() => navigate('/verify', { state: { fileName, sessionId, jobCount } }), 600)
     }, STEPS.length * 1400 + 200))
 
     return () => timers.forEach(clearTimeout)
