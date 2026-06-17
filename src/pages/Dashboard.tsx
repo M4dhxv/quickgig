@@ -1,11 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { searchJobs, formatSalary, timeAgo, matchScore, type AdzunaJob } from '../lib/adzuna'
+import { searchJobs, formatSalary, timeAgo, matchScore, getMatchBreakdown, type AdzunaJob } from '../lib/adzuna'
 import { textToSpeech, DeepgramSTT } from '../lib/deepgram'
 import { askSarah } from '../lib/claude'
-
-const KEYWORDS = ['warehouse', 'manager', 'logistics', 'operations', 'supervisor', 'fulfilment', 'supply chain']
 
 const SARAH_REPLIES: Record<string, string> = {
   default: "I've reviewed your matched roles. Your background looks strong for warehouse management and logistics coordination. Which role would you like me to help you prep for?",
@@ -61,7 +59,7 @@ export default function Dashboard() {
     setError('')
     try {
       const { jobs: raw, count } = await searchJobs(term || 'warehouse logistics', '', pg, 10)
-      const scored = raw.map(j => ({ ...j, score: matchScore(j, KEYWORDS) }))
+      const scored = raw.map(j => ({ ...j, score: matchScore(j) }))
         .sort((a, b) => b.score - a.score)
       setJobs(scored)
       setTotal(count)
@@ -315,10 +313,15 @@ export default function Dashboard() {
                   </div>
 
                   <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:8 }}>
-                    <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                    <div style={{ display:'flex', alignItems:'center', gap:8, flexWrap:'wrap' }}>
                       <span style={{ fontSize:12, fontWeight:600, color:'#10b981' }}>{formatSalary(j.salary_min, j.salary_max)}</span>
                       {j.contract_time && <span style={{ fontSize:11, background:'#f3f4f6', color:'#6b7280', padding:'2px 8px', borderRadius:100 }}>{j.contract_time.replace('_', '-')}</span>}
                       {j.contract_type && <span style={{ fontSize:11, background:'#f3f4f6', color:'#6b7280', padding:'2px 8px', borderRadius:100 }}>{j.contract_type}</span>}
+                      {(() => { const b = getMatchBreakdown(j); return (<>
+                        {b.skills   && <span style={{ fontSize:10, fontWeight:700, background:'#f0fdf4', color:'#059669', border:'1px solid #a7f3d0', padding:'2px 7px', borderRadius:100 }}>⚙ Skills</span>}
+                        {b.certs    && <span style={{ fontSize:10, fontWeight:700, background:'#f0fdf4', color:'#059669', border:'1px solid #a7f3d0', padding:'2px 7px', borderRadius:100 }}>✓ Certs</span>}
+                        {b.salary   && <span style={{ fontSize:10, fontWeight:700, background:'#f0fdf4', color:'#059669', border:'1px solid #a7f3d0', padding:'2px 7px', borderRadius:100 }}>£ Salary</span>}
+                      </>)})()}
                     </div>
                     <div style={{ display:'flex', gap:6 }}>
                       <button

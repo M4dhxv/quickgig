@@ -1,5 +1,44 @@
 import { supabase } from './supabase'
 
+const SKILL_WORDS = [
+  'warehouse', 'logistics', 'forklift', 'picking', 'packing', 'dispatch',
+  'stock control', 'inventory', 'operations', 'supervisor', 'fulfilment',
+  'supply chain', 'distribution', 'loading', 'unloading', 'goods in',
+  'goods out', 'wms', 'rf scanner', 'team leader', 'shift manager',
+]
+
+const CERT_WORDS = [
+  'flt', 'iosh', 'cscs', 'nvq', 'cpc', 'adr', 'first aid',
+  'health and safety', 'counterbalance', 'reach truck', 'manual handling',
+  'nebosh', 'fire warden', 'food hygiene', 'haccp',
+]
+
+export type MatchBreakdown = {
+  score: number
+  skills: boolean
+  certs: boolean
+  salary: boolean
+  fullTime: boolean
+}
+
+export function getMatchBreakdown(job: AdzunaJob): MatchBreakdown {
+  const text = `${job.title} ${job.description} ${job.category}`.toLowerCase()
+  const skillHits = SKILL_WORDS.filter(k => text.includes(k)).length
+  const certHits  = CERT_WORDS.filter(k => text.includes(k)).length
+  const salary    = !!(job.salary_min && job.salary_min >= 24000)
+  const fullTime  = job.contract_time === 'full_time'
+
+  const score = Math.min(99,
+    50 +
+    Math.min(24, skillHits * 4) +
+    Math.min(12, certHits * 6) +
+    (salary ? 8 : 0) +
+    (fullTime ? 5 : 0)
+  )
+
+  return { score, skills: skillHits > 0, certs: certHits > 0, salary, fullTime }
+}
+
 export type AdzunaJob = {
   id: string
   title: string
@@ -55,9 +94,6 @@ export function timeAgo(iso: string): string {
   return d === 1 ? '1d ago' : `${d}d ago`
 }
 
-export function matchScore(job: AdzunaJob, keywords: string[]): number {
-  const text = `${job.title} ${job.description} ${job.category}`.toLowerCase()
-  const hits = keywords.filter(k => text.includes(k.toLowerCase())).length
-  const base = 60
-  return Math.min(99, base + hits * 6 + (job.salary_min && job.salary_min > 30000 ? 5 : 0))
+export function matchScore(job: AdzunaJob): number {
+  return getMatchBreakdown(job).score
 }
