@@ -5,13 +5,32 @@ import type { UserProfile } from '../lib/claude'
 
 type Tab = 'email' | 'phone'
 
-function toE164(raw: string): string {
-  const digits = raw.replace(/\D/g, '')
-  if (digits.startsWith('44')) return '+' + digits
-  if (digits.startsWith('0'))  return '+44' + digits.slice(1)
-  if (digits.startsWith('7') && digits.length === 10) return '+44' + digits
-  return '+' + digits
-}
+const COUNTRY_CODES = [
+  { flag: '🇬🇧', name: 'United Kingdom', code: '+44' },
+  { flag: '🇺🇸', name: 'United States',  code: '+1'  },
+  { flag: '🇨🇦', name: 'Canada',          code: '+1'  },
+  { flag: '🇮🇳', name: 'India',           code: '+91' },
+  { flag: '🇵🇰', name: 'Pakistan',        code: '+92' },
+  { flag: '🇳🇬', name: 'Nigeria',         code: '+234'},
+  { flag: '🇵🇱', name: 'Poland',          code: '+48' },
+  { flag: '🇷🇴', name: 'Romania',         code: '+40' },
+  { flag: '🇧🇩', name: 'Bangladesh',      code: '+880'},
+  { flag: '🇵🇭', name: 'Philippines',     code: '+63' },
+  { flag: '🇿🇦', name: 'South Africa',    code: '+27' },
+  { flag: '🇮🇪', name: 'Ireland',         code: '+353'},
+  { flag: '🇦🇺', name: 'Australia',       code: '+61' },
+  { flag: '🇩🇪', name: 'Germany',         code: '+49' },
+  { flag: '🇫🇷', name: 'France',          code: '+33' },
+  { flag: '🇪🇸', name: 'Spain',           code: '+34' },
+  { flag: '🇮🇹', name: 'Italy',           code: '+39' },
+  { flag: '🇵🇹', name: 'Portugal',        code: '+351'},
+  { flag: '🇧🇷', name: 'Brazil',          code: '+55' },
+  { flag: '🇲🇽', name: 'Mexico',          code: '+52' },
+  { flag: '🇦🇪', name: 'UAE',             code: '+971'},
+  { flag: '🇸🇦', name: 'Saudi Arabia',    code: '+966'},
+  { flag: '🇨🇳', name: 'China',           code: '+86' },
+  { flag: '🇯🇵', name: 'Japan',           code: '+81' },
+]
 
 export default function Verify() {
   const navigate = useNavigate()
@@ -27,6 +46,7 @@ export default function Verify() {
   const [phone, setPhone] = useState('')
 
   const [tab, setTab] = useState<Tab>('email')
+  const [countryCode, setCountryCode] = useState('+44')
 
   const [codeSent,  setCodeSent]  = useState(false)
   const [code,      setCode]      = useState('')
@@ -59,6 +79,8 @@ export default function Verify() {
 
   function resetCode() { setCodeSent(false); setCode(''); setCodeError(''); setSendError('') }
 
+  const fullPhone = countryCode + phone.replace(/\s/g, '')
+
   async function sendCode() {
     setSendError('')
     setSending(true)
@@ -69,8 +91,7 @@ export default function Verify() {
       ;({ error } = await supabase.auth.signInWithOtp({ email: email.trim(), options: { shouldCreateUser: true } }))
     } else {
       if (!phone.trim()) { setSendError('Enter a phone number.'); setSending(false); return }
-      const e164 = toE164(phone.trim())
-      ;({ error } = await supabase.auth.signInWithOtp({ phone: e164, options: { shouldCreateUser: true } }))
+      ;({ error } = await supabase.auth.signInWithOtp({ phone: fullPhone, options: { shouldCreateUser: true } }))
     }
 
     setSending(false)
@@ -87,7 +108,7 @@ export default function Verify() {
     if (tab === 'email') {
       ;({ error } = await supabase.auth.verifyOtp({ email: email.trim(), token: code.trim(), type: 'email' }))
     } else {
-      ;({ error } = await supabase.auth.verifyOtp({ phone: toE164(phone.trim()), token: code.trim(), type: 'sms' }))
+      ;({ error } = await supabase.auth.verifyOtp({ phone: fullPhone, token: code.trim(), type: 'sms' }))
     }
 
     setVerifying(false)
@@ -104,7 +125,7 @@ export default function Verify() {
         @keyframes spin   { to { transform:rotate(360deg); } }
         .fu { animation: fadeUp .3s ease-out both; }
         .d1 { animation-delay:.07s; }
-        .d2 { animation-delay:.14s; }
+        select { appearance: none; -webkit-appearance: none; }
       `}</style>
 
       <nav style={{ width:'100%', display:'flex', alignItems:'center', padding:'18px 40px', borderBottom:'1px solid #e5e7eb', background:'#fff' }}>
@@ -122,7 +143,6 @@ export default function Verify() {
           </div>
         ) : (
           <>
-            {/* Avatar + name */}
             <div className="fu" style={{ textAlign:'center', marginBottom:32 }}>
               <div style={{ width:68, height:68, borderRadius:'50%', background:'#10b981', color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontSize:26, fontWeight:800, margin:'0 auto 14px' }}>
                 {initial}
@@ -136,17 +156,13 @@ export default function Verify() {
             {/* Tab toggle */}
             <div className="fu d1" style={{ display:'flex', background:'#f3f4f6', borderRadius:10, padding:4, marginBottom:24, gap:4 }}>
               {(['email', 'phone'] as Tab[]).map(t => (
-                <button
-                  key={t}
-                  onClick={() => { setTab(t); resetCode() }}
-                  style={{
-                    flex:1, padding:'9px 0', borderRadius:8, border:'none', fontSize:13, fontWeight:600, cursor:'pointer',
-                    background: tab === t ? '#fff' : 'transparent',
-                    color:      tab === t ? '#111' : '#6b7280',
-                    boxShadow:  tab === t ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
-                    transition: 'all .15s',
-                  }}
-                >
+                <button key={t} onClick={() => { setTab(t); resetCode() }} style={{
+                  flex:1, padding:'9px 0', borderRadius:8, border:'none', fontSize:13, fontWeight:600, cursor:'pointer',
+                  background: tab === t ? '#fff' : 'transparent',
+                  color:      tab === t ? '#111' : '#6b7280',
+                  boxShadow:  tab === t ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
+                  transition:'all .15s',
+                }}>
                   {t === 'email' ? '✉ Email' : '📱 Phone'}
                 </button>
               ))}
@@ -154,29 +170,62 @@ export default function Verify() {
 
             {!codeSent ? (
               <div className="fu d1">
-                <label style={{ display:'block', fontSize:12, fontWeight:600, color:'#374151', marginBottom:6 }}>
-                  {tab === 'email' ? 'Email address' : 'Phone number'}
-                </label>
-                <input
-                  type={tab === 'email' ? 'email' : 'tel'}
-                  value={tab === 'email' ? email : phone}
-                  onChange={e => { tab === 'email' ? setEmail(e.target.value) : setPhone(e.target.value); setSendError('') }}
-                  onKeyDown={e => e.key === 'Enter' && sendCode()}
-                  placeholder={tab === 'email' ? 'your@email.com' : '+44 7700 900000'}
-                  autoFocus
-                  style={{
-                    width:'100%', boxSizing:'border-box',
-                    border:'1.5px solid #d1d5db', borderRadius:10,
-                    padding:'12px 14px', fontSize:15, outline:'none', color:'#111', background:'#fff',
-                    marginBottom:8, transition:'border-color .15s',
-                  }}
-                  onFocus={e => (e.target.style.borderColor = '#10b981')}
-                  onBlur={e  => (e.target.style.borderColor = '#d1d5db')}
-                />
-                {tab === 'phone' && (
-                  <p style={{ fontSize:11, color:'#9ca3af', marginBottom:8 }}>UK numbers are converted automatically (07… → +447…)</p>
+                {tab === 'email' ? (
+                  <>
+                    <label style={{ display:'block', fontSize:12, fontWeight:600, color:'#374151', marginBottom:6 }}>Email address</label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={e => { setEmail(e.target.value); setSendError('') }}
+                      onKeyDown={e => e.key === 'Enter' && sendCode()}
+                      placeholder="your@email.com"
+                      autoFocus
+                      style={{ width:'100%', boxSizing:'border-box', border:'1.5px solid #d1d5db', borderRadius:10, padding:'12px 14px', fontSize:15, outline:'none', color:'#111', background:'#fff', marginBottom:8, transition:'border-color .15s' }}
+                      onFocus={e => (e.target.style.borderColor = '#10b981')}
+                      onBlur={e  => (e.target.style.borderColor = '#d1d5db')}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <label style={{ display:'block', fontSize:12, fontWeight:600, color:'#374151', marginBottom:6 }}>Phone number</label>
+                    <div style={{ display:'flex', gap:8, marginBottom:8 }}>
+                      {/* Country code dropdown */}
+                      <div style={{ position:'relative', flexShrink:0 }}>
+                        <select
+                          value={countryCode}
+                          onChange={e => setCountryCode(e.target.value)}
+                          style={{
+                            height:'100%', border:'1.5px solid #d1d5db', borderRadius:10,
+                            padding:'12px 36px 12px 12px', fontSize:14, outline:'none',
+                            background:'#fff', color:'#111', cursor:'pointer', fontFamily:'Inter, sans-serif',
+                          }}
+                        >
+                          {COUNTRY_CODES.map(c => (
+                            <option key={c.flag + c.code} value={c.code}>
+                              {c.flag} {c.code}
+                            </option>
+                          ))}
+                        </select>
+                        {/* Custom caret */}
+                        <span style={{ position:'absolute', right:10, top:'50%', transform:'translateY(-50%)', pointerEvents:'none', fontSize:10, color:'#6b7280' }}>▾</span>
+                      </div>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={e => { setPhone(e.target.value); setSendError('') }}
+                        onKeyDown={e => e.key === 'Enter' && sendCode()}
+                        placeholder="7700 900000"
+                        autoFocus
+                        style={{ flex:1, border:'1.5px solid #d1d5db', borderRadius:10, padding:'12px 14px', fontSize:15, outline:'none', color:'#111', background:'#fff', transition:'border-color .15s' }}
+                        onFocus={e => (e.target.style.borderColor = '#10b981')}
+                        onBlur={e  => (e.target.style.borderColor = '#d1d5db')}
+                      />
+                    </div>
+                  </>
                 )}
+
                 {sendError && <p style={{ fontSize:12, color:'#dc2626', marginBottom:10 }}>{sendError}</p>}
+
                 <button
                   onClick={sendCode}
                   disabled={sending || !(tab === 'email' ? email.trim() : phone.trim())}
@@ -186,10 +235,7 @@ export default function Verify() {
                 </button>
 
                 <div style={{ textAlign:'center', marginTop:20 }}>
-                  <button
-                    onClick={() => navigate('/results', { state: { fileName, sessionId, jobCount } })}
-                    style={{ background:'none', border:'none', color:'#9ca3af', fontSize:12, cursor:'pointer', textDecoration:'underline' }}
-                  >
+                  <button onClick={() => navigate('/results', { state: { fileName, sessionId, jobCount } })} style={{ background:'none', border:'none', color:'#9ca3af', fontSize:12, cursor:'pointer', textDecoration:'underline' }}>
                     Skip for now
                   </button>
                 </div>
@@ -199,12 +245,9 @@ export default function Verify() {
                 <p style={{ fontSize:13, color:'#374151', marginBottom:20, lineHeight:1.6 }}>
                   {tab === 'email'
                     ? <>Code sent to <strong>{email}</strong>.</>
-                    : <>Code sent via SMS to <strong>{toE164(phone)}</strong>.</>
+                    : <>Code sent via SMS to <strong>{fullPhone}</strong>.</>
                   }
-                  <button
-                    onClick={resetCode}
-                    style={{ background:'none', border:'none', color:'#10b981', fontSize:13, fontWeight:600, cursor:'pointer', padding:0, marginLeft:6 }}
-                  >
+                  <button onClick={resetCode} style={{ background:'none', border:'none', color:'#10b981', fontSize:13, fontWeight:600, cursor:'pointer', padding:0, marginLeft:6 }}>
                     Change
                   </button>
                 </p>
@@ -218,12 +261,7 @@ export default function Verify() {
                   maxLength={6}
                   inputMode="numeric"
                   autoFocus
-                  style={{
-                    width:'100%', boxSizing:'border-box',
-                    border:`1.5px solid ${codeError ? '#fca5a5' : '#d1d5db'}`, borderRadius:10,
-                    padding:'12px 14px', fontSize:28, fontWeight:700, letterSpacing:'0.3em',
-                    outline:'none', color:'#111', background:'#fff', textAlign:'center', marginBottom:8,
-                  }}
+                  style={{ width:'100%', boxSizing:'border-box', border:`1.5px solid ${codeError ? '#fca5a5' : '#d1d5db'}`, borderRadius:10, padding:'12px 14px', fontSize:28, fontWeight:700, letterSpacing:'0.3em', outline:'none', color:'#111', background:'#fff', textAlign:'center', marginBottom:8 }}
                 />
                 {codeError && <p style={{ fontSize:12, color:'#dc2626', marginBottom:10 }}>{codeError}</p>}
 
