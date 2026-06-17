@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 
 const CATEGORIES = [
   'Construction & Trades', 'Logistics & Warehousing', 'Hospitality & Cleaning',
@@ -91,13 +92,28 @@ export default function Landing() {
   async function handleFile(f: File) {
     setFileName(f.name)
     const sessionId = crypto.randomUUID()
-    const fileText = await new Promise<string>((resolve) => {
+    const mediaType = f.type || 'application/pdf'
+
+    // Read as base64 so the edge function can send it to Claude as a PDF document
+    const base64 = await new Promise<string>((resolve) => {
       const reader = new FileReader()
-      reader.onload = (e) => resolve((e.target?.result as string) ?? '')
+      reader.onload = (e) => {
+        const result = (e.target?.result as string) ?? ''
+        // DataURL is "data:<type>;base64,<data>" — strip the prefix
+        resolve(result.includes(',') ? result.split(',')[1] : result)
+      }
       reader.onerror = () => resolve('')
-      reader.readAsText(f)
+      reader.readAsDataURL(f)
     })
-    navigate('/analyse', { state: { fileName: f.name, sessionId, fileText: fileText.slice(0, 3000) } })
+
+    // Store in sessionStorage to avoid bloating navigate state
+    sessionStorage.setItem(`cv-${sessionId}`, JSON.stringify({ base64, mediaType }))
+
+    // Upload the raw file to Supabase Storage (best-effort — bucket must exist)
+    supabase.storage.from('cvs').upload(`${sessionId}/${f.name}`, f, { upsert: true })
+      .then(({ error }) => { if (error) console.warn('CV storage upload:', error.message) })
+
+    navigate('/analyse', { state: { fileName: f.name, sessionId } })
   }
 
   function onDrop(e: React.DragEvent) {

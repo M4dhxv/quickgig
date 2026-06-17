@@ -51,6 +51,8 @@ export default function Dashboard() {
 
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [profileOpen, setProfileOpen] = useState(false)
+  const [cvFileName, setCvFileName] = useState(state?.fileName ?? '')
+  const [cvViewUrl, setCvViewUrl] = useState('')
 
   const chatEndRef = useRef<HTMLDivElement>(null)
   const dgRef = useRef<DeepgramSTT | null>(null)
@@ -101,8 +103,15 @@ export default function Dashboard() {
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
 
   useEffect(() => {
-    supabase.from('sessions').select('profile').eq('id', sessionId).single()
-      .then(({ data }) => { if (data?.profile) setProfile(data.profile as UserProfile) })
+    supabase.from('sessions').select('profile, file_name, cv_path').eq('id', sessionId).single()
+      .then(({ data }) => {
+        if (data?.profile) setProfile(data.profile as UserProfile)
+        if (data?.file_name) setCvFileName(data.file_name)
+        if (data?.cv_path) {
+          const { data: signed } = supabase.storage.from('cvs').getPublicUrl(data.cv_path)
+          if (signed?.publicUrl) setCvViewUrl(signed.publicUrl)
+        }
+      })
   }, [sessionId])
 
   async function send(text: string) {

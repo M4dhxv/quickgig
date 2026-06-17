@@ -6,11 +6,13 @@ create table if not exists sessions (
   file_name   text,
   search_term text,
   profile     jsonb,
+  cv_path     text,
   created_at  timestamptz default now()
 );
 
--- Run this if the table already exists:
+-- Run these if the table already exists:
 -- alter table sessions add column if not exists profile jsonb;
+-- alter table sessions add column if not exists cv_path text;
 
 -- Cached Adzuna job results per session
 create table if not exists job_results (

@@ -12,10 +12,9 @@ const STEPS = [
 export default function Analyse() {
   const navigate = useNavigate()
   const location = useLocation()
-  const state = location.state as { fileName?: string; sessionId?: string; fileText?: string } | null
+  const state = location.state as { fileName?: string; sessionId?: string } | null
   const fileName  = state?.fileName  ?? 'your CV'
   const sessionId = state?.sessionId ?? crypto.randomUUID()
-  const fileText  = state?.fileText  ?? ''
 
   const [step, setStep] = useState(0)
   const [done, setDone] = useState<number[]>([])
@@ -24,16 +23,27 @@ export default function Analyse() {
     let jobCount = 0
     const timers: ReturnType<typeof setTimeout>[] = []
 
-    // Create session row
+    // Create session row immediately
     supabase.from('sessions').upsert({ id: sessionId, file_name: fileName }, { onConflict: 'id', ignoreDuplicates: true }).then(() => {})
 
-    // Parse CV and save profile
-    supabase.functions.invoke('parse-cv', { body: { fileName, text: fileText } })
-      .then(({ data }) => {
-        if (data?.profile) supabase.from('sessions').update({ profile: data.profile }).eq('id', sessionId).then(() => {})
-      }).catch(() => {})
+    // Read base64 from sessionStorage then call parse-cv
+    const cvJson = sessionStorage.getItem(`cv-${sessionId}`)
+    const { base64, mediaType } = cvJson ? JSON.parse(cvJson) : {}
 
-    // Fetch real job count
+    supabase.functions.invoke('parse-cv', { body: { fileName, base64, mediaType } })
+      .then(({ data }) => {
+        if (data?.profile) {
+          supabase.from('sessions')
+            .update({ profile: data.profile, cv_path: `${sessionId}/${fileName}` })
+            .eq('id', sessionId)
+            .then(() => {})
+        }
+        // Clean up sessionStorage — data is now in Supabase
+        sessionStorage.removeItem(`cv-${sessionId}`)
+      })
+      .catch(() => { sessionStorage.removeItem(`cv-${sessionId}`) })
+
+    // Fetch real job count in parallel
     supabase.functions.invoke('search-jobs', { body: { what: 'warehouse logistics', page: 1, perPage: 1 } })
       .then(({ data }) => { if (data?.count) jobCount = data.count }).catch(() => {})
 
@@ -47,8 +57,9 @@ export default function Analyse() {
       setDone([0, 1, 2, 3])
       setTimeout(() => navigate('/results', { state: { fileName, sessionId, jobCount } }), 600)
     }, STEPS.length * 1400 + 200))
+
     return () => timers.forEach(clearTimeout)
-  }, [navigate, fileName, sessionId, fileText])
+  }, [navigate, fileName, sessionId])
 
   const progress = Math.min(100, ((step + 1) / STEPS.length) * 100)
 
@@ -60,7 +71,6 @@ export default function Analyse() {
           100% { transform: scale(2); opacity: 0; }
         }
         @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes bar { from { width: 0% } to { width: 100% } }
         .ring { animation: pulse-ring 1.4s ease-out infinite; }
         .spin { animation: spin 1.2s linear infinite; }
       `}</style>
@@ -84,14 +94,7 @@ export default function Analyse() {
           const isDone = done.includes(i)
           const isActive = step === i && !isDone
           return (
-            <div
-              key={i}
-              style={{
-                display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px 0',
-                opacity: i > step ? 0.35 : 1,
-                transition: 'opacity 0.4s',
-              }}
-            >
+            <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px 0', opacity: i > step ? 0.35 : 1, transition: 'opacity 0.4s' }}>
               <div style={{
                 width: 24, height: 24, borderRadius: '50%', flexShrink: 0, marginTop: 1,
                 background: isDone ? '#10b981' : isActive ? '#fef3c7' : 'transparent',
@@ -113,10 +116,7 @@ export default function Analyse() {
       </div>
 
       <div style={{ width: '100%', maxWidth: 420, height: 3, background: '#e5e7eb', borderRadius: 2, overflow: 'hidden', marginBottom: 16 }}>
-        <div style={{
-          height: '100%', background: '#10b981', borderRadius: 2,
-          width: `${progress}%`, transition: 'width 1.2s ease',
-        }} />
+        <div style={{ height: '100%', background: '#10b981', borderRadius: 2, width: `${progress}%`, transition: 'width 1.2s ease' }} />
       </div>
 
       <p style={{ fontSize: 12, color: '#9ca3af' }}>
