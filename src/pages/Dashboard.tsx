@@ -50,6 +50,7 @@ export default function Dashboard() {
   const [speakingReply, setSpeakingReply] = useState('')
 
   const [profile, setProfile] = useState<UserProfile | null>(null)
+  const [profileLocation, setProfileLocation] = useState('')
   const [profileOpen, setProfileOpen] = useState(false)
   const [cvFileName, setCvFileName] = useState(state?.fileName ?? '')
   const [cvViewUrl, setCvViewUrl] = useState('')
@@ -63,8 +64,9 @@ export default function Dashboard() {
     setLoading(true)
     setError('')
     try {
-      const { jobs: raw, count } = await searchJobsMulti(term || 'warehouse logistics', '', pg, 10)
-      const scored = raw.map(j => ({ ...j, score: matchScore(j) }))
+      const city = profileLocation.split(',')[0].trim()
+      const { jobs: raw, count } = await searchJobsMulti(term || 'warehouse logistics', city, pg, 10)
+      const scored = raw.map(j => ({ ...j, score: matchScore(j, profileLocation) }))
         .sort((a, b) => b.score - a.score)
       setJobs(scored)
       setTotal(count)
@@ -96,7 +98,7 @@ export default function Dashboard() {
     } finally {
       setLoading(false)
     }
-  }, [sessionId])
+  }, [sessionId, profileLocation])
 
   useEffect(() => { fetchJobs(search, page) }, [fetchJobs, search, page])
 
@@ -105,7 +107,10 @@ export default function Dashboard() {
   useEffect(() => {
     supabase.from('sessions').select('profile, file_name, cv_path').eq('id', sessionId).single()
       .then(({ data }) => {
-        if (data?.profile) setProfile(data.profile as UserProfile)
+        if (data?.profile) {
+          setProfile(data.profile as UserProfile)
+          if (data.profile.location) setProfileLocation(data.profile.location)
+        }
         if (data?.file_name) setCvFileName(data.file_name)
         if (data?.cv_path) {
           const { data: signed } = supabase.storage.from('cvs').getPublicUrl(data.cv_path)
@@ -351,6 +356,12 @@ export default function Dashboard() {
                       {j.contract_time && <span style={{ fontSize:11, background:'#f3f4f6', color:'#6b7280', padding:'2px 8px', borderRadius:100 }}>{j.contract_time.replace('_', '-')}</span>}
                       {j.contract_type && <span style={{ fontSize:11, background:'#f3f4f6', color:'#6b7280', padding:'2px 8px', borderRadius:100 }}>{j.contract_type}</span>}
                       {(() => { const b = getMatchBreakdown(j); return (<>
+                        {(() => {
+                          const city = profileLocation.split(',')[0].toLowerCase().trim()
+                          return city && j.location.toLowerCase().includes(city)
+                            ? <span style={{ fontSize:10, fontWeight:700, background:'#eff6ff', color:'#1d4ed8', border:'1px solid #bfdbfe', padding:'2px 7px', borderRadius:100 }}>📍 Near you</span>
+                            : null
+                        })()}
                         {b.skills   && <span style={{ fontSize:10, fontWeight:700, background:'#f0fdf4', color:'#059669', border:'1px solid #a7f3d0', padding:'2px 7px', borderRadius:100 }}>⚙ Skills</span>}
                         {b.certs    && <span style={{ fontSize:10, fontWeight:700, background:'#f0fdf4', color:'#059669', border:'1px solid #a7f3d0', padding:'2px 7px', borderRadius:100 }}>✓ Certs</span>}
                         {b.salary   && <span style={{ fontSize:10, fontWeight:700, background:'#f0fdf4', color:'#059669', border:'1px solid #a7f3d0', padding:'2px 7px', borderRadius:100 }}>£ Salary</span>}

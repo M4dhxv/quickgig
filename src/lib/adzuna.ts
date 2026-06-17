@@ -125,6 +125,13 @@ export function timeAgo(iso: string): string {
   return d === 1 ? '1d ago' : `${d}d ago`
 }
 
-export function matchScore(job: AdzunaJob): number {
-  return getMatchBreakdown(job).score
+export function matchScore(job: AdzunaJob, userLocation?: string): number {
+  let { score } = getMatchBreakdown(job)
+  if (userLocation) {
+    const city = userLocation.split(',')[0].toLowerCase().trim()
+    if (city && job.location.toLowerCase().includes(city)) {
+      score = Math.min(99, score + 25)
+    }
+  }
+  return score
 }
