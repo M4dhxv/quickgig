@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 
 const ROLES = [
   { title: 'Senior Warehouse Manager', company: 'Clipper Logistics', location: 'Leeds, LS1', salary: '£34,000 – £40,000', score: 96, badge: 'Top Match' },
@@ -54,6 +54,8 @@ function ScoreBadge({ score }: { score: number }) {
 
 export default function Results() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const jobCount = (location.state as { jobCount?: number })?.jobCount ?? ROLES.length
   const [selected, setSelected] = useState<string | null>(null)
 
   return (
@@ -85,7 +87,7 @@ export default function Results() {
             ✦ Sarah found your matches
           </div>
           <h1 style={{ fontSize: 38, fontWeight: 800, letterSpacing: '-1px', marginBottom: 12 }}>
-            <span style={{ color: '#10b981' }}>{ROLES.length} roles</span> matched your profile
+            <span style={{ color: '#10b981' }}>{jobCount.toLocaleString()} roles</span> matched your profile
           </h1>
           <p style={{ color: '#6b7280', fontSize: 15, lineHeight: 1.6 }}>
             Unlock your results to see every match, chat with Sarah<br />about each role, and start applying.

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 
 const STEPS = [
   { label: 'Reading your CV', sub: 'Extracting skills, experience and qualifications' },
@@ -17,7 +18,14 @@ export default function Analyse() {
   const [done, setDone] = useState<number[]>([])
 
   useEffect(() => {
+    let jobCount = 0
     const timers: ReturnType<typeof setTimeout>[] = []
+
+    // Fetch real count in parallel with the animation
+    supabase.functions.invoke('search-jobs', {
+      body: { what: 'warehouse logistics', page: 1, perPage: 1 },
+    }).then(({ data }) => { if (data?.count) jobCount = data.count }).catch(() => {})
+
     STEPS.forEach((_, i) => {
       timers.push(setTimeout(() => {
         setStep(i)
@@ -26,7 +34,7 @@ export default function Analyse() {
     })
     timers.push(setTimeout(() => {
       setDone([0, 1, 2, 3])
-      setTimeout(() => navigate('/results', { state: { fileName } }), 600)
+      setTimeout(() => navigate('/results', { state: { fileName, jobCount } }), 600)
     }, STEPS.length * 1400 + 200))
     return () => timers.forEach(clearTimeout)
   }, [navigate, fileName])

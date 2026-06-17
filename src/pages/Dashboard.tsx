@@ -328,7 +328,7 @@ export default function Dashboard() {
                       >{savedIds.has(j.id) ? '♥ Saved' : '♡ Save'}</button>
                       <button
                         style={{ fontSize:12, fontWeight:600, color:'#10b981', background:'none', border:'1px solid #a7f3d0', borderRadius:7, padding:'4px 10px', cursor:'pointer' }}
-                        onClick={e => { e.stopPropagation(); send(`Tell me about the ${j.title} role at ${j.company} and how I should prep`) }}
+                        onClick={e => { e.stopPropagation(); send(`Help me prep for the ${j.title} role at ${j.company} (${j.location}). Salary: ${formatSalary(j.salary_min, j.salary_max)}. Here's the job description: ${j.description.slice(0, 500)}`) }}
                       >Ask Sarah</button>
                       <a
                         href={j.redirect_url}
