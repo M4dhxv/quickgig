@@ -33,12 +33,10 @@ export default function Analyse() {
     supabase.functions.invoke('parse-cv', { body: { fileName, base64, mediaType } })
       .then(({ data }) => {
         if (data?.profile) {
-          supabase.from('sessions')
-            .update({ profile: data.profile, cv_path: `${sessionId}/${fileName}` })
-            .eq('id', sessionId)
-            .then(() => {})
+          // Save profile first — separate from cv_path so a missing column can't block it
+          supabase.from('sessions').update({ profile: data.profile }).eq('id', sessionId).then(() => {})
+          supabase.from('sessions').update({ cv_path: `${sessionId}/${fileName}` }).eq('id', sessionId).then(() => {})
         }
-        // Clean up sessionStorage — data is now in Supabase
         sessionStorage.removeItem(`cv-${sessionId}`)
       })
       .catch(() => { sessionStorage.removeItem(`cv-${sessionId}`) })
