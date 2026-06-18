@@ -121,6 +121,9 @@ export default function Dashboard() {
   const [profileOpen, setProfileOpen] = useState(false)
   const [cvFileName, setCvFileName] = useState(state?.fileName ?? '')
   const [cvViewUrl, setCvViewUrl] = useState('')
+  const [plan, setPlan] = useState<'free' | 'active'>('free')
+  const [portalLoading, setPortalLoading] = useState(false)
+  const [checkoutLoading, setCheckoutLoading] = useState('')
 
   const chatEndRef = useRef<HTMLDivElement>(null)
   const dgRef = useRef<DeepgramSTT | null>(null)
@@ -175,12 +178,13 @@ export default function Dashboard() {
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
 
   useEffect(() => {
-    supabase.from('sessions').select('profile, file_name, cv_path').eq('id', sessionId).single()
+    supabase.from('sessions').select('profile, file_name, cv_path, plan').eq('id', sessionId).single()
       .then(({ data }) => {
         if (data?.profile) {
           setProfile(data.profile as UserProfile)
           if (data.profile.location) setProfileLocation(data.profile.location)
         }
+        if (data?.plan === 'active') setPlan('active')
         if (data?.file_name) setCvFileName(data.file_name)
         if (data?.cv_path) {
           const { data: signed } = supabase.storage.from('cvs').getPublicUrl(data.cv_path)
@@ -284,6 +288,30 @@ export default function Dashboard() {
     e.preventDefault()
     setSearch(searchInput)
     setPage(1)
+  }
+
+  async function openCheckout(priceId: string) {
+    setCheckoutLoading(priceId)
+    try {
+      const { data } = await supabase.functions.invoke('create-checkout', {
+        body: { priceId, sessionId, email: profile?.email },
+      })
+      if (data?.url) window.location.href = data.url
+    } finally {
+      setCheckoutLoading('')
+    }
+  }
+
+  async function openPortal() {
+    setPortalLoading(true)
+    try {
+      const { data } = await supabase.functions.invoke('create-portal', {
+        body: { sessionId },
+      })
+      if (data?.url) window.location.href = data.url
+    } finally {
+      setPortalLoading(false)
+    }
   }
 
   const topBrands = useMemo(() => {
@@ -645,6 +673,38 @@ export default function Dashboard() {
                     </div>
                   </div>
                 )}
+
+                {/* Subscription */}
+                <div style={{ borderTop:'1px solid #f3f4f6', paddingTop:20 }}>
+                  <div style={{ fontSize:11, fontWeight:700, color:'#9ca3af', textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:12 }}>Subscription</div>
+                  {plan === 'active' ? (
+                    <div>
+                      <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:12 }}>
+                        <span style={{ width:8, height:8, borderRadius:'50%', background:'#10b981', display:'inline-block' }} />
+                        <span style={{ fontSize:13, fontWeight:600, color:'#059669' }}>Active — Graft Subscription</span>
+                      </div>
+                      <button
+                        onClick={openPortal}
+                        disabled={portalLoading}
+                        style={{ width:'100%', padding:'9px 0', border:'1px solid #e5e7eb', borderRadius:9, fontSize:13, fontWeight:600, color:'#374151', background:'#fff', cursor:'pointer', opacity: portalLoading ? 0.6 : 1 }}
+                      >{portalLoading ? 'Loading…' : 'Manage / Cancel subscription'}</button>
+                    </div>
+                  ) : (
+                    <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+                      <p style={{ fontSize:12, color:'#6b7280', margin:'0 0 4px' }}>Unlock unlimited job matches and priority support.</p>
+                      <button
+                        onClick={() => openCheckout('price_1TjbbqCX4iU4nm420REMahwK')}
+                        disabled={!!checkoutLoading}
+                        style={{ width:'100%', padding:'9px 0', border:'1.5px solid #10b981', borderRadius:9, fontSize:13, fontWeight:700, color:'#10b981', background:'#f0fdf4', cursor:'pointer', opacity: checkoutLoading === 'price_1TjbbqCX4iU4nm420REMahwK' ? 0.6 : 1 }}
+                      >{checkoutLoading === 'price_1TjbbqCX4iU4nm420REMahwK' ? 'Loading…' : '$7.99 / week'}</button>
+                      <button
+                        onClick={() => openCheckout('price_1TjbcsCX4iU4nm425XmOflkS')}
+                        disabled={!!checkoutLoading}
+                        style={{ width:'100%', padding:'9px 0', border:'1.5px solid #10b981', borderRadius:9, fontSize:13, fontWeight:700, color:'#fff', background:'#10b981', cursor:'pointer', opacity: checkoutLoading === 'price_1TjbcsCX4iU4nm425XmOflkS' ? 0.6 : 1 }}
+                      >{checkoutLoading === 'price_1TjbcsCX4iU4nm425XmOflkS' ? 'Loading…' : '$19.99 / month — save 38%'}</button>
+                    </div>
+                  )}
+                </div>
 
               </div>
             )}
