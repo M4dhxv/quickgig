@@ -214,7 +214,7 @@ export default function Dashboard() {
     const city = loc.split(',')[0].trim()
     for (const [sector, term] of Object.entries(SECTOR_KEYWORDS)) {
       try {
-        const { jobs: raw } = await searchJobs(term, city, 1, 20)
+        const { jobs: raw } = await searchJobsMulti(term, city, 1, 20)
         const local = city ? raw.filter(j => j.location.toLowerCase().includes(city.toLowerCase())) : raw
         const scored = local
           .map(j => ({ ...j, score: matchScore(j, loc) }))
