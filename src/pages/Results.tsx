@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 
 const ROLES = [
   { title: 'Senior Warehouse Manager', company: 'Clipper Logistics', location: 'Leeds, LS1', salary: '£34,000 – £40,000', score: 96, badge: 'Top Match' },
@@ -14,28 +15,30 @@ const ROLES = [
 
 const PLANS = [
   {
-    id: 'basic',
-    name: 'BASIC',
-    price: '£4.99',
-    period: 'one-off',
+    id: 'weekly',
+    priceId: 'price_1TjbbqCX4iU4nm420REMahwK',
+    name: 'WEEKLY',
+    price: '$7.99',
+    period: 'per week',
     color: '#fff',
     textColor: '#111',
     borderColor: '#e5e7eb',
-    features: ['Top 10 matched roles', 'Match score per role', 'Apply directly'],
-    cta: 'Get Basic',
+    features: ['All matched roles', 'Match score per role', 'Apply directly'],
+    cta: 'Start Weekly',
     ctaBg: '#111',
     ctaColor: '#fff',
   },
   {
-    id: 'pro',
-    name: 'PRO',
-    price: '£9.99',
+    id: 'monthly',
+    priceId: 'price_1TjbcsCX4iU4nm425XmOflkS',
+    name: 'MONTHLY',
+    price: '$19.99',
     period: 'per month',
     color: '#10b981',
     textColor: '#fff',
     borderColor: '#10b981',
-    features: ['Unlimited matched roles', 'Sarah chat — prep for every interview', 'Salary insights & negotiation tips', 'New matches as they\'re posted', '1-click apply'],
-    cta: 'Unlock Pro',
+    features: ['All matched roles', 'Sarah chat — prep for every interview', 'Salary insights & negotiation tips', 'New matches as posted', 'Save 38% vs weekly'],
+    cta: 'Unlock Monthly',
     ctaBg: '#fff',
     ctaColor: '#10b981',
     popular: true,
@@ -60,6 +63,19 @@ export default function Results() {
   const sessionId = state?.sessionId
   const fileName  = state?.fileName
   const [selected, setSelected] = useState<string | null>(null)
+  const [checkoutLoading, setCheckoutLoading] = useState('')
+
+  async function openCheckout(priceId: string) {
+    setCheckoutLoading(priceId)
+    try {
+      const { data } = await supabase.functions.invoke('create-checkout', {
+        body: { priceId, sessionId },
+      })
+      if (data?.url) window.location.href = data.url
+    } finally {
+      setCheckoutLoading('')
+    }
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: '#fafaf9', paddingBottom: 80 }}>
@@ -145,14 +161,17 @@ export default function Results() {
                 ))}
               </ul>
               <button
+                disabled={checkoutLoading === plan.priceId}
                 style={{
                   width: '100%', background: plan.ctaBg, color: plan.ctaColor,
                   border: 'none', borderRadius: 9, padding: '11px 0', fontSize: 14,
-                  fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                  fontWeight: 700, cursor: checkoutLoading ? 'default' : 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                  opacity: checkoutLoading === plan.priceId ? 0.6 : 1,
                 }}
-                onClick={() => navigate('/dashboard', { state: { fileName, sessionId } })}
+                onClick={() => openCheckout(plan.priceId)}
               >
-                {plan.cta} {plan.popular ? '→' : ''}
+                {checkoutLoading === plan.priceId ? 'Loading…' : `${plan.cta} ${plan.popular ? '→' : ''}`}
               </button>
             </div>
           ))}

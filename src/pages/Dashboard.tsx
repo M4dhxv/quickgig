@@ -5,57 +5,81 @@ import { searchJobsMulti, formatSalary, timeAgo, matchScore, getMatchBreakdown, 
 import { textToSpeech, DeepgramSTT } from '../lib/deepgram'
 import { askSarah, type UserProfile } from '../lib/claude'
 
-function getLogoUrl(company: string): string {
-  const k = company.toLowerCase()
-  const map: [string, string][] = [
-    ['amazon', 'amazon.com'], ['walmart', 'walmart.com'], ['target', 'target.com'],
-    ['home depot', 'homedepot.com'], ["lowe's", 'lowes.com'], ['lowes', 'lowes.com'],
-    ['cvs health', 'cvs.com'], ['cvs', 'cvs.com'], ['walgreens', 'walgreens.com'], ['kroger', 'kroger.com'],
-    ['dollar general', 'dollargeneral.com'], ['dollar tree', 'dollartree.com'],
-    ['mcdonald', 'mcdonalds.com'], ['wendy', 'wendys.com'],
-    ['burger king', 'burgerking.com'], ['chipotle', 'chipotle.com'],
-    ['panera', 'panerabread.com'], ['papa john', 'papajohns.com'],
-    ['subway', 'subway.com'], ['kfc', 'kfc.com'], ['taco bell', 'tacobell.com'],
-    ['domino', 'dominos.com'], ['pizza hut', 'pizzahut.com'],
-    ['five guys', 'fiveguys.com'], ['shake shack', 'shakeshack.com'],
-    ['sweetgreen', 'sweetgreen.com'], ['wingstop', 'wingstop.com'],
-    ['tesco', 'tesco.com'], ['asda', 'asda.com'], ['morrisons', 'morrisons.com'],
-    ['sainsbury', 'sainsburys.co.uk'], ['aldi', 'aldi.co.uk'], ['lidl', 'lidl.co.uk'],
-    ['waitrose', 'waitrose.com'], ['marks and spencer', 'marksandspencer.com'], ['m&s', 'marksandspencer.com'],
-    ['primark', 'primark.com'], ['boots', 'boots.com'], ['superdrug', 'superdrug.com'],
-    ['costa', 'costa.co.uk'], ['starbucks', 'starbucks.com'], ['whitbread', 'whitbread.com'],
-    ['nando', 'nandos.com'], ['greggs', 'greggs.co.uk'], ['pret', 'pret.com'],
-    ['leon', 'leon.co.uk'], ['wagamama', 'wagamama.com'],
-    ['deliveroo', 'deliveroo.com'], ['uber', 'uber.com'], ['gopuff', 'gopuff.com'],
-    ['dhl', 'dhl.com'], ['fedex', 'fedex.com'], ['ups', 'ups.com'],
-    ['royal mail', 'royalmail.com'], ['evri', 'evri.com'], ['yodel', 'yodel.co.uk'],
-    ['hilton', 'hilton.com'], ['marriott', 'marriott.com'],
-    ['hyatt', 'hyatt.com'], ['ihg', 'ihg.com'], ['wyndham', 'wyndham.com'],
-    ['aramark', 'aramark.com'], ['sodexo', 'sodexo.com'], ['compass', 'compass-group.com'],
-    ['mitie', 'mitie.com'], ['g4s', 'g4s.com'], ['securitas', 'securitas.com'],
-    ['woolworths', 'woolworths.com.au'], ['coles', 'coles.com.au'],
-    ['bunnings', 'bunnings.com.au'], ['loblaws', 'loblaws.ca'],
-  ]
-  const match = map.find(([key]) => k.includes(key))
-  return match ? `https://logo.clearbit.com/${match[1]}` : ''
+const KNOWN_DOMAINS: [string, string][] = [
+  ['amazon', 'amazon.com'], ['walmart', 'walmart.com'], ['target', 'target.com'],
+  ['home depot', 'homedepot.com'], ["lowe's", 'lowes.com'], ['lowes', 'lowes.com'],
+  ['cvs health', 'cvs.com'], ['cvs', 'cvs.com'], ['walgreens', 'walgreens.com'], ['kroger', 'kroger.com'],
+  ['dollar general', 'dollargeneral.com'], ['dollar tree', 'dollartree.com'],
+  ['mcdonald', 'mcdonalds.com'], ['wendy', 'wendys.com'],
+  ['burger king', 'burgerking.com'], ['chipotle', 'chipotle.com'],
+  ['panera', 'panerabread.com'], ['papa john', 'papajohns.com'],
+  ['subway', 'subway.com'], ['kfc', 'kfc.com'], ['taco bell', 'tacobell.com'],
+  ['domino', 'dominos.com'], ['pizza hut', 'pizzahut.com'],
+  ['five guys', 'fiveguys.com'], ['shake shack', 'shakeshack.com'],
+  ['sweetgreen', 'sweetgreen.com'], ['wingstop', 'wingstop.com'],
+  ['tesco', 'tesco.com'], ['asda', 'asda.com'], ['morrisons', 'morrisons.com'],
+  ['sainsbury', 'sainsburys.co.uk'], ['aldi', 'aldi.co.uk'], ['lidl', 'lidl.co.uk'],
+  ['waitrose', 'waitrose.com'], ['marks and spencer', 'marksandspencer.com'], ['m&s', 'marksandspencer.com'],
+  ['primark', 'primark.com'], ['boots', 'boots.com'], ['superdrug', 'superdrug.com'],
+  ['costa', 'costa.co.uk'], ['starbucks', 'starbucks.com'], ['whitbread', 'whitbread.com'],
+  ['nando', 'nandos.com'], ['greggs', 'greggs.co.uk'], ['pret', 'pret.com'],
+  ['leon', 'leon.co.uk'], ['wagamama', 'wagamama.com'],
+  ['deliveroo', 'deliveroo.com'], ['uber', 'uber.com'], ['gopuff', 'gopuff.com'],
+  ['dhl', 'dhl.com'], ['fedex', 'fedex.com'], ['ups', 'ups.com'],
+  ['royal mail', 'royalmail.com'], ['evri', 'evri.com'], ['yodel', 'yodel.co.uk'],
+  ['hilton', 'hilton.com'], ['marriott', 'marriott.com'],
+  ['hyatt', 'hyatt.com'], ['ihg', 'ihg.com'], ['wyndham', 'wyndham.com'],
+  ['aramark', 'aramark.com'], ['sodexo', 'sodexo.com'], ['compass', 'compass-group.com'],
+  ['mitie', 'mitie.com'], ['g4s', 'g4s.com'], ['securitas', 'securitas.com'],
+  ['woolworths', 'woolworths.com.au'], ['coles', 'coles.com.au'],
+  ['bunnings', 'bunnings.com.au'], ['loblaws', 'loblaws.ca'],
+]
+
+const ATS_PLATFORMS = [
+  'greenhouse.io', 'lever.co', 'myworkdayjobs.com', 'workday.com',
+  'workable.com', 'bamboohr.com', 'icims.com', 'smartrecruiters.com',
+  'adzuna.com', 'reed.co.uk', 'totaljobs.com', 'jobrapido.com',
+  'amazon.jobs', 'taleo.net', 'successfactors.com',
+]
+
+function faviconUrl(domain: string): string {
+  return `https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://${domain}&size=128`
 }
 
-function CompanyLogo({ company, size = 48 }: { company: string; size?: number }) {
+function getLogoUrl(company: string, redirectUrl?: string): string {
+  const k = company.toLowerCase()
+  const known = KNOWN_DOMAINS.find(([key]) => k.includes(key))
+  if (known) return faviconUrl(known[1])
+
+  if (redirectUrl) {
+    try {
+      const hostname = new URL(redirectUrl).hostname.replace(/^www\./, '')
+      if (ATS_PLATFORMS.some(p => hostname.includes(p))) return ''
+      const parts = hostname.split('.')
+      const twoLevel = ['co.uk','com.au','co.nz','co.za','com.br','co.in']
+      const last2 = parts.slice(-2).join('.')
+      const root = twoLevel.includes(last2) ? parts.slice(-3).join('.') : last2
+      return faviconUrl(root)
+    } catch { /* ignore */ }
+  }
+  return ''
+}
+
+function CompanyLogo({ company, redirectUrl, size = 48 }: { company: string; redirectUrl?: string; size?: number }) {
   const [err, setErr] = useState(false)
-  const url = getLogoUrl(company)
+  const url = getLogoUrl(company, redirectUrl)
   const initials = company.replace(/[^a-zA-Z ]/g, '').split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase() || '?'
   const palette = ['#10b981','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#ec4899','#06b6d4','#84cc16']
   const color = palette[company.split('').reduce((a, c) => a + c.charCodeAt(0), 0) % palette.length]
-  const radius = Math.round(size * 0.22)
   if (!url || err) {
     return (
-      <div style={{ width:size, height:size, borderRadius:radius, background:color+'1a', border:`1.5px solid ${color}40`, display:'flex', alignItems:'center', justifyContent:'center', fontWeight:700, fontSize:Math.round(size*0.32), color, flexShrink:0, letterSpacing:'-0.5px' }}>
+      <div style={{ width:size, height:size, borderRadius:'50%', background:color+'1a', border:`1.5px solid ${color}40`, display:'flex', alignItems:'center', justifyContent:'center', fontWeight:700, fontSize:Math.round(size*0.32), color, flexShrink:0, letterSpacing:'-0.5px' }}>
         {initials}
       </div>
     )
   }
   return (
-    <div style={{ width:size, height:size, borderRadius:radius, border:'1.5px solid #e5e7eb', background:'#fff', display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden', flexShrink:0, padding:5 }}>
+    <div style={{ width:size, height:size, borderRadius:'50%', border:'1.5px solid #e5e7eb', background:'#fff', display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden', flexShrink:0, padding:4 }}>
       <img src={url} alt={company} onError={() => setErr(true)} style={{ width:'100%', height:'100%', objectFit:'contain' }} />
     </div>
   )
@@ -100,6 +124,7 @@ export default function Dashboard() {
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [searchInput, setSearchInput] = useState('')
+  const [view, setView] = useState<'matched' | 'nearby'>('matched')
   const [sectorFilter, setSectorFilter] = useState('All Jobs')
   const [brandFilter, setBrandFilter] = useState('')
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set())
@@ -315,15 +340,31 @@ export default function Dashboard() {
   }
 
   const topBrands = useMemo(() => {
-    const counts: Record<string, number> = {}
-    jobs.forEach(j => { if (j.company) counts[j.company] = (counts[j.company] || 0) + 1 })
-    return Object.entries(counts).sort(([,a],[,b]) => b - a).slice(0, 9).map(([name, count]) => ({ name, count }))
+    const acc: Record<string, { count: number; redirectUrl: string }> = {}
+    jobs.forEach(j => {
+      if (!j.company) return
+      if (!acc[j.company]) acc[j.company] = { count: 0, redirectUrl: j.redirect_url }
+      acc[j.company].count++
+    })
+    return Object.entries(acc)
+      .sort(([,a],[,b]) => b.count - a.count)
+      .slice(0, 9)
+      .map(([name, { count, redirectUrl }]) => ({ name, count, redirectUrl }))
   }, [jobs])
 
-  const visible = useMemo(() => jobs
-    .filter(j => sectorFilter === 'All Jobs' || (SECTOR_TEST[sectorFilter]?.(j) ?? true))
-    .filter(j => !brandFilter || j.company === brandFilter)
-  , [jobs, sectorFilter, brandFilter])
+  const visible = useMemo(() => {
+    const byBrand = jobs.filter(j => !brandFilter || j.company === brandFilter)
+    if (view === 'matched') return byBrand
+    // nearby: filter by sector, sort local-first then by score
+    const city = profileLocation.split(',')[0].toLowerCase().trim()
+    return byBrand
+      .filter(j => SECTOR_TEST[sectorFilter]?.(j) ?? true)
+      .sort((a, b) => {
+        const al = city && a.location.toLowerCase().includes(city) ? 1 : 0
+        const bl = city && b.location.toLowerCase().includes(city) ? 1 : 0
+        return bl !== al ? bl - al : b.score - a.score
+      })
+  }, [jobs, view, sectorFilter, brandFilter, profileLocation])
 
   return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#f9fafb', fontFamily: 'Inter, sans-serif' }}>
@@ -373,16 +414,36 @@ export default function Dashboard() {
 
         {/* Jobs */}
         <div style={{ flex:1, overflowY:'auto', padding:'16px 16px 0' }}>
-          {/* Sector pills */}
-          <div style={{ display:'flex', gap:6, marginBottom:14, overflowX:'auto', paddingBottom:2, scrollbarWidth:'none' }}>
-            {SECTORS.map(s => (
-              <button key={s} onClick={() => { setSectorFilter(s); setBrandFilter('') }} style={{
-                padding:'5px 13px', borderRadius:100, fontSize:12, fontWeight:600, cursor:'pointer', whiteSpace:'nowrap', flexShrink:0,
-                background: sectorFilter === s ? '#10b981' : '#fff',
-                color:      sectorFilter === s ? '#fff'    : '#6b7280',
-                border:     `1px solid ${sectorFilter === s ? '#10b981' : '#e5e7eb'}`,
-              }}>{s}</button>
-            ))}
+          {/* View tabs */}
+          <div style={{ display:'flex', gap:6, marginBottom:14, overflowX:'auto', paddingBottom:2, scrollbarWidth:'none', alignItems:'center' }}>
+            {/* Matched tab */}
+            <button
+              onClick={() => { setView('matched'); setSectorFilter('All Jobs'); setBrandFilter('') }}
+              style={{
+                padding:'5px 14px', borderRadius:100, fontSize:12, fontWeight:700, cursor:'pointer', whiteSpace:'nowrap', flexShrink:0,
+                background: view === 'matched' ? '#10b981' : '#fff',
+                color:      view === 'matched' ? '#fff'    : '#6b7280',
+                border:     `1px solid ${view === 'matched' ? '#10b981' : '#e5e7eb'}`,
+                display:'flex', alignItems:'center', gap:5,
+              }}
+            >✦ Matched</button>
+            {/* Divider */}
+            <div style={{ width:1, height:20, background:'#e5e7eb', flexShrink:0, margin:'0 2px' }} />
+            {/* Nearby sector pills */}
+            {SECTORS.filter(s => s !== 'All Jobs').map(s => {
+              const active = view === 'nearby' && sectorFilter === s
+              return (
+                <button key={s}
+                  onClick={() => { setView('nearby'); setSectorFilter(s); setBrandFilter('') }}
+                  style={{
+                    padding:'5px 13px', borderRadius:100, fontSize:12, fontWeight:600, cursor:'pointer', whiteSpace:'nowrap', flexShrink:0,
+                    background: active ? '#111' : '#fff',
+                    color:      active ? '#fff' : '#6b7280',
+                    border:     `1px solid ${active ? '#111' : '#e5e7eb'}`,
+                  }}
+                >{s}</button>
+              )
+            })}
           </div>
 
           {/* Brand carousel */}
@@ -395,7 +456,7 @@ export default function Dashboard() {
                     <div style={{ position:'relative' }}>
                       {b.name === 'All'
                         ? <div style={{ width:52, height:52, borderRadius:12, background: active ? '#10b981' : '#f3f4f6', border:`2px solid ${active ? '#10b981' : '#e5e7eb'}`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:20 }}>🔍</div>
-                        : <div style={{ border: `2px solid ${active ? '#10b981' : 'transparent'}`, borderRadius:14, padding:1 }}><CompanyLogo company={b.name} size={52} /></div>
+                        : <div style={{ border: `2px solid ${active ? '#10b981' : 'transparent'}`, borderRadius:'50%', padding:1 }}><CompanyLogo company={b.name} redirectUrl={b.redirectUrl} size={52} /></div>
                       }
                     </div>
                     <div style={{ fontSize:11, fontWeight:600, color: active ? '#10b981' : '#374151', maxWidth:64, textAlign:'center', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{b.name === 'All' ? 'All' : b.name.split(' ').slice(0,2).join(' ')}</div>
@@ -409,7 +470,9 @@ export default function Dashboard() {
           {/* Results header */}
           <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
             <div style={{ fontSize:14, fontWeight:700, color:'#111' }}>
-              {brandFilter || (sectorFilter !== 'All Jobs' ? sectorFilter : 'All')} Jobs
+              {view === 'matched'
+                ? (brandFilter ? `${brandFilter} Matches` : 'Matched Jobs')
+                : `${brandFilter || sectorFilter} near you`}
               {!loading && <span style={{ marginLeft:8, fontSize:12, fontWeight:500, color:'#6b7280' }}>{visible.length} found</span>}
             </div>
             {savedIds.size > 0 && <span style={{ fontSize:12, color:'#10b981', fontWeight:600 }}>♥ {savedIds.size} saved</span>}
@@ -460,7 +523,7 @@ export default function Dashboard() {
                     onClick={() => setExpanded(expanded === j.id ? null : j.id)}
                   >
                     {/* Logo */}
-                    <CompanyLogo company={j.company} size={48} />
+                    <CompanyLogo company={j.company} redirectUrl={j.redirect_url} size={48} />
 
                     {/* Content */}
                     <div style={{ flex:1, minWidth:0 }}>
@@ -475,13 +538,18 @@ export default function Dashboard() {
                         </div>
                       </div>
 
-                      {/* Row 2: company + match score */}
+                      {/* Row 2: company + match score / near badge */}
                       <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:3 }}>
                         <div style={{ fontSize:12, color:'#6b7280', display:'flex', alignItems:'center', gap:4 }}>
                           {j.company}
                           <span style={{ color:'#10b981', fontSize:11 }}>✓</span>
                         </div>
-                        <span style={{ padding:'2px 8px', borderRadius:100, fontSize:10, fontWeight:700, background:scoreColor(j.score)+'18', color:scoreColor(j.score), border:`1px solid ${scoreColor(j.score)}30` }}>{j.score}%</span>
+                        {view === 'matched'
+                          ? <span style={{ padding:'2px 8px', borderRadius:100, fontSize:10, fontWeight:700, background:scoreColor(j.score)+'18', color:scoreColor(j.score), border:`1px solid ${scoreColor(j.score)}30` }}>{j.score}% match</span>
+                          : isNear
+                            ? <span style={{ padding:'2px 8px', borderRadius:100, fontSize:10, fontWeight:700, background:'#eff6ff', color:'#1d4ed8', border:'1px solid #bfdbfe' }}>📍 Near you</span>
+                            : <span style={{ padding:'2px 8px', borderRadius:100, fontSize:10, fontWeight:600, background:'#f3f4f6', color:'#6b7280' }}>{j.location.split(',')[0]}</span>
+                        }
                       </div>
 
                       {/* Row 3: location */}
@@ -494,8 +562,8 @@ export default function Dashboard() {
                         <div style={{ display:'flex', gap:5, flexWrap:'wrap', alignItems:'center' }}>
                           {j.contract_time && <span style={{ fontSize:11, fontWeight:600, background: j.contract_time === 'full_time' ? '#f0fdf4' : '#fefce8', color: j.contract_time === 'full_time' ? '#059669' : '#92400e', border: `1px solid ${j.contract_time === 'full_time' ? '#a7f3d0' : '#fde68a'}`, padding:'2px 8px', borderRadius:100 }}>{j.contract_time === 'full_time' ? 'Full-time' : 'Part-time'}</span>}
                           <span style={{ fontSize:11, fontWeight:600, background:'#f3f4f6', color:'#374151', padding:'2px 8px', borderRadius:100 }}>{formatSalary(j.salary_min, j.salary_max)}</span>
-                          {isNear && <span style={{ fontSize:11, fontWeight:600, background:'#eff6ff', color:'#1d4ed8', border:'1px solid #bfdbfe', padding:'2px 8px', borderRadius:100 }}>📍 Near you</span>}
-                          {bd.skills && <span style={{ fontSize:11, fontWeight:600, background:'#f0fdf4', color:'#059669', border:'1px solid #a7f3d0', padding:'2px 8px', borderRadius:100 }}>Skills match</span>}
+                          {view === 'matched' && isNear && <span style={{ fontSize:11, fontWeight:600, background:'#eff6ff', color:'#1d4ed8', border:'1px solid #bfdbfe', padding:'2px 8px', borderRadius:100 }}>📍 Near you</span>}
+                          {bd.skills && view === 'matched' && <span style={{ fontSize:11, fontWeight:600, background:'#f0fdf4', color:'#059669', border:'1px solid #a7f3d0', padding:'2px 8px', borderRadius:100 }}>Skills match</span>}
                         </div>
                         <div style={{ display:'flex', gap:6, flexShrink:0 }}>
                           <button style={{ fontSize:12, fontWeight:600, color:'#6b7280', background:'none', border:'1px solid #e5e7eb', borderRadius:8, padding:'5px 10px', cursor:'pointer' }} onClick={e => { e.stopPropagation(); send(`Help me prep for the ${j.title} role at ${j.company}. Description: ${j.description.slice(0, 400)}`) }}>Ask Sarah</button>
