@@ -139,6 +139,7 @@ export default function Dashboard() {
   const [brandFilter, setBrandFilter] = useState('')
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set())
   const [expanded, setExpanded] = useState<string | null>(null)
+  const [copiedId, setCopiedId] = useState<string | null>(null)
 
   const [messages, setMessages] = useState<Message[]>([
     { from: 'sarah', text: "Hi! I'm scanning live jobs for your profile. Ask me anything — interview prep, salary advice, or to search a specific role.", ts: getTime() },
@@ -230,6 +231,8 @@ export default function Dashboard() {
     }
   }, [])
 
+  useEffect(() => { localStorage.setItem('gg_sid', sessionId) }, [sessionId])
+
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
 
   useEffect(() => {
@@ -287,6 +290,35 @@ export default function Dashboard() {
         salary_min: job.salary_min, salary_max: job.salary_max, redirect_url: job.redirect_url,
       }, { onConflict: 'session_id,adzuna_id', ignoreDuplicates: true })
       setSavedIds(s => new Set(s).add(job.id))
+    }
+  }
+
+  async function shareJob(j: AdzunaJob & { score: number }) {
+    const { data } = await supabase
+      .from('job_results')
+      .upsert({
+        session_id: sessionId,
+        adzuna_id: j.id,
+        title: j.title,
+        company: j.company,
+        location: j.location,
+        salary_min: j.salary_min ? Math.round(j.salary_min) : null,
+        salary_max: j.salary_max ? Math.round(j.salary_max) : null,
+        description: j.description,
+        contract_time: j.contract_time,
+        contract_type: j.contract_type,
+        redirect_url: j.redirect_url,
+        category: j.category,
+        posted_at: j.posted_at || null,
+        score: j.score,
+      }, { onConflict: 'session_id,adzuna_id' })
+      .select('id')
+      .single()
+    if (data?.id) {
+      const url = `${window.location.origin}/jobs/${data.id}`
+      try { await navigator.clipboard.writeText(url) } catch { /* ignore */ }
+      setCopiedId(j.id)
+      setTimeout(() => setCopiedId(c => c === j.id ? null : c), 2200)
     }
   }
 
@@ -404,6 +436,7 @@ export default function Dashboard() {
         .role-card { transition:box-shadow .15s,border-color .15s; cursor:pointer; }
         .role-card:hover { box-shadow:0 4px 16px rgba(0,0,0,.09); }
         .save-btn:hover { color:#10b981 !important; border-color:#10b981 !important; }
+        .share-btn:hover { color:#10b981 !important; border-color:#10b981 !important; }
         ::-webkit-scrollbar { width:4px; } ::-webkit-scrollbar-thumb { background:#d1d5db; border-radius:2px; }
       `}</style>
 
@@ -601,6 +634,9 @@ export default function Dashboard() {
                         </div>
                         <div style={{ display:'flex', gap:6, flexShrink:0 }}>
                           <button style={{ fontSize:12, fontWeight:600, color:'#6b7280', background:'none', border:'1px solid #e5e7eb', borderRadius:8, padding:'5px 10px', cursor:'pointer' }} onClick={e => { e.stopPropagation(); send(`Help me prep for the ${j.title} role at ${j.company}. Description: ${j.description.slice(0, 400)}`) }}>Ask Sarah</button>
+                          <button className="share-btn" style={{ fontSize:12, fontWeight:600, color: copiedId === j.id ? '#10b981' : '#6b7280', background:'none', border:`1px solid ${copiedId === j.id ? '#10b981' : '#e5e7eb'}`, borderRadius:8, padding:'5px 10px', cursor:'pointer', transition:'color .15s,border-color .15s' }} onClick={e => { e.stopPropagation(); shareJob(j) }}>
+                            {copiedId === j.id ? '✓ Copied' : '⎘ Share'}
+                          </button>
                           <a href={j.redirect_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} style={{ fontSize:12, fontWeight:700, color:'#fff', background:'#10b981', borderRadius:8, padding:'5px 14px', textDecoration:'none', display:'inline-block' }}>View Job</a>
                         </div>
                       </div>

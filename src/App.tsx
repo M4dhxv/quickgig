@@ -6,6 +6,7 @@ const Analyse   = lazy(() => import('./pages/Analyse'))
 const Verify    = lazy(() => import('./pages/Verify'))
 const Results   = lazy(() => import('./pages/Results'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
+const JobDetail = lazy(() => import('./pages/JobDetail'))
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
           <Route path="/verify"  element={<Verify />} />
           <Route path="/results" element={<Results />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/jobs/:id"  element={<JobDetail />} />
         </Routes>
       </Suspense>
     </BrowserRouter>
