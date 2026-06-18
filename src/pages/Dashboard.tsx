@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { searchJobsMulti, formatSalary, timeAgo, matchScore, getMatchBreakdown, type AdzunaJob } from '../lib/adzuna'
+import { searchJobsMulti, searchJobs, formatSalary, timeAgo, matchScore, getMatchBreakdown, type AdzunaJob } from '../lib/adzuna'
 import { textToSpeech, DeepgramSTT } from '../lib/deepgram'
 import { askSarah, type UserProfile } from '../lib/claude'
 
@@ -212,24 +212,21 @@ export default function Dashboard() {
 
   const prefetchSectors = useCallback(async (loc: string) => {
     const city = loc.split(',')[0].trim()
-    await Promise.all(
-      Object.entries(SECTOR_KEYWORDS).map(async ([sector, term]) => {
-        try {
-          const { jobs: raw } = await searchJobsMulti(term, city, 1, 20)
-          const local = city ? raw.filter(j => j.location.toLowerCase().includes(city.toLowerCase())) : raw
-          const scored = local
-            .map(j => ({ ...j, score: matchScore(j, loc) }))
-            .sort((a, b) => {
-              const al = city && a.location.toLowerCase().includes(city) ? 1 : 0
-              const bl = city && b.location.toLowerCase().includes(city) ? 1 : 0
-              return bl !== al ? bl - al : b.score - a.score
-            })
-          setSectorJobs(prev => ({ ...prev, [sector]: scored }))
-        } finally {
-          setSectorsLoading(prev => { const n = new Set(prev); n.delete(sector); return n })
-        }
-      })
-    )
+    for (const [sector, term] of Object.entries(SECTOR_KEYWORDS)) {
+      try {
+        const { jobs: raw } = await searchJobs(term, city, 1, 20)
+        const local = city ? raw.filter(j => j.location.toLowerCase().includes(city.toLowerCase())) : raw
+        const scored = local
+          .map(j => ({ ...j, score: matchScore(j, loc) }))
+          .sort((a, b) => {
+            const al = city && a.location.toLowerCase().includes(city) ? 1 : 0
+            const bl = city && b.location.toLowerCase().includes(city) ? 1 : 0
+            return bl !== al ? bl - al : b.score - a.score
+          })
+        setSectorJobs(prev => ({ ...prev, [sector]: scored }))
+      } catch { /* ignore individual sector failures */ }
+      setSectorsLoading(prev => { const n = new Set(prev); n.delete(sector); return n })
+    }
   }, [])
 
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
