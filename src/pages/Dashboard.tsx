@@ -134,7 +134,8 @@ export default function Dashboard() {
   const [searchInput, setSearchInput] = useState('')
   const [view, setView] = useState<'matched' | 'nearby'>('matched')
   const [sectorFilter, setSectorFilter] = useState('All Jobs')
-  const [sectorTerm, setSectorTerm] = useState('')
+  const [sectorJobs, setSectorJobs] = useState<Record<string, (AdzunaJob & {score:number})[]>>({})
+  const [sectorsLoading, setSectorsLoading] = useState<Set<string>>(new Set(Object.keys(SECTOR_KEYWORDS)))
   const [brandFilter, setBrandFilter] = useState('')
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set())
   const [expanded, setExpanded] = useState<string | null>(null)
@@ -207,7 +208,29 @@ export default function Dashboard() {
     }
   }, [sessionId, profileLocation])
 
-  useEffect(() => { fetchJobs(sectorTerm || search, page) }, [fetchJobs, search, page, sectorTerm])
+  useEffect(() => { fetchJobs(search, page) }, [fetchJobs, search, page])
+
+  const prefetchSectors = useCallback(async (loc: string) => {
+    const city = loc.split(',')[0].trim()
+    await Promise.all(
+      Object.entries(SECTOR_KEYWORDS).map(async ([sector, term]) => {
+        try {
+          const { jobs: raw } = await searchJobsMulti(term, city, 1, 20)
+          const local = city ? raw.filter(j => j.location.toLowerCase().includes(city.toLowerCase())) : raw
+          const scored = local
+            .map(j => ({ ...j, score: matchScore(j, loc) }))
+            .sort((a, b) => {
+              const al = city && a.location.toLowerCase().includes(city) ? 1 : 0
+              const bl = city && b.location.toLowerCase().includes(city) ? 1 : 0
+              return bl !== al ? bl - al : b.score - a.score
+            })
+          setSectorJobs(prev => ({ ...prev, [sector]: scored }))
+        } finally {
+          setSectorsLoading(prev => { const n = new Set(prev); n.delete(sector); return n })
+        }
+      })
+    )
+  }, [])
 
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
 
@@ -216,7 +239,10 @@ export default function Dashboard() {
       .then(({ data }) => {
         if (data?.profile) {
           setProfile(data.profile as UserProfile)
-          if (data.profile.location) setProfileLocation(data.profile.location)
+          if (data.profile.location) {
+            setProfileLocation(data.profile.location)
+            prefetchSectors(data.profile.location)
+          }
         }
         if (data?.plan === 'active') setPlan('active')
         if (data?.file_name) setCvFileName(data.file_name)
@@ -362,18 +388,11 @@ export default function Dashboard() {
   }, [jobs])
 
   const visible = useMemo(() => {
-    const byBrand = jobs.filter(j => !brandFilter || j.company === brandFilter)
-    if (view === 'matched') return byBrand
-    // nearby: filter by sector, sort local-first then by score
-    const city = profileLocation.split(',')[0].toLowerCase().trim()
-    return byBrand
-      .filter(j => SECTOR_TEST[sectorFilter]?.(j) ?? true)
-      .sort((a, b) => {
-        const al = city && a.location.toLowerCase().includes(city) ? 1 : 0
-        const bl = city && b.location.toLowerCase().includes(city) ? 1 : 0
-        return bl !== al ? bl - al : b.score - a.score
-      })
-  }, [jobs, view, sectorFilter, brandFilter, profileLocation])
+    if (view === 'matched') {
+      return jobs.filter(j => !brandFilter || j.company === brandFilter)
+    }
+    return (sectorJobs[sectorFilter] ?? []).filter(j => !brandFilter || j.company === brandFilter)
+  }, [jobs, sectorJobs, view, sectorFilter, brandFilter])
 
   return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#f9fafb', fontFamily: 'Inter, sans-serif' }}>
@@ -427,7 +446,7 @@ export default function Dashboard() {
           <div style={{ display:'flex', gap:6, marginBottom:14, overflowX:'auto', paddingBottom:2, scrollbarWidth:'none', alignItems:'center' }}>
             {/* Matched tab */}
             <button
-              onClick={() => { setView('matched'); setSectorFilter('All Jobs'); setSectorTerm(''); setBrandFilter(''); setPage(1) }}
+              onClick={() => { setView('matched'); setSectorFilter('All Jobs'); setBrandFilter('') }}
               style={{
                 padding:'5px 14px', borderRadius:100, fontSize:12, fontWeight:700, cursor:'pointer', whiteSpace:'nowrap', flexShrink:0,
                 background: view === 'matched' ? '#10b981' : '#fff',
@@ -443,14 +462,17 @@ export default function Dashboard() {
               const active = view === 'nearby' && sectorFilter === s
               return (
                 <button key={s}
-                  onClick={() => { setView('nearby'); setSectorFilter(s); setSectorTerm(SECTOR_KEYWORDS[s]); setBrandFilter(''); setPage(1) }}
+                  onClick={() => { setView('nearby'); setSectorFilter(s); setBrandFilter('') }}
                   style={{
                     padding:'5px 13px', borderRadius:100, fontSize:12, fontWeight:600, cursor:'pointer', whiteSpace:'nowrap', flexShrink:0,
                     background: active ? '#111' : '#fff',
                     color:      active ? '#fff' : '#6b7280',
                     border:     `1px solid ${active ? '#111' : '#e5e7eb'}`,
+                    opacity: sectorsLoading.has(s) ? 0.55 : 1,
                   }}
-                >{s}</button>
+                >
+                  {s}{sectorsLoading.has(s) ? ' …' : sectorJobs[s] ? ` · ${sectorJobs[s].length}` : ''}
+                </button>
               )
             })}
           </div>
@@ -518,7 +540,11 @@ export default function Dashboard() {
           {!loading && (
             <div style={{ display:'flex', flexDirection:'column', gap:10, paddingBottom:20 }}>
               {visible.length === 0 && (
-                <div style={{ textAlign:'center', padding:'48px 0', color:'#9ca3af', fontSize:14 }}>No jobs match this filter.</div>
+                <div style={{ textAlign:'center', padding:'48px 0', color:'#9ca3af', fontSize:14 }}>
+                  {view === 'nearby' && sectorsLoading.has(sectorFilter)
+                    ? `Finding ${sectorFilter} jobs near you…`
+                    : 'No jobs found for this filter.'}
+                </div>
               )}
               {visible.map((j, i) => {
                 const city = profileLocation.split(',')[0].toLowerCase().trim()
