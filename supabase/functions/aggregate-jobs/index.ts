@@ -146,7 +146,64 @@ async function fetchAmazon(what: string, page: number, perPage: number) {
   return { jobs, count }
 }
 
-// ─── WORKDAY — disabled (CSRF/bot-protection blocks all CXS API calls) ─────────
+// ─── SMARTRECRUITERS — open API, no key needed ───────────────────────────────
+// Verified working companies (totalFound > 0 confirmed 2025-06)
+const SR_COMPANIES = [
+  // Food Service
+  { id: 'Dominos',    company: "Domino's",   country: 'US' },   // 24k+ franchise jobs
+  // Facilities / Catering
+  { id: 'Sodexo',     company: 'Sodexo',     country: 'Global' },
+  // Hospitality
+  { id: 'Accor',      company: 'Accor',      country: 'Global' },
+  // Security
+  { id: 'Securitas',  company: 'Securitas',  country: 'Global' },
+  // Retail
+  { id: 'Primark',    company: 'Primark',    country: 'Global' },
+]
+
+async function fetchSmartRecruiters(what: string, where: string): Promise<{ jobs: Job[]; count: number }> {
+  const city = where ? where.split(',')[0].trim() : ''
+
+  const results = await Promise.allSettled(
+    SR_COMPANIES.map(async co => {
+      const params = new URLSearchParams({ limit: '20' })
+      if (what) params.set('q', what)
+      if (city) params.set('city', city)
+
+      const res = await fetch(
+        `https://api.smartrecruiters.com/v1/companies/${co.id}/postings?${params}`,
+        { headers: { Accept: 'application/json' } }
+      )
+      if (!res.ok) return { jobs: [] as Job[], count: 0 }
+      const data = await res.json()
+
+      const jobs: Job[] = (data.content ?? []).map((j: any): Job => ({
+        id:            `sr-${j.uuid ?? j.id}`,
+        source:        'smartrecruiters',
+        title:         j.name ?? '',
+        company:       co.company,
+        location:      j.location?.fullLocation ?? j.location?.city ?? '',
+        country:       j.location?.country ?? co.country,
+        salary_min:    null,
+        salary_max:    null,
+        description:   '',
+        contract_time: j.typeOfEmployment?.id === 'part_time' ? 'part_time' : 'full_time',
+        contract_type: null,
+        redirect_url:  `https://jobs.smartrecruiters.com/${co.id}/${j.id}`,
+        category:      j.industry?.label ?? j.function?.label ?? '',
+        posted_at:     j.releasedDate ?? '',
+      }))
+      return { jobs, count: data.totalFound ?? 0 }
+    })
+  )
+
+  const all: Job[] = []
+  let count = 0
+  results.forEach(r => {
+    if (r.status === 'fulfilled') { all.push(...r.value.jobs); count += r.value.count }
+  })
+  return { jobs: all, count }
+}
 
 // ─── GREENHOUSE — open API ────────────────────────────────────────────────────
 // Only verified-working slugs (404s removed; all tested 2025-06)
@@ -315,19 +372,20 @@ Deno.serve(async (req) => {
   try {
     const { what = '', where = '', page = 1, perPage = 20 } = await req.json()
 
-    const [adzuna, amazon, greenhouse, lever, reed] = await Promise.allSettled([
+    const [adzuna, amazon, greenhouse, lever, reed, smartrecruiters] = await Promise.allSettled([
       fetchAdzuna(what, where, page, perPage),
       fetchAmazon(what, page, perPage),
       fetchGreenhouse(what),
       fetchLever(what),
       fetchReed(what, where, page, perPage),
+      fetchSmartRecruiters(what, where),
     ])
 
     const allJobs: Job[] = []
     let totalCount = 0
 
     const sources: Record<string, number | string> = {}
-    for (const [name, result] of Object.entries({ adzuna, amazon, greenhouse, lever, reed })) {
+    for (const [name, result] of Object.entries({ adzuna, amazon, greenhouse, lever, reed, smartrecruiters })) {
       if (result.status === 'fulfilled') {
         allJobs.push(...result.value.jobs)
         totalCount += result.value.count
