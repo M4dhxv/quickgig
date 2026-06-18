@@ -64,14 +64,24 @@ export default function Results() {
   const fileName  = state?.fileName
   const [selected, setSelected] = useState<string | null>(null)
   const [checkoutLoading, setCheckoutLoading] = useState('')
+  const [checkoutError, setCheckoutError] = useState('')
 
   async function openCheckout(priceId: string) {
     setCheckoutLoading(priceId)
+    setCheckoutError('')
     try {
-      const { data } = await supabase.functions.invoke('create-checkout', {
-        body: { priceId, sessionId },
+      const sid = sessionId ?? crypto.randomUUID()
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: { priceId, sessionId: sid },
       })
-      if (data?.url) window.location.href = data.url
+      if (error) throw new Error(error.message)
+      if (data?.url) {
+        window.location.href = data.url
+      } else {
+        throw new Error(JSON.stringify(data))
+      }
+    } catch (err: any) {
+      setCheckoutError(err.message ?? 'Unknown error')
     } finally {
       setCheckoutLoading('')
     }
@@ -127,6 +137,12 @@ export default function Results() {
             </div>
           </div>
         </div>
+
+        {checkoutError && (
+          <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: '#dc2626', margin: '16px 0 0' }}>
+            Checkout error: {checkoutError}
+          </div>
+        )}
 
         <div className="fade-up d2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, margin: '36px 0 0' }}>
           {PLANS.map(plan => (
