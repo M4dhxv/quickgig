@@ -449,7 +449,7 @@ export default function Dashboard() {
           {/* Brand carousel */}
           {topBrands.length > 0 && !loading && (
             <div style={{ display:'flex', gap:10, overflowX:'auto', marginBottom:16, paddingBottom:4, scrollbarWidth:'none' }}>
-              {[{ name:'All', count: jobs.length }, ...topBrands].map(b => {
+              {[{ name:'All', count: jobs.length, redirectUrl: '' }, ...topBrands].map(b => {
                 const active = b.name === 'All' ? !brandFilter : brandFilter === b.name
                 return (
                   <button key={b.name} onClick={() => setBrandFilter(b.name === 'All' ? '' : b.name)} style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:5, background:'none', border:'none', cursor:'pointer', flexShrink:0, padding:'6px 4px', borderRadius:10, outline:'none' }}>
