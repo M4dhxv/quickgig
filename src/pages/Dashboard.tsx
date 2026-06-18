@@ -86,6 +86,14 @@ function CompanyLogo({ company, redirectUrl, size = 48 }: { company: string; red
 }
 
 const SECTORS = ['All Jobs', 'Warehouse', 'Food & Drink', 'Retail', 'Delivery', 'Cleaning', 'Security']
+const SECTOR_KEYWORDS: Record<string, string> = {
+  'Warehouse':    'warehouse picker packer stock logistics',
+  'Food & Drink': 'kitchen chef cook catering restaurant fast food hospitality',
+  'Retail':       'retail shop assistant cashier store sales',
+  'Delivery':     'delivery driver courier van driver',
+  'Cleaning':     'cleaner cleaning housekeeper janitor',
+  'Security':     'security guard officer patrol',
+}
 const SECTOR_TEST: Record<string, (j: AdzunaJob) => boolean> = {
   'Warehouse':   j => /warehouse|logistics|fulfilment|distribution|picking|packing|stock/i.test(j.category + ' ' + j.title),
   'Food & Drink':j => /catering|hospitality|food|restaurant|kitchen|barista|chef|fast.?food/i.test(j.category + ' ' + j.title),
@@ -126,6 +134,7 @@ export default function Dashboard() {
   const [searchInput, setSearchInput] = useState('')
   const [view, setView] = useState<'matched' | 'nearby'>('matched')
   const [sectorFilter, setSectorFilter] = useState('All Jobs')
+  const [sectorTerm, setSectorTerm] = useState('')
   const [brandFilter, setBrandFilter] = useState('')
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set())
   const [expanded, setExpanded] = useState<string | null>(null)
@@ -198,7 +207,7 @@ export default function Dashboard() {
     }
   }, [sessionId, profileLocation])
 
-  useEffect(() => { fetchJobs(search, page) }, [fetchJobs, search, page])
+  useEffect(() => { fetchJobs(sectorTerm || search, page) }, [fetchJobs, search, page, sectorTerm])
 
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
 
@@ -418,7 +427,7 @@ export default function Dashboard() {
           <div style={{ display:'flex', gap:6, marginBottom:14, overflowX:'auto', paddingBottom:2, scrollbarWidth:'none', alignItems:'center' }}>
             {/* Matched tab */}
             <button
-              onClick={() => { setView('matched'); setSectorFilter('All Jobs'); setBrandFilter('') }}
+              onClick={() => { setView('matched'); setSectorFilter('All Jobs'); setSectorTerm(''); setBrandFilter(''); setPage(1) }}
               style={{
                 padding:'5px 14px', borderRadius:100, fontSize:12, fontWeight:700, cursor:'pointer', whiteSpace:'nowrap', flexShrink:0,
                 background: view === 'matched' ? '#10b981' : '#fff',
@@ -434,7 +443,7 @@ export default function Dashboard() {
               const active = view === 'nearby' && sectorFilter === s
               return (
                 <button key={s}
-                  onClick={() => { setView('nearby'); setSectorFilter(s); setBrandFilter('') }}
+                  onClick={() => { setView('nearby'); setSectorFilter(s); setSectorTerm(SECTOR_KEYWORDS[s]); setBrandFilter(''); setPage(1) }}
                   style={{
                     padding:'5px 13px', borderRadius:100, fontSize:12, fontWeight:600, cursor:'pointer', whiteSpace:'nowrap', flexShrink:0,
                     background: active ? '#111' : '#fff',
