@@ -146,137 +146,21 @@ async function fetchAmazon(what: string, page: number, perPage: number) {
   return { jobs, count }
 }
 
-// ─── WORKDAY — direct employer scraper ───────────────────────────────────────
-const WORKDAY_SITES = [
-  // ── UNITED STATES ────────────────────────────────────────────────────────
-  { company: 'Walmart',           country: 'US', host: 'walmart.wd5.myworkdayjobs.com',        tenant: 'Walmart',        path: 'External' },
-  { company: 'Target',            country: 'US', host: 'target.wd5.myworkdayjobs.com',         tenant: 'Target',         path: 'Target' },
-  { company: 'Home Depot',        country: 'US', host: 'homedepot.wd5.myworkdayjobs.com',      tenant: 'HomeDepot',      path: 'External' },
-  { company: "Lowe's",            country: 'US', host: 'lowes.wd5.myworkdayjobs.com',          tenant: 'Lowes',          path: 'External' },
-  { company: 'CVS Health',        country: 'US', host: 'cvshealth.wd1.myworkdayjobs.com',      tenant: 'CVSHealth',      path: 'External' },
-  { company: 'Walgreens',         country: 'US', host: 'walgreens.wd5.myworkdayjobs.com',      tenant: 'Walgreens',      path: 'External' },
-  { company: 'Kroger',            country: 'US', host: 'kroger.wd5.myworkdayjobs.com',         tenant: 'Kroger',         path: 'External' },
-  { company: 'Dollar General',    country: 'US', host: 'dollargeneral.wd5.myworkdayjobs.com',  tenant: 'DollarGeneral',  path: 'External' },
-  { company: 'Dollar Tree',       country: 'US', host: 'dollartree.wd5.myworkdayjobs.com',     tenant: 'DollarTree',     path: 'External' },
-  { company: "Wendy's",           country: 'US', host: 'wendys.wd5.myworkdayjobs.com',         tenant: 'Wendys',         path: 'External' },
-  { company: 'Restaurant Brands', country: 'US', host: 'rbi.wd1.myworkdayjobs.com',            tenant: 'RBI',            path: 'External' }, // BK + Tim Hortons + Popeyes
-  { company: 'Papa Johns',        country: 'US', host: 'papajohns.wd1.myworkdayjobs.com',      tenant: 'PapaJohns',      path: 'External' },
-  { company: 'Panera Bread',      country: 'US', host: 'panerabread.wd5.myworkdayjobs.com',    tenant: 'PaneraBread',    path: 'External' },
-  { company: 'Chipotle',          country: 'US', host: 'chipotle.wd5.myworkdayjobs.com',       tenant: 'Chipotle',       path: 'Chipotle' },
-  { company: 'Hyatt',             country: 'US', host: 'hyatt.wd5.myworkdayjobs.com',          tenant: 'Hyatt',          path: 'External' },
-  { company: 'IHG',               country: 'US', host: 'ihg.wd3.myworkdayjobs.com',            tenant: 'IHG',            path: 'IHG' },
-  { company: 'Wyndham Hotels',    country: 'US', host: 'wyndham.wd5.myworkdayjobs.com',        tenant: 'Wyndham',        path: 'External' },
-  { company: 'Choice Hotels',     country: 'US', host: 'choicehotels.wd5.myworkdayjobs.com',   tenant: 'ChoiceHotels',   path: 'External' },
-  { company: 'FedEx',             country: 'US', host: 'fedex.wd1.myworkdayjobs.com',          tenant: 'FedEx',          path: 'FedEx_Careers' },
-  { company: 'DHL US',            country: 'US', host: 'dhl.wd3.myworkdayjobs.com',            tenant: 'DHL',            path: 'DHL_Careers' },
-  { company: 'Uber',              country: 'US', host: 'uber.wd5.myworkdayjobs.com',           tenant: 'Uber',           path: 'External' },
-
-  // ── UNITED KINGDOM ───────────────────────────────────────────────────────
-  { company: "McDonald's UK",     country: 'UK', host: 'mcdonalds.wd5.myworkdayjobs.com',      tenant: 'McDonalds',      path: 'External' },
-  { company: 'Tesco',             country: 'UK', host: 'tesco.wd3.myworkdayjobs.com',          tenant: 'Tesco',          path: 'Tesco_Careers' },
-  { company: 'Asda',              country: 'UK', host: 'asda.wd3.myworkdayjobs.com',           tenant: 'Asda',           path: 'ASDA_Careers' },
-  { company: 'Morrisons',         country: 'UK', host: 'morrisons.wd3.myworkdayjobs.com',      tenant: 'Morrisons',      path: 'Morrisons' },
-  { company: 'Costa Coffee',      country: 'UK', host: 'costa.wd3.myworkdayjobs.com',          tenant: 'Costa',          path: 'Costa_Careers' },
-  { company: 'Whitbread',         country: 'UK', host: 'whitbread.wd3.myworkdayjobs.com',      tenant: 'Whitbread',      path: 'Whitbread' },
-  { company: 'DHL UK',            country: 'UK', host: 'dhl.wd3.myworkdayjobs.com',            tenant: 'DHL',            path: 'DHL_Careers' },
-
-  // ── GLOBAL (Hilton, Marriott — post to global instance, returns per location) ─
-  { company: 'Hilton',            country: 'Global', host: 'hilton.wd5.myworkdayjobs.com',     tenant: 'Hilton',         path: 'Hilton_Jobs' },
-  { company: 'Marriott',          country: 'Global', host: 'marriott.wd5.myworkdayjobs.com',   tenant: 'Marriott',       path: 'marriottjobsandcareer' },
-
-  // ── CANADA ───────────────────────────────────────────────────────────────
-  { company: 'Loblaws',           country: 'CA', host: 'loblaws.wd3.myworkdayjobs.com',        tenant: 'Loblaws',        path: 'External' },
-  { company: 'Canadian Tire',     country: 'CA', host: 'canadiantire.wd3.myworkdayjobs.com',   tenant: 'CanadianTire',   path: 'External' },
-  { company: 'Tim Hortons (CA)',  country: 'CA', host: 'rbi.wd1.myworkdayjobs.com',            tenant: 'RBI',            path: 'External' },
-
-  // ── AUSTRALIA ────────────────────────────────────────────────────────────
-  { company: 'Woolworths AU',     country: 'AU', host: 'woolworths.wd3.myworkdayjobs.com',     tenant: 'Woolworths',     path: 'External' },
-  { company: 'Coles AU',          country: 'AU', host: 'coles.wd3.myworkdayjobs.com',          tenant: 'Coles',          path: 'External' },
-  { company: 'Wesfarmers/Bunnings',country:'AU', host: 'wesfarmers.wd3.myworkdayjobs.com',     tenant: 'Wesfarmers',     path: 'External' },
-]
-
-async function fetchWorkday(what: string): Promise<{ jobs: Job[]; count: number }> {
-  const results = await Promise.allSettled(
-    WORKDAY_SITES.map(async site => {
-      const url = `https://${site.host}/wday/cxs/${site.tenant}/${site.path}/jobs`
-      const res = await fetch(url, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body:    JSON.stringify({ limit: 10, offset: 0, searchText: what || '', appliedFacets: {} }),
-      })
-      if (!res.ok) return []
-      const data = await res.json()
-      return (data.jobPostings ?? []).map((j: any): Job => ({
-        id:            `wd-${site.tenant}-${(j.bulletFields?.[0] ?? j.title ?? Math.random()).toString().replace(/\s/g, '').slice(0, 12)}`,
-        source:        'workday',
-        title:         j.title ?? '',
-        company:       site.company,
-        location:      j.locationsText ?? '',
-        country:       site.country,
-        salary_min:    null,
-        salary_max:    null,
-        description:   j.briefDescription ?? '',
-        contract_time: null,
-        contract_type: null,
-        redirect_url:  j.externalPath
-          ? `https://${site.host}${j.externalPath}`
-          : `https://${site.host}/en-US/${site.path}/job/${encodeURIComponent(j.title ?? '')}`,
-        category:      j.jobFunctionSummary ?? '',
-        posted_at:     j.postedOn ?? '',
-      }))
-    })
-  )
-
-  const all: Job[] = []
-  results.forEach(r => { if (r.status === 'fulfilled') all.push(...r.value) })
-  return { jobs: all, count: all.length }
-}
+// ─── WORKDAY — disabled (CSRF/bot-protection blocks all CXS API calls) ─────────
 
 // ─── GREENHOUSE — open API ────────────────────────────────────────────────────
+// Only verified-working slugs (404s removed; all tested 2025-06)
 const GH_COMPANIES = [
-  // Food & Beverage — US
-  { slug: 'shakeshack',       company: 'Shake Shack',           country: 'US' },
+  // Food & Beverage — US (verified)
   { slug: 'sweetgreen',       company: 'Sweetgreen',            country: 'US' },
-  { slug: 'freshii',          company: 'Freshii',               country: 'US' },
-  { slug: 'wingstop',         company: 'Wingstop',              country: 'US' },
-  { slug: 'jackinthebox',     company: 'Jack in the Box',       country: 'US' },
-  { slug: 'dairyqueen',       company: 'Dairy Queen',           country: 'US' },
-  { slug: 'chickfila',        company: "Chick-fil-A",           country: 'US' },
-  // Food & Beverage — UK
-  { slug: 'pret',             company: 'Pret a Manger',         country: 'UK' },
-  { slug: 'leon',             company: 'Leon Restaurants',      country: 'UK' },
-  { slug: 'nandos',           company: "Nando's",               country: 'UK' },
-  { slug: 'greggs',           company: 'Greggs',                country: 'UK' },
-  { slug: 'tgi',              company: 'TGI Fridays UK',        country: 'UK' },
-  // Facilities & Cleaning — Global
-  { slug: 'compassgroup',     company: 'Compass Group',         country: 'Global' },
-  { slug: 'aramark',          company: 'Aramark',               country: 'US' },
-  { slug: 'sodexo',           company: 'Sodexo',                country: 'Global' },
-  { slug: 'mitie',            company: 'Mitie',                 country: 'UK' },
-  { slug: 'iss',              company: 'ISS',                   country: 'Global' },
-  { slug: 'initial',          company: 'Initial Facilities',    country: 'UK' },
-  // Security
-  { slug: 'g4s',              company: 'G4S',                   country: 'Global' },
-  { slug: 'securitas',        company: 'Securitas',             country: 'Global' },
-  { slug: 'allieduniversal',  company: 'Allied Universal',      country: 'US' },
-  // Delivery & Logistics
-  { slug: 'deliveroo',        company: 'Deliveroo',             country: 'UK' },
-  { slug: 'gopuff',           company: 'GoPuff',                country: 'US' },
-  { slug: 'getir',            company: 'Getir',                 country: 'Global' },
-  { slug: 'ocado',            company: 'Ocado',                 country: 'UK' },
-  { slug: 'yodel',            company: 'Yodel',                 country: 'UK' },
-  { slug: 'wincanton',        company: 'Wincanton',             country: 'UK' },
-  { slug: 'xpo',              company: 'XPO Logistics',         country: 'US' },
-  { slug: 'ceva',             company: 'CEVA Logistics',        country: 'Global' },
-  { slug: 'kuehnenagel',      company: 'Kuehne+Nagel',          country: 'Global' },
-  // Staffing — US
-  { slug: 'adeccousa',        company: 'Adecco USA',            country: 'US' },
-  { slug: 'manpowergroup',    company: 'ManpowerGroup',         country: 'US' },
-  { slug: 'roberthalfintl',   company: 'Robert Half',           country: 'US' },
-  // Retail — US
-  { slug: 'fiveguys',         company: 'Five Guys',             country: 'US' },
-  { slug: 'tjx',              company: 'TJX Companies',         country: 'US' },
-  { slug: 'gap',              company: 'Gap Inc.',               country: 'US' },
+  // Grocery delivery (verified)
+  { slug: 'ocadogroup',       company: 'Ocado Group',           country: 'UK' },
+  { slug: 'hellofresh',       company: 'HelloFresh',            country: 'Global' },
+  { slug: 'instacart',        company: 'Instacart',             country: 'US' },
+  // Delivery & Mobility (verified)
+  { slug: 'wolt',             company: 'Wolt',                  country: 'Global' },
+  { slug: 'cabify',           company: 'Cabify',                country: 'Global' },
+  { slug: 'roadie',           company: 'Roadie',                country: 'US' },
 ]
 
 async function fetchGreenhouse(what: string): Promise<{ jobs: Job[]; count: number }> {
@@ -322,27 +206,14 @@ async function fetchGreenhouse(what: string): Promise<{ jobs: Job[]; count: numb
 }
 
 // ─── LEVER — open API ────────────────────────────────────────────────────────
+// Only verified-working slugs (404s removed; all tested 2025-06)
 const LEVER_COMPANIES = [
-  // Logistics & Delivery
-  { slug: 'deliveroo',        company: 'Deliveroo',             country: 'UK' },
+  // Delivery & Logistics (verified)
   { slug: 'gopuff',           company: 'GoPuff',                country: 'US' },
-  { slug: 'stuart',           company: 'Stuart',                country: 'EU' },
-  { slug: 'gophr',            company: 'Gophr',                 country: 'UK' },
   { slug: 'lalamove',         company: 'Lalamove',              country: 'Global' },
-  // Staffing & Temp
-  { slug: 'manpower',         company: 'Manpower',              country: 'US' },
-  { slug: 'adecco',           company: 'Adecco',                country: 'Global' },
-  { slug: 'randstad',         company: 'Randstad',              country: 'Global' },
-  { slug: 'hays',             company: 'Hays',                  country: 'UK' },
-  { slug: 'kelly',            company: 'Kelly Services',        country: 'US' },
-  { slug: 'spherion',         company: 'Spherion',              country: 'US' },
-  // Ops & Customer Service
-  { slug: 'concentrix',       company: 'Concentrix',            country: 'Global' },
-  { slug: 'taskus',           company: 'TaskUs',                country: 'US' },
-  { slug: 'teleperformance',  company: 'Teleperformance',       country: 'Global' },
-  // Gig & On-demand
-  { slug: 'instawork',        company: 'Instawork',             country: 'US' },
-  { slug: 'shiftgig',         company: 'Shiftgig',              country: 'US' },
+  { slug: 'stuart',           company: 'Stuart',                country: 'EU' },
+  { slug: 'blablacar',        company: 'BlaBlaCar',             country: 'EU' },
+  // Gig & On-demand (verified)
   { slug: 'wonolo',           company: 'Wonolo',                country: 'US' },
 ]
 
@@ -444,12 +315,11 @@ Deno.serve(async (req) => {
   try {
     const { what = '', where = '', page = 1, perPage = 20 } = await req.json()
 
-    const [adzuna, amazon, greenhouse, lever, workday, reed] = await Promise.allSettled([
+    const [adzuna, amazon, greenhouse, lever, reed] = await Promise.allSettled([
       fetchAdzuna(what, where, page, perPage),
       fetchAmazon(what, page, perPage),
       fetchGreenhouse(what),
       fetchLever(what),
-      fetchWorkday(what),
       fetchReed(what, where, page, perPage),
     ])
 
@@ -457,7 +327,7 @@ Deno.serve(async (req) => {
     let totalCount = 0
 
     const sources: Record<string, number | string> = {}
-    for (const [name, result] of Object.entries({ adzuna, amazon, greenhouse, lever, workday, reed })) {
+    for (const [name, result] of Object.entries({ adzuna, amazon, greenhouse, lever, reed })) {
       if (result.status === 'fulfilled') {
         allJobs.push(...result.value.jobs)
         totalCount += result.value.count
