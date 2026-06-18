@@ -146,6 +146,45 @@ async function fetchAmazon(what: string, page: number, perPage: number) {
   return { jobs, count }
 }
 
+// ─── JOOBLE — aggregates 1000+ sources, 4M US listings ──────────────────────
+async function fetchJooble(what: string, where: string, page: number, perPage: number): Promise<{ jobs: Job[]; count: number }> {
+  const key = Deno.env.get('JOOBLE_API_KEY')
+  if (!key) return { jobs: [], count: 0 }
+
+  const res = await fetch(`https://jooble.org/api/${key}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      keywords:     what || 'warehouse',
+      location:     where || 'United States',
+      page,
+      resultonpage: perPage,
+    }),
+  })
+  if (!res.ok) return { jobs: [], count: 0 }
+  const data = await res.json()
+
+  return {
+    count: data.totalCount ?? 0,
+    jobs: (data.jobs ?? []).map((j: any): Job => ({
+      id:            `jb-${j.id}`,
+      source:        'jooble',
+      title:         j.title ?? '',
+      company:       j.company ?? '',
+      location:      j.location ?? '',
+      country:       'United States',
+      salary_min:    null,
+      salary_max:    null,
+      description:   j.snippet ?? '',
+      contract_time: (j.type ?? '').toLowerCase().includes('part') ? 'part_time' : 'full_time',
+      contract_type: null,
+      redirect_url:  j.link ?? '',
+      category:      '',
+      posted_at:     j.updated ?? '',
+    })),
+  }
+}
+
 // ─── SMARTRECRUITERS — open API, no key needed ───────────────────────────────
 // Verified working companies (totalFound > 0 confirmed 2025-06)
 const SR_COMPANIES = [
@@ -372,20 +411,21 @@ Deno.serve(async (req) => {
   try {
     const { what = '', where = '', page = 1, perPage = 20 } = await req.json()
 
-    const [adzuna, amazon, greenhouse, lever, reed, smartrecruiters] = await Promise.allSettled([
+    const [adzuna, amazon, greenhouse, lever, reed, smartrecruiters, jooble] = await Promise.allSettled([
       fetchAdzuna(what, where, page, perPage),
       fetchAmazon(what, page, perPage),
       fetchGreenhouse(what),
       fetchLever(what),
       fetchReed(what, where, page, perPage),
       fetchSmartRecruiters(what, where),
+      fetchJooble(what, where, page, perPage),
     ])
 
     const allJobs: Job[] = []
     let totalCount = 0
 
     const sources: Record<string, number | string> = {}
-    for (const [name, result] of Object.entries({ adzuna, amazon, greenhouse, lever, reed, smartrecruiters })) {
+    for (const [name, result] of Object.entries({ adzuna, amazon, greenhouse, lever, reed, smartrecruiters, jooble })) {
       if (result.status === 'fulfilled') {
         allJobs.push(...result.value.jobs)
         totalCount += result.value.count
