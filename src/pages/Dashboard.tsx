@@ -181,25 +181,26 @@ export default function Dashboard() {
 
       // Cache to Supabase
       if (scored.length) {
-        await supabase.from('job_results').upsert(
+        // fire-and-forget — cache failure must never affect the jobs display
+        supabase.from('job_results').upsert(
           scored.map(j => ({
             session_id: sessionId,
             adzuna_id: j.id,
             title: j.title,
             company: j.company,
             location: j.location,
-            salary_min: j.salary_min,
-            salary_max: j.salary_max,
+            salary_min: j.salary_min ? Math.round(j.salary_min) : null,
+            salary_max: j.salary_max ? Math.round(j.salary_max) : null,
             description: j.description,
             contract_time: j.contract_time,
             contract_type: j.contract_type,
             redirect_url: j.redirect_url,
             category: j.category,
-            posted_at: j.posted_at,
+            posted_at: j.posted_at || null,
             score: j.score,
           })),
           { onConflict: 'session_id,adzuna_id', ignoreDuplicates: true }
-        )
+        ).then(() => {}, () => {})
       }
     } catch (e: any) {
       setError('Could not load jobs. Check your connection.')
@@ -238,7 +239,8 @@ export default function Dashboard() {
           setProfile(data.profile as UserProfile)
           if (data.profile.location) {
             setProfileLocation(data.profile.location)
-            prefetchSectors(data.profile.location)
+            // Delay so the matched-jobs fetch completes before sector fetches start
+            setTimeout(() => prefetchSectors(data.profile.location), 2500)
           }
         }
         if (data?.plan === 'active') setPlan('active')
