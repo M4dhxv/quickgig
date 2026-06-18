@@ -196,6 +196,15 @@ export default function Results() {
         <p style={{ textAlign: 'center', fontSize: 12, color: '#9ca3af', marginTop: 16 }}>
           Cancel anytime · Secure payment via Stripe
         </p>
+
+        <div style={{ textAlign: 'center', marginTop: 12 }}>
+          <button
+            onClick={() => navigate('/dashboard', { state: { fileName, sessionId } })}
+            style={{ background: 'none', border: 'none', fontSize: 12, color: '#9ca3af', cursor: 'pointer', textDecoration: 'underline' }}
+          >
+            Skip for now
+          </button>
+        </div>
       </div>
     </div>
   )
