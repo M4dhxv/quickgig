@@ -149,7 +149,15 @@ export default function Dashboard() {
   const [voicePhase, setVoicePhase] = useState<'listening' | 'thinking' | 'speaking'>('listening')
   const [sessionId] = useState(() => {
     const params = new URLSearchParams(window.location.search)
-    return params.get('session_id') ?? state?.sessionId ?? localStorage.getItem('gg_sid') ?? crypto.randomUUID()
+    // Trusted sources carry a real session that owns a profile/plan.
+    const trusted = params.get('session_id') || state?.sessionId
+    if (trusted) {
+      localStorage.setItem('gg_sid', trusted)
+      return trusted
+    }
+    // Returning visit — reuse the canonical session, but NEVER persist a
+    // throwaway random id (that would poison every future load).
+    return localStorage.getItem('gg_sid') ?? crypto.randomUUID()
   })
   const [paymentSuccess] = useState(() => new URLSearchParams(window.location.search).get('payment') === 'success')
 
@@ -234,8 +242,6 @@ export default function Dashboard() {
       setSectorsLoading(prev => { const n = new Set(prev); n.delete(sector); return n })
     }
   }, [])
-
-  useEffect(() => { localStorage.setItem('gg_sid', sessionId) }, [sessionId])
 
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
 

@@ -92,6 +92,9 @@ export default function Landing() {
   async function handleFile(f: File) {
     setFileName(f.name)
     const sessionId = crypto.randomUUID()
+    // This is the canonical session — persist it now so a refresh anywhere
+    // in the flow (and the post-payment return) resolves the same identity.
+    localStorage.setItem('gg_sid', sessionId)
     const mediaType = f.type || 'application/pdf'
 
     // Read as base64 so the edge function can send it to Claude as a PDF document
