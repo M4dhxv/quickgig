@@ -850,11 +850,6 @@ export default function Dashboard() {
                         disabled={!!checkoutLoading}
                         style={{ width:'100%', padding:'9px 0', border:'1.5px solid #10b981', borderRadius:9, fontSize:13, fontWeight:700, color:'#fff', background:'#10b981', cursor:'pointer', opacity: checkoutLoading === 'price_1TkLsWCvrCGyWAcEIQvPwpr7' ? 0.6 : 1 }}
                       >{checkoutLoading === 'price_1TkLsWCvrCGyWAcEIQvPwpr7' ? 'Loading…' : '$19.99 / month — save 38%'}</button>
-                      <button
-                        onClick={openPortal}
-                        disabled={portalLoading}
-                        style={{ width:'100%', padding:'7px 0', border:'none', background:'none', fontSize:12, color:'#9ca3af', cursor:'pointer', textDecoration:'underline' }}
-                      >{portalLoading ? 'Loading…' : 'Already subscribed? Manage billing'}</button>
                     </div>
                   )}
                 </div>
