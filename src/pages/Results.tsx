@@ -23,9 +23,9 @@ const PLANS = [
     color: '#fff',
     textColor: '#111',
     borderColor: '#e5e7eb',
-    features: ['All matched roles', 'Match score per role', 'Apply directly'],
-    cta: 'Start Weekly',
-    ctaBg: '#111',
+    features: ['Every job matched to you', 'Instant WhatsApp alerts', 'Apply first — near you'],
+    cta: 'Get Weekly',
+    ctaBg: '#0E1633',
     ctaColor: '#fff',
   },
   {
@@ -37,8 +37,8 @@ const PLANS = [
     color: '#FF5A1F',
     textColor: '#fff',
     borderColor: '#FF5A1F',
-    features: ['All matched roles', 'Sarah chat — prep for every interview', 'Salary insights & negotiation tips', 'New matches as posted', 'Save 38% vs weekly'],
-    cta: 'Unlock Monthly',
+    features: ['Everything in Weekly', 'Sarah — interview prep & advice', 'New matches the second they post', 'Save 38% vs weekly'],
+    cta: 'Get Monthly',
     ctaBg: '#fff',
     ctaColor: '#FF5A1F',
     popular: true,
@@ -113,13 +113,13 @@ export default function Results() {
             padding: '5px 14px', fontSize: 11, fontWeight: 700, color: '#E8430A',
             letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 16,
           }}>
-            ✦ Sarah found your matches
+            ✦ Matched to jobs near you
           </div>
           <h1 style={{ fontSize: 38, fontWeight: 800, letterSpacing: '-1px', marginBottom: 12 }}>
-            <span style={{ color: '#FF5A1F' }}>{jobCount.toLocaleString()} roles</span> matched your profile
+            <span style={{ color: '#FF5A1F' }}>{jobCount.toLocaleString()} jobs</span> near you, matched
           </h1>
           <p style={{ color: '#6b7280', fontSize: 15, lineHeight: 1.6 }}>
-            Unlock your results to see every match, chat with Sarah<br />about each role, and start applying.
+            Unlock to see every match, get WhatsApp alerts the moment<br />new ones drop, and apply first.
           </p>
         </div>
 

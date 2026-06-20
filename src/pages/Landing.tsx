@@ -11,10 +11,10 @@ const CATEGORIES = [
 ]
 
 const STEPS = [
-  { icon: '🔍', label: 'Reading your CV for skills, experience and qualifications' },
-  { icon: '👤', label: 'Building a profile of your background and career goals' },
-  { icon: '📋', label: 'Scanning 48,000 roles across every sector' },
-  { icon: '📊', label: 'Ranking matches by fit, location and salary' },
+  { icon: '📄', label: 'Upload your CV once — or just tell us what you do' },
+  { icon: '📍', label: 'We match you to real frontline jobs near you, every minute' },
+  { icon: '💬', label: 'Get a WhatsApp ping the moment a match drops' },
+  { icon: '🥇', label: 'Apply first — before the gig fills up' },
 ]
 
 const S: Record<string, React.CSSProperties> = {
@@ -134,9 +134,9 @@ export default function Landing() {
           GigNearby
         </div>
         <div style={S.navLinks}>
-          <span style={S.navLink}>How it works</span>
-          <span style={S.navLink}>Pricing</span>
-          <button style={S.signIn}>Sign In</button>
+          <span style={S.navLink} onClick={() => document.getElementById('how')?.scrollIntoView({ behavior: 'smooth' })}>How it works</span>
+          <span style={S.navLink} onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}>Pricing</span>
+          <button style={S.signIn} onClick={() => fileRef.current?.click()}>Get started</button>
         </div>
       </nav>
 
@@ -145,20 +145,19 @@ export default function Landing() {
           <div className="fade-up">
             <div style={S.badge}>
               <span style={S.dot} />
-              48,000+ active roles
+              48,000+ live jobs
               <span style={{ color: '#d1d5db' }}>·</span>
-              <span style={{ textTransform: 'uppercase', letterSpacing: '0.06em', fontSize: 11 }}>Matched in seconds</span>
+              <span style={{ textTransform: 'uppercase', letterSpacing: '0.06em', fontSize: 11 }}>Updated every minute</span>
             </div>
           </div>
           <h1 style={S.h1} className="fade-up d1">
-            Upload your CV.<br />
-            Sarah finds your<br />
-            next role.
+            The closest<br />
+            jobs, <span style={{ color: 'var(--brand)' }}>first.</span>
           </h1>
           <p style={S.sub} className="fade-up d2">
-            Sarah reads your CV, understands your background,
-            and matches you with real roles across every sector
-            — in seconds.
+            Upload your CV once. GigNearby matches you to frontline jobs
+            near you and pings you on WhatsApp the moment one opens —
+            so you're first in line.
           </p>
 
           <div className="fade-up d3">
@@ -188,7 +187,7 @@ export default function Landing() {
                 Browse
               </button>
             </div>
-            <p style={S.hint}>PDF, DOC or DOCX · Free to match</p>
+            <p style={S.hint}>PDF, DOC, image &amp; more · Free — no account needed</p>
           </div>
 
           <div style={S.chips} className="fade-up d4">
@@ -229,6 +228,80 @@ export default function Landing() {
           </div>
         </div>
       </div>
+
+      {/* How it works */}
+      <section id="how" style={{ background: '#fff', borderTop: '1px solid #eef0f5', padding: '72px 40px' }}>
+        <div style={{ maxWidth: 1120, margin: '0 auto' }}>
+          <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--brand-hover)', marginBottom: 12 }}>How it works</div>
+          <h2 style={{ fontFamily: 'Archivo, sans-serif', fontSize: 38, fontWeight: 800, letterSpacing: '-1px', marginBottom: 12 }}>No forms. No waiting. No chasing.</h2>
+          <p style={{ color: 'var(--muted)', fontSize: 17, maxWidth: 560, marginBottom: 40 }}>You do one thing — upload your CV. GigNearby does the rest, and gets you to the closest jobs before anyone else.</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 18 }}>
+            {[
+              { n: '01', icon: '📄', t: 'Upload once', d: 'Drop your CV — PDF, Word, even a photo. No account, no forms, no fee.' },
+              { n: '02', icon: '📍', t: 'Matched nearby', d: 'We read your background and scan live job listings near you, every minute.' },
+              { n: '03', icon: '💬', t: 'Pinged on WhatsApp', d: 'The moment a match opens up close to you, your phone buzzes — first.' },
+              { n: '04', icon: '🥇', t: 'Apply first', d: "Tap through and apply before the gig fills up. Sarah helps you prep, too." },
+            ].map(s => (
+              <div key={s.n} style={{ background: 'var(--bg)', border: '1px solid #eef0f5', borderRadius: 16, padding: 24 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: 'var(--brand-tint)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>{s.icon}</div>
+                  <span style={{ fontFamily: 'Space Mono, monospace', fontSize: 14, color: 'var(--brand)', fontWeight: 700 }}>{s.n}</span>
+                </div>
+                <div style={{ fontFamily: 'Archivo, sans-serif', fontWeight: 700, fontSize: 18, marginBottom: 6 }}>{s.t}</div>
+                <p style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.55 }}>{s.d}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section id="pricing" style={{ background: 'var(--ink)', color: '#fff', padding: '72px 40px' }}>
+        <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+          <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#ff9c75', marginBottom: 12 }}>Pricing</div>
+          <h2 style={{ fontFamily: 'Archivo, sans-serif', fontSize: 38, fontWeight: 800, letterSpacing: '-1px', marginBottom: 12 }}>Free to start. Pay only to unlock every match.</h2>
+          <p style={{ color: '#aab0c4', fontSize: 17, maxWidth: 560, marginBottom: 40 }}>Matching and your first alerts are always free. Upgrade for every nearby job, instant WhatsApp alerts, and Sarah on call.</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 18 }}>
+            {[
+              { name: 'Free', price: '$0', period: 'forever', popular: false, feats: ['See your top matches', 'Sample WhatsApp alerts', 'No account needed'], cta: 'Start free' },
+              { name: 'Weekly', price: '$7.99', period: 'per week', popular: false, feats: ['Every job matched to you', 'Instant WhatsApp alerts', 'Sarah — interview prep & advice'], cta: 'Get Weekly' },
+              { name: 'Monthly', price: '$19.99', period: 'per month', popular: true, feats: ['Everything in Weekly', 'New matches the second they post', 'Save 38% vs weekly'], cta: 'Get Monthly' },
+            ].map(p => (
+              <div key={p.name} style={{ position: 'relative', background: p.popular ? 'var(--brand)' : 'rgba(255,255,255,0.04)', border: `1px solid ${p.popular ? 'var(--brand)' : 'rgba(255,255,255,0.12)'}`, borderRadius: 18, padding: 28 }}>
+                {p.popular && <span style={{ position: 'absolute', top: 18, right: 18, background: '#fff', color: 'var(--brand)', fontSize: 11, fontWeight: 800, letterSpacing: '0.05em', textTransform: 'uppercase', padding: '4px 10px', borderRadius: 999 }}>Most popular</span>}
+                <div style={{ fontFamily: 'Archivo, sans-serif', fontWeight: 700, fontSize: 16, color: p.popular ? '#fff' : '#aab0c4', marginBottom: 10 }}>{p.name}</div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 20 }}>
+                  <span style={{ fontFamily: 'Archivo, sans-serif', fontSize: 40, fontWeight: 900, letterSpacing: '-1px' }}>{p.price}</span>
+                  <span style={{ fontSize: 14, color: p.popular ? 'rgba(255,255,255,0.85)' : '#8b91a6' }}>{p.period}</span>
+                </div>
+                <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
+                  {p.feats.map(f => (
+                    <li key={f} style={{ display: 'flex', gap: 8, fontSize: 14, color: p.popular ? '#fff' : '#d6dae6' }}>
+                      <span style={{ color: p.popular ? '#fff' : 'var(--brand)', fontWeight: 800 }}>✓</span> {f}
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  onClick={() => fileRef.current?.click()}
+                  style={{ width: '100%', padding: '12px 0', borderRadius: 11, fontSize: 15, fontWeight: 700, cursor: 'pointer', border: 'none', background: p.popular ? '#fff' : 'var(--brand)', color: p.popular ? 'var(--brand)' : '#fff' }}
+                >{p.cta}</button>
+              </div>
+            ))}
+          </div>
+          <p style={{ color: '#8b91a6', fontSize: 13, marginTop: 20 }}>Cancel anytime from your profile. Free for workers — employers pay to reach you, never you.</p>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer style={{ background: '#fff', borderTop: '1px solid #eef0f5', padding: '32px 40px' }}>
+        <div style={{ maxWidth: 1120, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Archivo, sans-serif', fontWeight: 800, fontSize: 18 }}>
+            <div style={S.logoMark}><svg viewBox="0 0 24 24" width="64%" height="64%" fill="#fff" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.2C8.2 2.2 5.2 5.1 5.2 8.8c0 4.7 6.8 12 6.8 12s6.8-7.3 6.8-12c0-3.7-3-6.6-6.8-6.6Z"/><circle cx="12" cy="8.7" r="2.5" fill="#FF5A1F"/></svg></div>
+            GigNearby
+          </div>
+          <span style={{ fontSize: 13, color: 'var(--muted)' }}>The closest jobs, first. · gignearby.com</span>
+        </div>
+      </footer>
     </div>
   )
 }
