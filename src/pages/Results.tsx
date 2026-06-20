@@ -34,19 +34,19 @@ const PLANS = [
     name: 'MONTHLY',
     price: '$19.99',
     period: 'per month',
-    color: '#10b981',
+    color: '#FF5A1F',
     textColor: '#fff',
-    borderColor: '#10b981',
+    borderColor: '#FF5A1F',
     features: ['All matched roles', 'Sarah chat — prep for every interview', 'Salary insights & negotiation tips', 'New matches as posted', 'Save 38% vs weekly'],
     cta: 'Unlock Monthly',
     ctaBg: '#fff',
-    ctaColor: '#10b981',
+    ctaColor: '#FF5A1F',
     popular: true,
   },
 ]
 
 function ScoreBadge({ score }: { score: number }) {
-  const color = score >= 90 ? '#10b981' : score >= 80 ? '#f59e0b' : '#6b7280'
+  const color = score >= 90 ? '#FF5A1F' : score >= 80 ? '#f59e0b' : '#6b7280'
   return (
     <div style={{
       padding: '4px 10px', borderRadius: 100, fontSize: 12, fontWeight: 700,
@@ -97,8 +97,8 @@ export default function Results() {
 
       <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 40px', background: '#fff', borderBottom: '1px solid #e5e7eb' }}>
         <div style={{ fontWeight: 800, fontSize: 20, display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }} onClick={() => navigate('/')}>
-          <div style={{ width: 28, height: 28, borderRadius: 8, background: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>⚡</div>
-          giggrab
+          <div style={{ width: 28, height: 28, borderRadius: 8, background: '#FF5A1F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}><svg viewBox="0 0 24 24" width="64%" height="64%" fill="#fff" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.2C8.2 2.2 5.2 5.1 5.2 8.8c0 4.7 6.8 12 6.8 12s6.8-7.3 6.8-12c0-3.7-3-6.6-6.8-6.6Z"/><circle cx="12" cy="8.7" r="2.5" fill="#FF5A1F"/></svg></div>
+          GigNearby
         </div>
         <button style={{ background: 'none', border: 'none', fontSize: 14, color: '#6b7280', cursor: 'pointer' }} onClick={() => navigate('/')}>
           ← New search
@@ -109,14 +109,14 @@ export default function Results() {
         <div className="fade-up" style={{ textAlign: 'center', marginBottom: 40 }}>
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: 6,
-            background: '#f0fdf4', border: '1px solid #a7f3d0', borderRadius: 100,
-            padding: '5px 14px', fontSize: 11, fontWeight: 700, color: '#059669',
+            background: '#FFF5F0', border: '1px solid #FFD0BD', borderRadius: 100,
+            padding: '5px 14px', fontSize: 11, fontWeight: 700, color: '#E8430A',
             letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 16,
           }}>
             ✦ Sarah found your matches
           </div>
           <h1 style={{ fontSize: 38, fontWeight: 800, letterSpacing: '-1px', marginBottom: 12 }}>
-            <span style={{ color: '#10b981' }}>{jobCount.toLocaleString()} roles</span> matched your profile
+            <span style={{ color: '#FF5A1F' }}>{jobCount.toLocaleString()} roles</span> matched your profile
           </h1>
           <p style={{ color: '#6b7280', fontSize: 15, lineHeight: 1.6 }}>
             Unlock your results to see every match, chat with Sarah<br />about each role, and start applying.
@@ -159,7 +159,7 @@ export default function Results() {
               {plan.popular && (
                 <div style={{
                   position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)',
-                  background: '#10b981', color: '#fff', fontSize: 10, fontWeight: 700,
+                  background: '#FF5A1F', color: '#fff', fontSize: 10, fontWeight: 700,
                   letterSpacing: '0.1em', padding: '3px 12px', borderRadius: 100, textTransform: 'uppercase',
                 }}>Most Popular</div>
               )}
@@ -171,7 +171,7 @@ export default function Results() {
               <ul style={{ listStyle: 'none', marginBottom: 20, marginTop: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {plan.features.map(f => (
                   <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, color: plan.popular ? 'rgba(255,255,255,0.88)' : '#374151', lineHeight: 1.4 }}>
-                    <span style={{ color: plan.popular ? '#fff' : '#10b981', fontWeight: 700, flexShrink: 0 }}>✓</span>
+                    <span style={{ color: plan.popular ? '#fff' : '#FF5A1F', fontWeight: 700, flexShrink: 0 }}>✓</span>
                     {f}
                   </li>
                 ))}
@@ -219,12 +219,12 @@ function RoleCard({ role, locked }: { role: typeof ROLES[0]; locked: boolean }) 
       <div>
         <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 3 }}>{role.title}</div>
         <div style={{ fontSize: 13, color: '#6b7280' }}>{role.company} · {role.location}</div>
-        {!locked && <div style={{ fontSize: 12, color: '#10b981', fontWeight: 600, marginTop: 4 }}>{role.salary}</div>}
+        {!locked && <div style={{ fontSize: 12, color: '#FF5A1F', fontWeight: 600, marginTop: 4 }}>{role.salary}</div>}
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
         <ScoreBadge score={role.score} />
         {role.badge && (
-          <div style={{ fontSize: 10, fontWeight: 700, color: '#10b981', background: '#f0fdf4', border: '1px solid #a7f3d0', borderRadius: 100, padding: '2px 8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: '#FF5A1F', background: '#FFF5F0', border: '1px solid #FFD0BD', borderRadius: 100, padding: '2px 8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             {role.badge}
           </div>
         )}

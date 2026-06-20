@@ -130,8 +130,8 @@ export default function Landing() {
     <div>
       <nav style={S.nav}>
         <div style={S.logo}>
-          <div style={S.logoMark}>⚡</div>
-          giggrab
+          <div style={S.logoMark}><svg viewBox="0 0 24 24" width="64%" height="64%" fill="#fff" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.2C8.2 2.2 5.2 5.1 5.2 8.8c0 4.7 6.8 12 6.8 12s6.8-7.3 6.8-12c0-3.7-3-6.6-6.8-6.6Z"/><circle cx="12" cy="8.7" r="2.5" fill="#FF5A1F"/></svg></div>
+          GigNearby
         </div>
         <div style={S.navLinks}>
           <span style={S.navLink}>How it works</span>

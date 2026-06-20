@@ -1,0 +1,10 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="GigNearby">
+  <!-- cobalt ping (alert) -->
+  <g stroke="#2E5BFF" stroke-width="7" stroke-linecap="round" fill="none">
+    <path d="M86 26 A20 20 0 0 1 100 40"/>
+    <path d="M88 38 A8 8 0 0 1 94 44"/>
+  </g>
+  <!-- pin -->
+  <path d="M52 8 C30 8 12 25.5 12 47 C12 75 52 110 52 110 C52 110 92 75 92 47 C92 25.5 74 8 52 8 Z" fill="#FF5A1F"/>
+  <circle cx="52" cy="45" r="15" fill="#FFFFFF"/>
+</svg>

@@ -69,7 +69,7 @@ function CompanyLogo({ company, redirectUrl, size = 48 }: { company: string; red
   const [err, setErr] = useState(false)
   const url = getLogoUrl(company, redirectUrl)
   const initials = company.replace(/[^a-zA-Z ]/g, '').split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase() || '?'
-  const palette = ['#10b981','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#ec4899','#06b6d4','#84cc16']
+  const palette = ['#FF5A1F','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#ec4899','#06b6d4','#84cc16']
   const color = palette[company.split('').reduce((a, c) => a + c.charCodeAt(0), 0) % palette.length]
   if (!url || err) {
     return (
@@ -117,7 +117,7 @@ function getTime() {
 }
 
 function scoreColor(s: number) {
-  return s >= 88 ? '#10b981' : s >= 75 ? '#f59e0b' : '#6b7280'
+  return s >= 88 ? '#FF5A1F' : s >= 75 ? '#f59e0b' : '#6b7280'
 }
 
 export default function Dashboard() {
@@ -494,7 +494,7 @@ export default function Dashboard() {
   }, [jobs, sectorJobs, view, sectorFilter, brandFilter])
 
   return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#f9fafb', fontFamily: 'Inter, sans-serif' }}>
+    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#f9fafb', fontFamily: 'Hanken Grotesk, sans-serif' }}>
       <style>{`
         @keyframes pulse-ring { 0% { transform:scale(1);opacity:.6; } 100% { transform:scale(2.2);opacity:0; } }
         @keyframes wave { 0%,100% { height:8px; } 50% { height:28px; } }
@@ -503,16 +503,16 @@ export default function Dashboard() {
         .gg-in { animation:fadeUp .3s ease-out both; }
         .role-card { transition:box-shadow .15s,border-color .15s; cursor:pointer; }
         .role-card:hover { box-shadow:0 4px 16px rgba(0,0,0,.09); }
-        .save-btn:hover { color:#10b981 !important; border-color:#10b981 !important; }
-        .share-btn:hover { color:#10b981 !important; border-color:#10b981 !important; }
+        .save-btn:hover { color:#FF5A1F !important; border-color:#FF5A1F !important; }
+        .share-btn:hover { color:#FF5A1F !important; border-color:#FF5A1F !important; }
         ::-webkit-scrollbar { width:4px; } ::-webkit-scrollbar-thumb { background:#d1d5db; border-radius:2px; }
       `}</style>
 
       {/* Nav */}
       <nav style={{ background:'#fff', borderBottom:'1px solid #e5e7eb', padding:'0 24px', height:56, display:'flex', alignItems:'center', justifyContent:'space-between', flexShrink:0, gap:16 }}>
         <div style={{ display:'flex', alignItems:'center', gap:8, fontWeight:800, fontSize:18, cursor:'pointer', flexShrink:0 }} onClick={() => navigate('/')}>
-          <div style={{ width:26, height:26, borderRadius:7, background:'#10b981', display:'flex', alignItems:'center', justifyContent:'center', fontSize:13 }}>⚡</div>
-          giggrab
+          <div style={{ width:26, height:26, borderRadius:7, background:'#FF5A1F', display:'flex', alignItems:'center', justifyContent:'center', fontSize:13 }}><svg viewBox="0 0 24 24" width="64%" height="64%" fill="#fff" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.2C8.2 2.2 5.2 5.1 5.2 8.8c0 4.7 6.8 12 6.8 12s6.8-7.3 6.8-12c0-3.7-3-6.6-6.8-6.6Z"/><circle cx="12" cy="8.7" r="2.5" fill="#FF5A1F"/></svg></div>
+          GigNearby
         </div>
 
         <form onSubmit={handleSearch} style={{ flex:1, maxWidth:440, display:'flex', gap:8 }}>
@@ -522,7 +522,7 @@ export default function Dashboard() {
             placeholder="Search roles, e.g. 'forklift driver'"
             style={{ flex:1, background:'#f3f4f6', border:'1px solid #e5e7eb', borderRadius:8, padding:'7px 12px', fontSize:13, outline:'none', color:'#111' }}
           />
-          <button type="submit" style={{ background:'#10b981', color:'#fff', border:'none', borderRadius:8, padding:'7px 16px', fontSize:13, fontWeight:600, cursor:'pointer' }}>
+          <button type="submit" style={{ background:'#FF5A1F', color:'#fff', border:'none', borderRadius:8, padding:'7px 16px', fontSize:13, fontWeight:600, cursor:'pointer' }}>
             Search
           </button>
         </form>
@@ -532,14 +532,14 @@ export default function Dashboard() {
           <div
             title={profile?.name ?? 'Your profile'}
             onClick={() => setProfileOpen(o => !o)}
-            style={{ width:32, height:32, borderRadius:'50%', background:'#10b981', color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:700, fontSize:13, cursor:'pointer', flexShrink:0, userSelect:'none' }}
+            style={{ width:32, height:32, borderRadius:'50%', background:'#FF5A1F', color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:700, fontSize:13, cursor:'pointer', flexShrink:0, userSelect:'none' }}
           >{profile?.name?.[0]?.toUpperCase() ?? 'J'}</div>
         </div>
       </nav>
 
       {/* Body */}
       {paymentSuccess && (
-        <div style={{ background:'#10b981', color:'#fff', padding:'10px 20px', fontSize:13, fontWeight:600, display:'flex', alignItems:'center', justifyContent:'center', gap:8, flexShrink:0 }}>
+        <div style={{ background:'#FF5A1F', color:'#fff', padding:'10px 20px', fontSize:13, fontWeight:600, display:'flex', alignItems:'center', justifyContent:'center', gap:8, flexShrink:0 }}>
           ✓ Payment successful — you now have full access!
         </div>
       )}
@@ -555,9 +555,9 @@ export default function Dashboard() {
               onClick={() => { setView('matched'); setSectorFilter('All Jobs'); setBrandFilter('') }}
               style={{
                 padding:'5px 14px', borderRadius:100, fontSize:12, fontWeight:700, cursor:'pointer', whiteSpace:'nowrap', flexShrink:0,
-                background: view === 'matched' ? '#10b981' : '#fff',
+                background: view === 'matched' ? '#FF5A1F' : '#fff',
                 color:      view === 'matched' ? '#fff'    : '#6b7280',
-                border:     `1px solid ${view === 'matched' ? '#10b981' : '#e5e7eb'}`,
+                border:     `1px solid ${view === 'matched' ? '#FF5A1F' : '#e5e7eb'}`,
                 display:'flex', alignItems:'center', gap:5,
               }}
             >✦ Matched</button>
@@ -592,11 +592,11 @@ export default function Dashboard() {
                   <button key={b.name} onClick={() => setBrandFilter(b.name === 'All' ? '' : b.name)} style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:5, background:'none', border:'none', cursor:'pointer', flexShrink:0, padding:'6px 4px', borderRadius:10, outline:'none' }}>
                     <div style={{ position:'relative' }}>
                       {b.name === 'All'
-                        ? <div style={{ width:52, height:52, borderRadius:12, background: active ? '#10b981' : '#f3f4f6', border:`2px solid ${active ? '#10b981' : '#e5e7eb'}`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:20 }}>🔍</div>
-                        : <div style={{ border: `2px solid ${active ? '#10b981' : 'transparent'}`, borderRadius:'50%', padding:1 }}><CompanyLogo company={b.name} redirectUrl={b.redirectUrl} size={52} /></div>
+                        ? <div style={{ width:52, height:52, borderRadius:12, background: active ? '#FF5A1F' : '#f3f4f6', border:`2px solid ${active ? '#FF5A1F' : '#e5e7eb'}`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:20 }}>🔍</div>
+                        : <div style={{ border: `2px solid ${active ? '#FF5A1F' : 'transparent'}`, borderRadius:'50%', padding:1 }}><CompanyLogo company={b.name} redirectUrl={b.redirectUrl} size={52} /></div>
                       }
                     </div>
-                    <div style={{ fontSize:11, fontWeight:600, color: active ? '#10b981' : '#374151', maxWidth:64, textAlign:'center', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{b.name === 'All' ? 'All' : b.name.split(' ').slice(0,2).join(' ')}</div>
+                    <div style={{ fontSize:11, fontWeight:600, color: active ? '#FF5A1F' : '#374151', maxWidth:64, textAlign:'center', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{b.name === 'All' ? 'All' : b.name.split(' ').slice(0,2).join(' ')}</div>
                     <div style={{ fontSize:10, color:'#9ca3af' }}>{b.count} job{b.count !== 1 ? 's' : ''}</div>
                   </button>
                 )
@@ -612,7 +612,7 @@ export default function Dashboard() {
                 : `${brandFilter || sectorFilter} near you`}
               {!loading && <span style={{ marginLeft:8, fontSize:12, fontWeight:500, color:'#6b7280' }}>{visible.length} found</span>}
             </div>
-            {savedIds.size > 0 && <span style={{ fontSize:12, color:'#10b981', fontWeight:600 }}>♥ {savedIds.size} saved</span>}
+            {savedIds.size > 0 && <span style={{ fontSize:12, color:'#FF5A1F', fontWeight:600 }}>♥ {savedIds.size} saved</span>}
           </div>
 
           {/* Error */}
@@ -660,7 +660,7 @@ export default function Dashboard() {
                   <div
                     key={j.id}
                     className="role-card gg-in"
-                    style={{ animationDelay:`${i * 0.04}s`, background:'#fff', border:`1.5px solid ${expanded === j.id ? '#10b981' : '#e5e7eb'}`, borderRadius:14, padding:'14px 16px', boxShadow: expanded === j.id ? '0 0 0 3px rgba(16,185,129,0.08)' : undefined, display:'flex', gap:12, alignItems:'flex-start' }}
+                    style={{ animationDelay:`${i * 0.04}s`, background:'#fff', border:`1.5px solid ${expanded === j.id ? '#FF5A1F' : '#e5e7eb'}`, borderRadius:14, padding:'14px 16px', boxShadow: expanded === j.id ? '0 0 0 3px rgba(16,185,129,0.08)' : undefined, display:'flex', gap:12, alignItems:'flex-start' }}
                     onClick={() => setExpanded(expanded === j.id ? null : j.id)}
                   >
                     {/* Logo */}
@@ -673,7 +673,7 @@ export default function Dashboard() {
                         <div style={{ fontWeight:700, fontSize:14, color:'#111', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', flex:1 }}>{j.title}</div>
                         <div style={{ display:'flex', alignItems:'center', gap:8, flexShrink:0 }}>
                           <span style={{ fontSize:11, color:'#9ca3af' }}>{timeAgo(j.posted_at)}</span>
-                          <button className="save-btn" style={{ background:'none', border:'none', cursor:'pointer', fontSize:17, color: savedIds.has(j.id) ? '#10b981' : '#d1d5db', padding:0, lineHeight:1 }} onClick={e => { e.stopPropagation(); toggleSave(j) }}>
+                          <button className="save-btn" style={{ background:'none', border:'none', cursor:'pointer', fontSize:17, color: savedIds.has(j.id) ? '#FF5A1F' : '#d1d5db', padding:0, lineHeight:1 }} onClick={e => { e.stopPropagation(); toggleSave(j) }}>
                             {savedIds.has(j.id) ? '♥' : '♡'}
                           </button>
                         </div>
@@ -683,7 +683,7 @@ export default function Dashboard() {
                       <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:3 }}>
                         <div style={{ fontSize:12, color:'#6b7280', display:'flex', alignItems:'center', gap:4 }}>
                           {j.company}
-                          <span style={{ color:'#10b981', fontSize:11 }}>✓</span>
+                          <span style={{ color:'#FF5A1F', fontSize:11 }}>✓</span>
                         </div>
                         {view === 'matched'
                           ? <span style={{ padding:'2px 8px', borderRadius:100, fontSize:10, fontWeight:700, background:scoreColor(j.score)+'18', color:scoreColor(j.score), border:`1px solid ${scoreColor(j.score)}30` }}>{j.score}% match</span>
@@ -701,17 +701,17 @@ export default function Dashboard() {
                       {/* Row 4: badges + View Job */}
                       <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:6 }}>
                         <div style={{ display:'flex', gap:5, flexWrap:'wrap', alignItems:'center' }}>
-                          {j.contract_time && <span style={{ fontSize:11, fontWeight:600, background: j.contract_time === 'full_time' ? '#f0fdf4' : '#fefce8', color: j.contract_time === 'full_time' ? '#059669' : '#92400e', border: `1px solid ${j.contract_time === 'full_time' ? '#a7f3d0' : '#fde68a'}`, padding:'2px 8px', borderRadius:100 }}>{j.contract_time === 'full_time' ? 'Full-time' : 'Part-time'}</span>}
+                          {j.contract_time && <span style={{ fontSize:11, fontWeight:600, background: j.contract_time === 'full_time' ? '#FFF5F0' : '#fefce8', color: j.contract_time === 'full_time' ? '#E8430A' : '#92400e', border: `1px solid ${j.contract_time === 'full_time' ? '#FFD0BD' : '#fde68a'}`, padding:'2px 8px', borderRadius:100 }}>{j.contract_time === 'full_time' ? 'Full-time' : 'Part-time'}</span>}
                           <span style={{ fontSize:11, fontWeight:600, background:'#f3f4f6', color:'#374151', padding:'2px 8px', borderRadius:100 }}>{formatSalary(j.salary_min, j.salary_max)}</span>
                           {view === 'matched' && isNear && <span style={{ fontSize:11, fontWeight:600, background:'#eff6ff', color:'#1d4ed8', border:'1px solid #bfdbfe', padding:'2px 8px', borderRadius:100 }}>📍 Near you</span>}
-                          {bd.skills && view === 'matched' && <span style={{ fontSize:11, fontWeight:600, background:'#f0fdf4', color:'#059669', border:'1px solid #a7f3d0', padding:'2px 8px', borderRadius:100 }}>Skills match</span>}
+                          {bd.skills && view === 'matched' && <span style={{ fontSize:11, fontWeight:600, background:'#FFF5F0', color:'#E8430A', border:'1px solid #FFD0BD', padding:'2px 8px', borderRadius:100 }}>Skills match</span>}
                         </div>
                         <div style={{ display:'flex', gap:6, flexShrink:0 }}>
                           <button style={{ fontSize:12, fontWeight:600, color:'#6b7280', background:'none', border:'1px solid #e5e7eb', borderRadius:8, padding:'5px 10px', cursor:'pointer' }} onClick={e => { e.stopPropagation(); send(`Help me prep for the ${j.title} role at ${j.company}. Description: ${j.description.slice(0, 400)}`) }}>Ask Sarah</button>
-                          <button className="share-btn" style={{ fontSize:12, fontWeight:600, color: copiedId === j.id ? '#10b981' : '#6b7280', background:'none', border:`1px solid ${copiedId === j.id ? '#10b981' : '#e5e7eb'}`, borderRadius:8, padding:'5px 10px', cursor:'pointer', transition:'color .15s,border-color .15s' }} onClick={e => { e.stopPropagation(); shareJob(j) }}>
+                          <button className="share-btn" style={{ fontSize:12, fontWeight:600, color: copiedId === j.id ? '#FF5A1F' : '#6b7280', background:'none', border:`1px solid ${copiedId === j.id ? '#FF5A1F' : '#e5e7eb'}`, borderRadius:8, padding:'5px 10px', cursor:'pointer', transition:'color .15s,border-color .15s' }} onClick={e => { e.stopPropagation(); shareJob(j) }}>
                             {copiedId === j.id ? '✓ Copied' : '⎘ Share'}
                           </button>
-                          <a href={j.redirect_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} style={{ fontSize:12, fontWeight:700, color:'#fff', background:'#10b981', borderRadius:8, padding:'5px 14px', textDecoration:'none', display:'inline-block' }}>View Job</a>
+                          <a href={j.redirect_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} style={{ fontSize:12, fontWeight:700, color:'#fff', background:'#FF5A1F', borderRadius:8, padding:'5px 14px', textDecoration:'none', display:'inline-block' }}>View Job</a>
                         </div>
                       </div>
 
@@ -743,12 +743,12 @@ export default function Dashboard() {
         <div style={{ width:320, borderLeft:'1px solid #e5e7eb', background:'#fff', display:'flex', flexDirection:'column', flexShrink:0 }}>
           <div style={{ padding:'12px 14px', borderBottom:'1px solid #f3f4f6', display:'flex', alignItems:'center', gap:10 }}>
             <div style={{ position:'relative' }}>
-              <div style={{ width:34, height:34, borderRadius:'50%', background:'linear-gradient(135deg,#10b981,#059669)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:15 }}>✦</div>
-              <div style={{ position:'absolute', bottom:1, right:1, width:8, height:8, borderRadius:'50%', background:'#10b981', border:'2px solid #fff' }} />
+              <div style={{ width:34, height:34, borderRadius:'50%', background:'linear-gradient(135deg,#FF5A1F,#E8430A)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:15 }}>✦</div>
+              <div style={{ position:'absolute', bottom:1, right:1, width:8, height:8, borderRadius:'50%', background:'#FF5A1F', border:'2px solid #fff' }} />
             </div>
             <div>
               <div style={{ fontWeight:700, fontSize:13 }}>Sarah</div>
-              <div style={{ fontSize:11, color:'#10b981' }}>AI Career Agent · Online</div>
+              <div style={{ fontSize:11, color:'#FF5A1F' }}>AI Career Agent · Online</div>
             </div>
           </div>
 
@@ -758,7 +758,7 @@ export default function Dashboard() {
                 <div style={{
                   maxWidth:'88%', padding:'8px 12px',
                   borderRadius: m.from === 'user' ? '13px 13px 4px 13px' : '13px 13px 13px 4px',
-                  background: m.from === 'user' ? '#10b981' : '#f3f4f6',
+                  background: m.from === 'user' ? '#FF5A1F' : '#f3f4f6',
                   color: m.from === 'user' ? '#fff' : '#111',
                   fontSize:13, lineHeight:1.5,
                 }}>{m.text}</div>
@@ -784,7 +784,7 @@ export default function Dashboard() {
               >🎙️</button>
               <button
                 onClick={() => send(chatInput)}
-                style={{ width:28, height:28, borderRadius:7, background:'#10b981', border:'none', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', fontSize:14, flexShrink:0, color:'#fff', fontWeight:700 }}
+                style={{ width:28, height:28, borderRadius:7, background:'#FF5A1F', border:'none', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', fontSize:14, flexShrink:0, color:'#fff', fontWeight:700 }}
               >↑</button>
             </div>
             <p style={{ fontSize:10, color:'#9ca3af', textAlign:'center', marginTop:5 }}>Prep · negotiate · apply</p>
@@ -820,7 +820,7 @@ export default function Dashboard() {
 
                 {/* Identity */}
                 <div style={{ display:'flex', alignItems:'center', gap:14 }}>
-                  <div style={{ width:52, height:52, borderRadius:'50%', background:'#10b981', color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, fontWeight:700, flexShrink:0 }}>
+                  <div style={{ width:52, height:52, borderRadius:'50%', background:'#FF5A1F', color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, fontWeight:700, flexShrink:0 }}>
                     {profile.name?.[0]?.toUpperCase() ?? '?'}
                   </div>
                   <div>
@@ -845,7 +845,7 @@ export default function Dashboard() {
                     <span style={{ fontSize:20, flexShrink:0 }}>📄</span>
                     <div style={{ flex:1, minWidth:0 }}>
                       <div style={{ fontSize:13, fontWeight:600, color:'#111', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{cvFileName || 'No CV uploaded'}</div>
-                      {cvUpdating && <div style={{ fontSize:11, color:'#10b981', marginTop:2 }}>Updating…</div>}
+                      {cvUpdating && <div style={{ fontSize:11, color:'#FF5A1F', marginTop:2 }}>Updating…</div>}
                     </div>
                     {cvViewUrl && !cvUpdating && (
                       <a href={cvViewUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize:12, fontWeight:600, color:'#374151', textDecoration:'none', border:'1px solid #e5e7eb', borderRadius:8, padding:'5px 10px', flexShrink:0 }}>View</a>
@@ -853,7 +853,7 @@ export default function Dashboard() {
                     <button
                       onClick={() => cvInputRef.current?.click()}
                       disabled={cvUpdating}
-                      style={{ fontSize:12, fontWeight:700, color:'#fff', background:'#10b981', border:'none', borderRadius:8, padding:'5px 12px', cursor: cvUpdating ? 'default' : 'pointer', flexShrink:0, opacity: cvUpdating ? 0.6 : 1 }}
+                      style={{ fontSize:12, fontWeight:700, color:'#fff', background:'#FF5A1F', border:'none', borderRadius:8, padding:'5px 12px', cursor: cvUpdating ? 'default' : 'pointer', flexShrink:0, opacity: cvUpdating ? 0.6 : 1 }}
                     >Update</button>
                     <input
                       ref={cvInputRef}
@@ -879,7 +879,7 @@ export default function Dashboard() {
                     <div style={{ fontSize:11, fontWeight:700, color:'#9ca3af', textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:8 }}>Skills</div>
                     <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
                       {profile.skills.map(s => (
-                        <span key={s} style={{ fontSize:12, fontWeight:600, background:'#f0fdf4', color:'#059669', border:'1px solid #a7f3d0', borderRadius:100, padding:'3px 10px' }}>{s}</span>
+                        <span key={s} style={{ fontSize:12, fontWeight:600, background:'#FFF5F0', color:'#E8430A', border:'1px solid #FFD0BD', borderRadius:100, padding:'3px 10px' }}>{s}</span>
                       ))}
                     </div>
                   </div>
@@ -919,8 +919,8 @@ export default function Dashboard() {
                   {plan === 'active' ? (
                     <div>
                       <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:12 }}>
-                        <span style={{ width:8, height:8, borderRadius:'50%', background:'#10b981', display:'inline-block' }} />
-                        <span style={{ fontSize:13, fontWeight:600, color:'#059669' }}>Active — GigGrab Subscription</span>
+                        <span style={{ width:8, height:8, borderRadius:'50%', background:'#FF5A1F', display:'inline-block' }} />
+                        <span style={{ fontSize:13, fontWeight:600, color:'#E8430A' }}>Active — GigNearby Subscription</span>
                       </div>
                       <button
                         onClick={openPortal}
@@ -934,12 +934,12 @@ export default function Dashboard() {
                       <button
                         onClick={() => openCheckout('price_1TkLsWCvrCGyWAcEIQvPwpr7')}
                         disabled={!!checkoutLoading}
-                        style={{ width:'100%', padding:'9px 0', border:'1.5px solid #10b981', borderRadius:9, fontSize:13, fontWeight:700, color:'#10b981', background:'#f0fdf4', cursor:'pointer', opacity: checkoutLoading === 'price_1TkLsWCvrCGyWAcEIQvPwpr7' ? 0.6 : 1 }}
+                        style={{ width:'100%', padding:'9px 0', border:'1.5px solid #FF5A1F', borderRadius:9, fontSize:13, fontWeight:700, color:'#FF5A1F', background:'#FFF5F0', cursor:'pointer', opacity: checkoutLoading === 'price_1TkLsWCvrCGyWAcEIQvPwpr7' ? 0.6 : 1 }}
                       >{checkoutLoading === 'price_1TkLsWCvrCGyWAcEIQvPwpr7' ? 'Loading…' : '$7.99 / week'}</button>
                       <button
                         onClick={() => openCheckout('price_1TkLsWCvrCGyWAcEIQvPwpr7')}
                         disabled={!!checkoutLoading}
-                        style={{ width:'100%', padding:'9px 0', border:'1.5px solid #10b981', borderRadius:9, fontSize:13, fontWeight:700, color:'#fff', background:'#10b981', cursor:'pointer', opacity: checkoutLoading === 'price_1TkLsWCvrCGyWAcEIQvPwpr7' ? 0.6 : 1 }}
+                        style={{ width:'100%', padding:'9px 0', border:'1.5px solid #FF5A1F', borderRadius:9, fontSize:13, fontWeight:700, color:'#fff', background:'#FF5A1F', cursor:'pointer', opacity: checkoutLoading === 'price_1TkLsWCvrCGyWAcEIQvPwpr7' ? 0.6 : 1 }}
                       >{checkoutLoading === 'price_1TkLsWCvrCGyWAcEIQvPwpr7' ? 'Loading…' : '$19.99 / month — save 38%'}</button>
                     </div>
                   )}
@@ -961,7 +961,7 @@ export default function Dashboard() {
                 <div style={{ position:'absolute', inset:-10, borderRadius:'50%', border:'2px solid rgba(16,185,129,.2)', animation:'pulse-ring 1.4s ease-out infinite .4s' }} />
               </>
             )}
-            <div style={{ width:80, height:80, borderRadius:'50%', background:'linear-gradient(135deg,#10b981,#059669)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:34 }}>✦</div>
+            <div style={{ width:80, height:80, borderRadius:'50%', background:'linear-gradient(135deg,#FF5A1F,#E8430A)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:34 }}>✦</div>
           </div>
 
           <div style={{ fontSize:18, fontWeight:700, color:'#fff', marginBottom:16 }}>
@@ -972,7 +972,7 @@ export default function Dashboard() {
             <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:12, marginBottom:20 }}>
               <div style={{ display:'flex', alignItems:'flex-end', gap:4, height:36 }}>
                 {[1,1.5,2,1.5,2.5,1.8,2,1.2,1.7,1].map((_, i) => (
-                  <div key={i} style={{ width:4, borderRadius:2, background:'#10b981', animation:`wave .9s ease-in-out infinite`, animationDelay:`${i * 0.08}s`, height:8 }} />
+                  <div key={i} style={{ width:4, borderRadius:2, background:'#FF5A1F', animation:`wave .9s ease-in-out infinite`, animationDelay:`${i * 0.08}s`, height:8 }} />
                 ))}
               </div>
               {transcript && (

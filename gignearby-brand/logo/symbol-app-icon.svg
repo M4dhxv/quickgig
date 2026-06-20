@@ -1,0 +1,9 @@
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="GigNearby app icon">
+  <rect width="180" height="180" rx="40" fill="#0E1633"/>
+  <g stroke="#2E5BFF" stroke-width="9" stroke-linecap="round" fill="none">
+    <path d="M118 58 A24 24 0 0 1 135 75"/>
+    <path d="M120 73 A10 10 0 0 1 127 80"/>
+  </g>
+  <path d="M80 44 C57 44 39 62 39 84 C39 113 80 150 80 150 C80 150 121 113 121 84 C121 62 103 44 80 44 Z" fill="#FF5A1F"/>
+  <circle cx="80" cy="82" r="16" fill="#FFFFFF"/>
+</svg>

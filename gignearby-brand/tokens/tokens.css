@@ -1,0 +1,36 @@
+:root {
+  /* Color — GigNearby "Signal" (distinct from GigGrab emerald) */
+  --color-orange: #FF5A1F;        /* primary / CTA / ping */
+  --color-orange-deep: #E8430A;   /* hover/pressed, white-text-safe */
+  --color-cobalt: #2E5BFF;        /* secondary / location / links */
+  --color-ink: #0E1633;           /* ink navy — text & dark fields */
+  --color-haze: #F5F6FA;          /* light tint bg */
+  --color-slate: #5A6178;         /* muted text */
+  --color-line: #E4E7F0;          /* hairline */
+  --color-cloud: #FFFFFF;         /* surface */
+
+  /* Typography */
+  --font-display: "Archivo", system-ui, sans-serif;
+  --font-body: "Hanken Grotesk", system-ui, sans-serif;
+  --font-mono: "Space Mono", ui-monospace, monospace;
+
+  --font-size-h1: 60px;  --line-height-h1: 1.0;
+  --font-size-h2: 40px;  --line-height-h2: 1.05;
+  --font-size-h3: 26px;  --line-height-h3: 1.15;
+  --font-size-lead: 20px; --line-height-lead: 1.5;
+  --font-size-body: 16px; --line-height-body: 1.6;
+  --font-size-small: 14px; --line-height-small: 1.5;
+  --font-size-caption: 12px; --line-height-caption: 1.4;
+  --font-size-stat: 24px;
+
+  /* Spacing (8pt) */
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
+
+  /* Radius */
+  --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-pill: 999px;
+
+  /* Shadow */
+  --shadow-card: 0 4px 16px rgba(14,22,51,0.08);
+  --shadow-pop: 0 12px 32px rgba(14,22,51,0.16);
+}

@@ -3,3 +3,13 @@ dist
 .env
 .env.local
 .vercel
+
+# OS / tooling
+.DS_Store
+
+# Pika MCP companion skills + config (environment-specific)
+.agents/
+.claude/skills/
+.mcp.json
+skills-lock.json
+gignearby-brand-kit.zip

@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GigNearby — Brand Guidelines</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Hanken+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --orange:#FF5A1F;--orange-deep:#E8430A;--cobalt:#2E5BFF;--ink:#0E1633;
+    --haze:#F5F6FA;--slate:#5A6178;--line:#E4E7F0;--cloud:#fff;
+    --display:"Archivo",system-ui,sans-serif;
+    --body:"Hanken Grotesk",system-ui,sans-serif;
+    --mono:"Space Mono",ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--body);color:var(--ink);background:#c7ccda;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .page{width:1100px;height:792px;margin:24px auto;background:var(--cloud);position:relative;overflow:hidden;box-shadow:0 8px 40px rgba(14,22,51,.2);display:flex;flex-direction:column}
+  .pad{padding:64px}
+  .kicker{font-family:var(--body);font-weight:600;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--orange-deep)}
+  h1,h2,h3{font-family:var(--display);font-weight:900;letter-spacing:-.02em;line-height:1}
+  h2{font-size:40px;font-weight:800;line-height:1.05}
+  h3{font-size:22px;font-weight:700}
+  p{font-size:16px;line-height:1.6;color:var(--ink)}
+  .muted{color:var(--slate)}
+  .mono{font-family:var(--mono)}
+  .foot{position:absolute;bottom:26px;left:64px;right:64px;display:flex;justify-content:space-between;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--slate)}
+  .row{display:flex;gap:24px}.grow{flex:1}
+  .cover{background:var(--ink);color:var(--cloud);justify-content:space-between}
+  .cover h1{font-size:96px;color:var(--cloud)}
+  .cover .accent{color:var(--orange)}
+  .swatchwrap{display:flex;flex:1;border-radius:16px;overflow:hidden;border:1px solid var(--line)}
+  .swatch{flex:1;display:flex;flex-direction:column;justify-content:flex-end;padding:18px;color:#fff;min-height:300px}
+  .swatch small{display:block;font-family:var(--mono);font-size:12px;opacity:.92}
+  .swatch b{font-family:var(--display);font-size:18px;font-weight:800}
+  .chip{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--line);border-radius:12px}
+  .dot{width:22px;height:22px;border-radius:6px;flex:none}
+  .iconcell{display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px;border:1px solid var(--line);border-radius:14px;color:var(--ink)}
+  .iconcell span{font-size:11px;color:var(--slate)}
+  .grid-icons{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
+  .card{border:1px solid var(--line);border-radius:14px;padding:20px}
+  .photo{border-radius:14px;background:repeating-linear-gradient(135deg,#fde7df 0 14px,#fbdccf 14px 28px);border:1.5px dashed #f0a888;display:flex;align-items:center;justify-content:center;text-align:center;color:#b3491f;font-weight:600;font-size:13px;padding:16px}
+  .pill{display:inline-block;background:#fff2ec;color:var(--orange-deep);border:1px solid #ffd0bd;border-radius:999px;padding:4px 12px;font-size:13px;font-weight:600}
+  .do{border-left:4px solid var(--orange);background:#fff5f0}
+  .dont{border-left:4px solid var(--cobalt);background:#eef2ff}
+  .btn{display:inline-block;background:var(--orange);color:#fff;font-weight:700;padding:11px 20px;border-radius:12px;font-size:15px}
+  .alert{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:0 4px 16px rgba(14,22,51,.08);display:flex;gap:12px;align-items:center;max-width:360px}
+  .wa{width:38px;height:38px;border-radius:10px;background:var(--orange);flex:none;display:flex;align-items:center;justify-content:center}
+  @media print{body{background:#fff}.page{margin:0;box-shadow:none;page-break-after:always;width:100%;height:100vh}@page{size:1100px 792px;margin:0}}
+</style>
+</head>
+<body>
+
+<!-- 1. COVER -->
+<section class="page cover pad">
+  <div class="row" style="align-items:center;gap:14px">
+    <svg width="46" height="46" viewBox="0 0 120 120"><g stroke="#2E5BFF" stroke-width="7" stroke-linecap="round" fill="none"><path d="M86 26A20 20 0 0 1 100 40"/><path d="M88 38A8 8 0 0 1 94 44"/></g><path d="M52 8C30 8 12 25.5 12 47 12 75 52 110 52 110s40-35 40-63C92 25.5 74 8 52 8Z" fill="#FF5A1F"/><circle cx="52" cy="45" r="15" fill="#fff"/></svg>
+    <span style="font-family:var(--display);font-weight:900;font-size:26px;letter-spacing:-.02em">GigNearby</span>
+  </div>
+  <div>
+    <div class="kicker" style="color:#ff9c75">Brand Guidelines · v2 · gignearby.com</div>
+    <h1 style="margin-top:16px">The closest<br>jobs, <span class="accent">first.</span></h1>
+    <p style="margin-top:22px;max-width:560px;font-size:19px;line-height:1.5;color:#c7ccdd">Upload your CV once. GigNearby matches you to frontline jobs near you and pings you on WhatsApp the moment one drops — so you're first in line.</p>
+  </div>
+  <div class="row" style="gap:10px">
+    <span class="pill" style="background:rgba(255,255,255,.08);color:#ffb79c;border-color:rgba(255,255,255,.18)">Free for workers</span>
+    <span class="pill" style="background:rgba(255,255,255,.08);color:#ffb79c;border-color:rgba(255,255,255,.18)">32 languages</span>
+    <span class="pill" style="background:rgba(255,255,255,.08);color:#ffb79c;border-color:rgba(255,255,255,.18)">WhatsApp alerts</span>
+  </div>
+</section>
+
+<!-- 2. STRATEGY -->
+<section class="page pad">
+  <div class="kicker">01 — Strategy &amp; Positioning</div>
+  <h2 style="margin:14px 0 18px;max-width:780px">Job boards make workers chase. We bring the work to you — nearby, and first.</h2>
+  <div class="row">
+    <div class="grow">
+      <p style="max-width:520px">GigNearby is built for how frontline work actually gets filled: <b>fast, local, first-come.</b> No cover letters, no forms typed 40 times. Upload once; we do the looking — warehouse, care, hospitality, logistics, retail, delivery, cleaning, security — then ping you the instant a nearby match appears.</p>
+      <div style="margin-top:24px" class="card">
+        <div class="kicker">Anchor worker</div>
+        <p style="margin-top:8px"><b>Marcus, 26 — Houston.</b> Drives for a 3PL warehouse, switches jobs every ~8 months for a dollar more an hour. Lives on his phone, hates re-typing applications, hears about better gigs two weeks too late. GigNearby pings him the closest one first.</p>
+      </div>
+    </div>
+    <div style="width:300px">
+      <div class="card"><div class="kicker">Audience</div>
+        <p style="margin-top:8px;font-size:15px"><b>Primary:</b> US frontline/deskless workers (18–45) who change jobs often for better pay or hours. Phone-first, time-poor.</p>
+        <p style="margin-top:10px;font-size:15px"><b>Secondary:</b> Multilingual newcomers (32 languages) &amp; shift workers who need work close to home.</p>
+      </div>
+      <div class="card" style="margin-top:14px"><div class="kicker">Borrow this</div>
+        <p style="margin-top:8px;font-size:14px"><b>WhatsApp</b> — trusted, instant, everyone has it.<br><b>Citymapper</b> — confident map/pin wayfinding.<br><b>Strava</b> — bold orange energy.<br><b>Indeed</b> — be its opposite (no form maze).</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>GigNearby Brand Guidelines</span><span>Strategy</span></div>
+</section>
+
+<!-- 3. FOUNDATION -->
+<section class="page pad">
+  <div class="kicker">02 — Brand Foundation</div>
+  <h2 style="margin:14px 0 20px">Why we exist</h2>
+  <div class="row">
+    <div class="grow" style="max-width:560px">
+      <p>The job hunt was never built for frontline workers. It was built for office résumés and HR portals — endless forms, "we'll be in touch," listings already filled by the time you find them.</p>
+      <p style="margin-top:12px">GigNearby flips it. Upload your CV once — or just tell us what you do — and we read the live market every minute, find the matches near you, and the second one lands, your phone buzzes on WhatsApp. No scrolling. No forms. No waiting your turn.</p>
+      <p style="margin-top:12px"><b>Because for working people, getting there first isn't a luxury. It's the difference between the shift and the "sorry, just filled."</b></p>
+      <div class="card" style="margin-top:18px;background:#fff5f0;border-color:#ffd0bd">
+        <div class="kicker">Mission</div>
+        <p style="margin-top:6px;font-size:18px;font-family:var(--display);font-weight:800;color:var(--ink)">Get working people to good work near home, faster than anyone else — zero friction, zero gatekeeping.</p>
+      </div>
+    </div>
+    <div style="width:300px">
+      <div class="kicker">Values</div>
+      <ol style="margin:12px 0 0 0;list-style:none;display:flex;flex-direction:column;gap:12px">
+        <li><b>1 · Workers first, always.</b><br><span class="muted" style="font-size:14px">Free. No fees to get hired.</span></li>
+        <li><b>2 · Respect the hustle.</b><br><span class="muted" style="font-size:14px">Their time is money.</span></li>
+        <li><b>3 · Close to home counts.</b><br><span class="muted" style="font-size:14px">Proximity is a feature.</span></li>
+        <li><b>4 · First, not eventually.</b><br><span class="muted" style="font-size:14px">Speed is dignity.</span></li>
+        <li><b>5 · Everyone's welcome.</b><br><span class="muted" style="font-size:14px">32 languages. No account to start.</span></li>
+      </ol>
+    </div>
+  </div>
+  <div class="foot"><span>GigNearby Brand Guidelines</span><span>Foundation</span></div>
+</section>
+
+<!-- 4. LOGO -->
+<section class="page pad">
+  <div class="kicker">03 — Logo</div>
+  <h2 style="margin:14px 0 24px">The mark</h2>
+  <div class="row" style="align-items:center;gap:40px">
+    <div style="width:430px;height:300px;border:1px solid var(--line);border-radius:16px;display:flex;align-items:center;justify-content:center;gap:18px">
+      <svg width="92" height="92" viewBox="0 0 120 120"><g stroke="#2E5BFF" stroke-width="7" stroke-linecap="round" fill="none"><path d="M86 26A20 20 0 0 1 100 40"/><path d="M88 38A8 8 0 0 1 94 44"/></g><path d="M52 8C30 8 12 25.5 12 47 12 75 52 110 52 110s40-35 40-63C92 25.5 74 8 52 8Z" fill="#FF5A1F"/><circle cx="52" cy="45" r="15" fill="#fff"/></svg>
+      <span style="font-family:var(--display);font-weight:900;font-size:44px;letter-spacing:-.03em;color:var(--ink)">GigNearby</span>
+    </div>
+    <div class="grow">
+      <p style="max-width:380px">The symbol is a <b>map pin</b> (you're nearby) with a <b>cobalt ping</b> radiating off it (you're alerted first). The white centre is the "you are here" dot.</p>
+      <p style="max-width:380px;margin-top:12px;font-size:14px" class="muted">Wordmark: Archivo Black, tracking −0.02em. Clear space = one pin-width. Min symbol 16px; min wordmark 90px. Favicon drops the ping for legibility.</p>
+    </div>
+  </div>
+  <div class="row" style="margin-top:24px;gap:18px">
+    <div style="flex:1;background:var(--ink);border-radius:14px;height:150px;display:flex;align-items:center;justify-content:center;gap:12px">
+      <svg width="44" height="44" viewBox="0 0 120 120"><g stroke="#2E5BFF" stroke-width="7" stroke-linecap="round" fill="none"><path d="M86 26A20 20 0 0 1 100 40"/><path d="M88 38A8 8 0 0 1 94 44"/></g><path d="M52 8C30 8 12 25.5 12 47 12 75 52 110 52 110s40-35 40-63C92 25.5 74 8 52 8Z" fill="#FF5A1F"/><circle cx="52" cy="45" r="15" fill="#fff"/></svg>
+      <span style="font-family:var(--display);font-weight:900;font-size:26px;color:#fff">GigNearby</span>
+    </div>
+    <div style="flex:1;background:var(--orange);border-radius:14px;height:150px;display:flex;align-items:center;justify-content:center">
+      <span style="font-family:var(--display);font-weight:900;font-size:26px;color:#fff">GigNearby</span>
+    </div>
+    <div style="flex:.55;background:var(--haze);border:1px solid var(--line);border-radius:14px;height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px">
+      <svg width="56" height="56" viewBox="0 0 180 180"><rect width="180" height="180" rx="40" fill="#0E1633"/><g stroke="#2E5BFF" stroke-width="9" stroke-linecap="round" fill="none"><path d="M118 58A24 24 0 0 1 135 75"/><path d="M120 73A10 10 0 0 1 127 80"/></g><path d="M80 44C57 44 39 62 39 84 39 113 80 150 80 150s41-37 41-66C121 62 103 44 80 44Z" fill="#FF5A1F"/><circle cx="80" cy="82" r="16" fill="#fff"/></svg>
+      <span style="font-size:12px" class="muted">App icon</span>
+    </div>
+  </div>
+  <div class="foot"><span>GigNearby Brand Guidelines</span><span>Logo</span></div>
+</section>
+
+<!-- 5. COLOR -->
+<section class="page">
+  <div class="pad" style="padding-bottom:24px"><div class="kicker">04 — Color</div><h2 style="margin-top:12px">Palette</h2></div>
+  <div class="swatchwrap" style="margin:0 64px;border-radius:16px">
+    <div class="swatch" style="background:#FF5A1F"><b>Signal Orange</b><small>#FF5A1F</small><small>Primary · CTA · ping</small></div>
+    <div class="swatch" style="background:#2E5BFF"><b>Cobalt</b><small>#2E5BFF</small><small>Location · links</small></div>
+    <div class="swatch" style="background:#0E1633"><b>Ink Navy</b><small>#0E1633</small><small>Text · dark fields</small></div>
+    <div class="swatch" style="background:#5A6178"><b>Slate</b><small>#5A6178</small><small>Muted text</small></div>
+    <div class="swatch" style="background:#F5F6FA;color:#0E1633"><b>Haze</b><small>#F5F6FA</small><small>Light tint</small></div>
+  </div>
+  <div class="pad" style="padding-top:24px">
+    <div class="row">
+      <p class="grow" style="max-width:560px;font-size:15px">Signal Orange is the brand — fills, icons, CTAs, the "ping." <b>Accessibility:</b> orange on white is ~3.2:1, so reserve it for large/bold text, fills, and buttons (white labels); use Orange Deep <span class="mono">#E8430A</span> for stricter contrast. Small body copy is Ink Navy. Cobalt is for links and "near you" UI. <b>Never use green/emerald</b> — that's GigGrab.</p>
+      <div style="width:300px;display:flex;flex-direction:column;gap:8px">
+        <div class="chip"><span class="dot" style="background:#E8430A"></span><span class="mono" style="font-size:13px">#E8430A · Orange Deep (hover)</span></div>
+        <div class="chip"><span class="dot" style="background:#2E5BFF"></span><span class="mono" style="font-size:13px">#2E5BFF · Cobalt (links)</span></div>
+        <div class="chip"><span class="dot" style="background:#E4E7F0"></span><span class="mono" style="font-size:13px">#E4E7F0 · Line (hairline)</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>GigNearby Brand Guidelines</span><span>Color</span></div>
+</section>
+
+<!-- 6. TYPE -->
+<section class="page pad">
+  <div class="kicker">05 — Typography</div>
+  <h2 style="margin:12px 0 18px">Type system</h2>
+  <div class="row">
+    <div class="grow">
+      <div style="font-family:var(--display);font-weight:900;font-size:96px;letter-spacing:-.03em;color:var(--ink);line-height:.9">Aa</div>
+      <p style="margin-top:6px"><b>Archivo</b> — Display. Headlines &amp; wordmark. 800/900, tracking −0.02em. Bold and confident.</p>
+      <div style="font-family:var(--body);font-size:62px;font-weight:600;margin-top:22px;color:var(--ink)">Aa</div>
+      <p style="margin-top:6px"><b>Hanken Grotesk</b> — Body &amp; UI. 400/500/600. Built to be read on a phone.</p>
+      <div class="mono" style="font-size:40px;font-weight:700;margin-top:22px;color:var(--orange-deep)">1,284 · $19/hr · 2.1mi</div>
+      <p style="margin-top:6px"><b>Space Mono</b> — Stats. Job counts, pay, distance — a live-ticker feel.</p>
+    </div>
+    <div style="width:320px">
+      <div class="card">
+        <div class="kicker">Hierarchy</div>
+        <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+          <div><span class="mono muted" style="font-size:12px">H1 · 60 · Archivo 900</span><div style="font-family:var(--display);font-weight:900;font-size:30px;letter-spacing:-.02em">Closest jobs</div></div>
+          <div><span class="mono muted" style="font-size:12px">H3 · 26 · Archivo 700</span><div style="font-family:var(--display);font-weight:700;font-size:20px">Near you, first</div></div>
+          <div><span class="mono muted" style="font-size:12px">Body · 16/1.6 · Hanken 400</span><div style="font-size:15px">We ping you the moment a job opens.</div></div>
+          <div><span class="mono muted" style="font-size:12px">Caption · 12 · Hanken 600 caps</span><div style="font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--slate)">Free for workers</div></div>
+        </div>
+      </div>
+      <p class="muted" style="font-size:13px;margin-top:12px">Minimum body size on mobile: 16px.</p>
+    </div>
+  </div>
+  <div class="foot"><span>GigNearby Brand Guidelines</span><span>Typography</span></div>
+</section>
+
+<!-- 7. ICONS -->
+<section class="page pad">
+  <div class="kicker">06 — Iconography</div>
+  <h2 style="margin:12px 0 8px">Icon system</h2>
+  <p class="muted" style="margin-bottom:22px;max-width:620px">Geometric line icons · 2px stroke · round caps &amp; joins · 24px grid. Beyond this set, use <b>Lucide</b> at 2px.</p>
+  <div class="grid-icons" id="icons"></div>
+  <div class="foot"><span>GigNearby Brand Guidelines</span><span>Icons</span></div>
+</section>
+
+<!-- 8. VOICE -->
+<section class="page pad">
+  <div class="kicker">07 — Voice &amp; Tone</div>
+  <h2 style="margin:12px 0 8px">Talk like a sharp friend</h2>
+  <p class="muted" style="margin-bottom:22px;max-width:640px">Plain-spoken · fast · warm · confident · respectful · zero-fluff. Short sentences. Real words. Celebrate the win without hype.</p>
+  <div class="row" style="gap:18px">
+    <div class="grow" style="display:flex;flex-direction:column;gap:12px">
+      <div class="card"><div class="kicker">Headline</div><p style="font-family:var(--display);font-weight:800;font-size:22px;margin-top:6px">The closest jobs, first.</p></div>
+      <div class="card"><div class="kicker">Button</div><p style="margin-top:8px"><span class="btn">Find work near me</span></p></div>
+      <div class="card"><div class="kicker">Empty state</div><p style="margin-top:6px">No matches yet — we're watching. The second a job near you drops, your phone buzzes.</p></div>
+      <div class="card"><div class="kicker">Error</div><p style="margin-top:6px">That didn't go through. Not you — us. Give it another tap.</p></div>
+    </div>
+    <div style="width:340px;display:flex;flex-direction:column;gap:14px">
+      <div class="kicker">WhatsApp alert</div>
+      <div class="alert">
+        <div class="wa"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 20l1-4.8A8 8 0 1 1 21 12Z"/></svg></div>
+        <div><b style="font-size:14px">New warehouse job · <span class="mono">2 mi</span> away · <span class="mono">$19/hr</span></b><div style="font-size:13px;color:var(--slate)">You're first to know. Tap to see it.</div></div>
+      </div>
+      <div class="card dont" style="border-left-color:#E8430A;background:#fff5f0"><div class="kicker" style="color:#b91c1c">Never say</div><p style="margin-top:6px;font-size:14px">"Unlock your dream job!" · "world-class" · "seamless" · "post a job" · "job board" · HR-speak · exclamation stacking.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>GigNearby Brand Guidelines</span><span>Voice</span></div>
+</section>
+
+<!-- 9. IMAGERY -->
+<section class="page pad">
+  <div class="kicker">08 — Imagery</div>
+  <h2 style="margin:12px 0 8px">Real workers, real light</h2>
+  <p class="muted" style="margin-bottom:18px;max-width:660px">Documentary &amp; candid — actual frontline workers in real settings, usually checking a phone, not posed. Natural light, film grain, shallow depth. <b>Diverse cast always.</b> Never studio, suits, handshakes, or white-void stock.</p>
+  <div class="row" style="gap:14px;height:300px">
+    <div class="photo grow">Cover — hi-vis worker, loading dock<br><span style="font-weight:400">generate via prompts/photography.md</span></div>
+    <div class="photo grow">Care worker, scrubs, phone</div>
+    <div class="photo grow">Delivery driver by van</div>
+    <div class="photo grow">Barista on a break</div>
+  </div>
+  <p style="margin-top:16px;font-size:13px" class="muted">▲ Photography slots — generate with the 9 ready prompts in <span class="mono">prompts/photography.md</span> once Pika credits are topped up, then drop the images in here.</p>
+  <div class="foot"><span>GigNearby Brand Guidelines</span><span>Imagery</span></div>
+</section>
+
+<!-- 10. DO & DON'T -->
+<section class="page pad">
+  <div class="kicker">09 — Do &amp; Don't</div>
+  <h2 style="margin:12px 0 22px">Keep it GigNearby</h2>
+  <div class="row" style="gap:18px">
+    <div class="grow" style="display:flex;flex-direction:column;gap:12px">
+      <div class="card do"><b>Do</b> lead with proximity + speed — "near you," "first."</div>
+      <div class="card do"><b>Do</b> keep CTAs Signal Orange and singular.</div>
+      <div class="card do"><b>Do</b> use real worker photography with a diverse cast.</div>
+      <div class="card do"><b>Do</b> show live numbers in Space Mono — "1,284 jobs near you."</div>
+      <div class="card do"><b>Do</b> write like a sharp friend who respects their time.</div>
+    </div>
+    <div class="grow" style="display:flex;flex-direction:column;gap:12px">
+      <div class="card dont"><b>Don't</b> use green/emerald anywhere — that's GigGrab.</div>
+      <div class="card dont"><b>Don't</b> call it a "job board" or say "post jobs."</div>
+      <div class="card dont"><b>Don't</b> use orange for small body text.</div>
+      <div class="card dont"><b>Don't</b> use corporate stock imagery or glass offices.</div>
+      <div class="card dont"><b>Don't</b> make the worker fill out anything they don't have to.</div>
+    </div>
+  </div>
+  <div class="foot"><span>GigNearby · gignearby.com</span><span>The closest jobs, first.</span></div>
+</section>
+
+<script>
+  var icons={search:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>','map-pin':'<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',bell:'<path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6Z"/><path d="M10 19a2 2 0 0 0 4 0"/>',check:'<path d="M5 12.5l4.5 4.5L19 6.5"/>','arrow-right':'<path d="M5 12h14"/><path d="M13 6l6 6-6 6"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-6 8-6s8 2 8 6"/>',upload:'<path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M5 16v3a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3"/>',chat:'<path d="M21 12a8 8 0 0 1-11.5 7.2L4 20l1-4.8A8 8 0 1 1 21 12Z"/>',menu:'<path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/>',plus:'<path d="M12 5v14"/><path d="M5 12h14"/>',close:'<path d="M6 6l12 12"/><path d="M18 6L6 18"/>',info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/>'};
+  var el=document.getElementById('icons');
+  Object.keys(icons).forEach(function(k){el.innerHTML+='<div class="iconcell"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+icons[k]+'</svg><span>'+k+'</span></div>';});
+</script>
+</body>
+</html>

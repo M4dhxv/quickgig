@@ -1,19 +1,23 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --brand: #10b981;
-  --brand-hover: #059669;
-  --brand-tint: #f0fdf4;
-  --brand-border: #a7f3d0;
-  --text: #111827;
-  --muted: #6b7280;
-  --bg: #fafaf9;
-  --card-bg: #1a1a1a;
+  --brand: #FF5A1F;
+  --brand-hover: #E8430A;
+  --brand-tint: #FFF5F0;
+  --brand-border: #FFD0BD;
+  --cobalt: #2E5BFF;
+  --ink: #0E1633;
+  --text: #0E1633;
+  --muted: #5A6178;
+  --bg: #F5F6FA;
+  --card-bg: #0E1633;
+  --display: 'Archivo', system-ui, sans-serif;
+  --mono: 'Space Mono', ui-monospace, monospace;
   --radius: 12px;
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Hanken Grotesk', system-ui, sans-serif;
   background: var(--bg);
   color: var(--text);
   -webkit-font-smoothing: antialiased;

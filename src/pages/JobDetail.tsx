@@ -71,29 +71,29 @@ export default function JobDetail() {
   }
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter, sans-serif', color: '#9ca3af' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Hanken Grotesk, sans-serif', color: '#9ca3af' }}>
       Loading…
     </div>
   )
 
   if (notFound || !job) return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter, sans-serif', gap: 16 }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'Hanken Grotesk, sans-serif', gap: 16 }}>
       <div style={{ fontSize: 40 }}>🔍</div>
       <div style={{ fontWeight: 700, fontSize: 18, color: '#111' }}>Job listing not found</div>
       <div style={{ color: '#6b7280', fontSize: 14 }}>This link may have expired or been removed.</div>
-      <button onClick={() => navigate('/')} style={{ marginTop: 8, background: '#10b981', color: '#fff', border: 'none', borderRadius: 10, padding: '10px 24px', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
-        Browse jobs on GigGrab
+      <button onClick={() => navigate('/')} style={{ marginTop: 8, background: '#FF5A1F', color: '#fff', border: 'none', borderRadius: 10, padding: '10px 24px', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
+        Browse jobs on GigNearby
       </button>
     </div>
   )
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f9fafb', fontFamily: 'Inter, sans-serif' }}>
+    <div style={{ minHeight: '100vh', background: '#f9fafb', fontFamily: 'Hanken Grotesk, sans-serif' }}>
       <style>{`
         @keyframes ggFadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
         @keyframes ggFadeIn { from { opacity:0; } to { opacity:1; } }
         .jd-apply { transition: background .15s, transform .1s; }
-        .jd-apply:hover { background: #059669 !important; transform: translateY(-1px); }
+        .jd-apply:hover { background: #E8430A !important; transform: translateY(-1px); }
         .jd-apply:active { transform: translateY(0); }
       `}</style>
 
@@ -103,8 +103,8 @@ export default function JobDetail() {
           onClick={() => navigate('/')}
           style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 800, fontSize: 17, cursor: 'pointer', userSelect: 'none' }}
         >
-          <div style={{ width: 24, height: 24, borderRadius: 6, background: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12 }}>⚡</div>
-          giggrab
+          <div style={{ width: 24, height: 24, borderRadius: 6, background: '#FF5A1F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12 }}><svg viewBox="0 0 24 24" width="64%" height="64%" fill="#fff" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.2C8.2 2.2 5.2 5.1 5.2 8.8c0 4.7 6.8 12 6.8 12s6.8-7.3 6.8-12c0-3.7-3-6.6-6.8-6.6Z"/><circle cx="12" cy="8.7" r="2.5" fill="#FF5A1F"/></svg></div>
+          GigNearby
         </div>
         <button
           onClick={() => navigate('/')}
@@ -134,7 +134,7 @@ export default function JobDetail() {
           {/* Badges */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 22 }}>
             {job.contract_time && (
-              <span style={{ fontSize: 12, fontWeight: 600, background: job.contract_time === 'full_time' ? '#f0fdf4' : '#fefce8', color: job.contract_time === 'full_time' ? '#059669' : '#92400e', border: `1px solid ${job.contract_time === 'full_time' ? '#a7f3d0' : '#fde68a'}`, padding: '3px 10px', borderRadius: 100 }}>
+              <span style={{ fontSize: 12, fontWeight: 600, background: job.contract_time === 'full_time' ? '#FFF5F0' : '#fefce8', color: job.contract_time === 'full_time' ? '#E8430A' : '#92400e', border: `1px solid ${job.contract_time === 'full_time' ? '#FFD0BD' : '#fde68a'}`, padding: '3px 10px', borderRadius: 100 }}>
                 {job.contract_time === 'full_time' ? 'Full-time' : 'Part-time'}
               </span>
             )}
@@ -165,13 +165,13 @@ export default function JobDetail() {
           <button
             className="jd-apply"
             onClick={handleApply}
-            style={{ width: '100%', background: '#10b981', color: '#fff', border: 'none', borderRadius: 12, padding: '14px 0', fontSize: 15, fontWeight: 700, cursor: 'pointer', display: 'block' }}
+            style={{ width: '100%', background: '#FF5A1F', color: '#fff', border: 'none', borderRadius: 12, padding: '14px 0', fontSize: 15, fontWeight: 700, cursor: 'pointer', display: 'block' }}
           >
             Apply Now
           </button>
 
           <p style={{ textAlign: 'center', fontSize: 12, color: '#9ca3af', marginTop: 12 }}>
-            Powered by <span style={{ color: '#10b981', fontWeight: 700 }}>GigGrab</span> · Free for workers · 32 languages
+            Powered by <span style={{ color: '#FF5A1F', fontWeight: 700 }}>GigNearby</span> · Free for workers · 32 languages
           </p>
         </div>
       </div>
@@ -190,13 +190,13 @@ export default function JobDetail() {
               <div style={{ fontSize: 36, marginBottom: 12 }}>🔒</div>
               <div style={{ fontWeight: 800, fontSize: 20, color: '#111', marginBottom: 8 }}>Log in to apply</div>
               <div style={{ fontSize: 14, color: '#6b7280', lineHeight: 1.6 }}>
-                You need a GigGrab account to apply for this role. It's free — Sarah will call you, learn your background, and match you to roles like this one.
+                You need a GigNearby account to apply for this role. It's free — Sarah will call you, learn your background, and match you to roles like this one.
               </div>
             </div>
 
             <button
               onClick={() => navigate('/')}
-              style={{ width: '100%', background: '#10b981', color: '#fff', border: 'none', borderRadius: 11, padding: '13px 0', fontSize: 15, fontWeight: 700, cursor: 'pointer', marginBottom: 10 }}
+              style={{ width: '100%', background: '#FF5A1F', color: '#fff', border: 'none', borderRadius: 11, padding: '13px 0', fontSize: 15, fontWeight: 700, cursor: 'pointer', marginBottom: 10 }}
             >
               Log in / Sign up — it's free
             </button>

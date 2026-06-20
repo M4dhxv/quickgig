@@ -119,7 +119,7 @@ export default function Verify() {
   const initial = name?.[0]?.toUpperCase() ?? '?'
 
   return (
-    <div style={{ minHeight:'100vh', background:'#fafaf9', display:'flex', flexDirection:'column', alignItems:'center', fontFamily:'Inter, sans-serif' }}>
+    <div style={{ minHeight:'100vh', background:'#fafaf9', display:'flex', flexDirection:'column', alignItems:'center', fontFamily:'Hanken Grotesk, sans-serif' }}>
       <style>{`
         @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
         @keyframes spin   { to { transform:rotate(360deg); } }
@@ -130,21 +130,21 @@ export default function Verify() {
 
       <nav style={{ width:'100%', display:'flex', alignItems:'center', padding:'18px 40px', borderBottom:'1px solid #e5e7eb', background:'#fff' }}>
         <div style={{ fontWeight:800, fontSize:20, display:'flex', alignItems:'center', gap:8 }}>
-          <div style={{ width:28, height:28, borderRadius:8, background:'#10b981', display:'flex', alignItems:'center', justifyContent:'center', fontSize:14 }}>⚡</div>
-          giggrab
+          <div style={{ width:28, height:28, borderRadius:8, background:'#FF5A1F', display:'flex', alignItems:'center', justifyContent:'center', fontSize:14 }}><svg viewBox="0 0 24 24" width="64%" height="64%" fill="#fff" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.2C8.2 2.2 5.2 5.1 5.2 8.8c0 4.7 6.8 12 6.8 12s6.8-7.3 6.8-12c0-3.7-3-6.6-6.8-6.6Z"/><circle cx="12" cy="8.7" r="2.5" fill="#FF5A1F"/></svg></div>
+          GigNearby
         </div>
       </nav>
 
       <div style={{ width:'100%', maxWidth:440, padding:'56px 24px 80px' }}>
         {profileLoading ? (
           <div style={{ textAlign:'center', paddingTop:40 }}>
-            <div style={{ display:'inline-block', width:32, height:32, borderRadius:'50%', border:'3px solid #10b981', borderTopColor:'transparent', animation:'spin 0.9s linear infinite', marginBottom:16 }} />
+            <div style={{ display:'inline-block', width:32, height:32, borderRadius:'50%', border:'3px solid #FF5A1F', borderTopColor:'transparent', animation:'spin 0.9s linear infinite', marginBottom:16 }} />
             <p style={{ color:'#6b7280', fontSize:14 }}>Reading your CV…</p>
           </div>
         ) : (
           <>
             <div className="fu" style={{ textAlign:'center', marginBottom:32 }}>
-              <div style={{ width:68, height:68, borderRadius:'50%', background:'#10b981', color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontSize:26, fontWeight:800, margin:'0 auto 14px' }}>
+              <div style={{ width:68, height:68, borderRadius:'50%', background:'#FF5A1F', color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontSize:26, fontWeight:800, margin:'0 auto 14px' }}>
                 {initial}
               </div>
               <h1 style={{ fontSize:24, fontWeight:800, letterSpacing:'-0.5px', marginBottom:4 }}>
@@ -181,7 +181,7 @@ export default function Verify() {
                       placeholder="your@email.com"
                       autoFocus
                       style={{ width:'100%', boxSizing:'border-box', border:'1.5px solid #d1d5db', borderRadius:10, padding:'12px 14px', fontSize:15, outline:'none', color:'#111', background:'#fff', marginBottom:8, transition:'border-color .15s' }}
-                      onFocus={e => (e.target.style.borderColor = '#10b981')}
+                      onFocus={e => (e.target.style.borderColor = '#FF5A1F')}
                       onBlur={e  => (e.target.style.borderColor = '#d1d5db')}
                     />
                   </>
@@ -197,7 +197,7 @@ export default function Verify() {
                           style={{
                             height:'100%', border:'1.5px solid #d1d5db', borderRadius:10,
                             padding:'12px 36px 12px 12px', fontSize:14, outline:'none',
-                            background:'#fff', color:'#111', cursor:'pointer', fontFamily:'Inter, sans-serif',
+                            background:'#fff', color:'#111', cursor:'pointer', fontFamily:'Hanken Grotesk, sans-serif',
                           }}
                         >
                           {COUNTRY_CODES.map(c => (
@@ -217,7 +217,7 @@ export default function Verify() {
                         placeholder="7700 900000"
                         autoFocus
                         style={{ flex:1, border:'1.5px solid #d1d5db', borderRadius:10, padding:'12px 14px', fontSize:15, outline:'none', color:'#111', background:'#fff', transition:'border-color .15s' }}
-                        onFocus={e => (e.target.style.borderColor = '#10b981')}
+                        onFocus={e => (e.target.style.borderColor = '#FF5A1F')}
                         onBlur={e  => (e.target.style.borderColor = '#d1d5db')}
                       />
                     </div>
@@ -229,7 +229,7 @@ export default function Verify() {
                 <button
                   onClick={sendCode}
                   disabled={sending || !(tab === 'email' ? email.trim() : phone.trim())}
-                  style={{ width:'100%', background:'#10b981', color:'#fff', border:'none', borderRadius:10, padding:'13px 0', fontSize:15, fontWeight:700, cursor:'pointer', opacity: sending ? 0.7 : 1 }}
+                  style={{ width:'100%', background:'#FF5A1F', color:'#fff', border:'none', borderRadius:10, padding:'13px 0', fontSize:15, fontWeight:700, cursor:'pointer', opacity: sending ? 0.7 : 1 }}
                 >
                   {sending ? 'Sending…' : 'Send verification code →'}
                 </button>
@@ -247,7 +247,7 @@ export default function Verify() {
                     ? <>Code sent to <strong>{email}</strong>.</>
                     : <>Code sent via SMS to <strong>{fullPhone}</strong>.</>
                   }
-                  <button onClick={resetCode} style={{ background:'none', border:'none', color:'#10b981', fontSize:13, fontWeight:600, cursor:'pointer', padding:0, marginLeft:6 }}>
+                  <button onClick={resetCode} style={{ background:'none', border:'none', color:'#FF5A1F', fontSize:13, fontWeight:600, cursor:'pointer', padding:0, marginLeft:6 }}>
                     Change
                   </button>
                 </p>
@@ -268,7 +268,7 @@ export default function Verify() {
                 <button
                   onClick={verifyCode}
                   disabled={verifying || code.length < 6}
-                  style={{ width:'100%', background:'#10b981', color:'#fff', border:'none', borderRadius:10, padding:'13px 0', fontSize:15, fontWeight:700, cursor:'pointer', opacity: (verifying || code.length < 6) ? 0.6 : 1 }}
+                  style={{ width:'100%', background:'#FF5A1F', color:'#fff', border:'none', borderRadius:10, padding:'13px 0', fontSize:15, fontWeight:700, cursor:'pointer', opacity: (verifying || code.length < 6) ? 0.6 : 1 }}
                 >
                   {verifying ? 'Verifying…' : 'Verify & see my matches →'}
                 </button>

@@ -74,17 +74,17 @@ export default function Analyse() {
       `}</style>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 48, fontWeight: 800, fontSize: 20 }}>
-        <div style={{ width: 28, height: 28, borderRadius: 8, background: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>⚡</div>
-        giggrab
+        <div style={{ width: 28, height: 28, borderRadius: 8, background: '#FF5A1F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}><svg viewBox="0 0 24 24" width="64%" height="64%" fill="#fff" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.2C8.2 2.2 5.2 5.1 5.2 8.8c0 4.7 6.8 12 6.8 12s6.8-7.3 6.8-12c0-3.7-3-6.6-6.8-6.6Z"/><circle cx="12" cy="8.7" r="2.5" fill="#FF5A1F"/></svg></div>
+        GigNearby
       </div>
 
       <div style={{ position: 'relative', width: 80, height: 80, marginBottom: 40 }}>
-        <div className="ring" style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '2px solid #10b981' }} />
+        <div className="ring" style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '2px solid #FF5A1F' }} />
         <div style={{
           position: 'absolute', inset: 0, borderRadius: '50%',
-          background: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: '#FF5A1F', display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontSize: 28,
-        }}>⚡</div>
+        }}><svg viewBox="0 0 24 24" width="64%" height="64%" fill="#fff" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.2C8.2 2.2 5.2 5.1 5.2 8.8c0 4.7 6.8 12 6.8 12s6.8-7.3 6.8-12c0-3.7-3-6.6-6.8-6.6Z"/><circle cx="12" cy="8.7" r="2.5" fill="#FF5A1F"/></svg></div>
       </div>
 
       <div style={{ width: '100%', maxWidth: 420, marginBottom: 36 }}>
@@ -95,7 +95,7 @@ export default function Analyse() {
             <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px 0', opacity: i > step ? 0.35 : 1, transition: 'opacity 0.4s' }}>
               <div style={{
                 width: 24, height: 24, borderRadius: '50%', flexShrink: 0, marginTop: 1,
-                background: isDone ? '#10b981' : isActive ? '#fef3c7' : 'transparent',
+                background: isDone ? '#FF5A1F' : isActive ? '#fef3c7' : 'transparent',
                 border: isDone ? 'none' : isActive ? '2px solid #f59e0b' : '2px solid #d1d5db',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12,
                 transition: 'all 0.3s',
@@ -114,7 +114,7 @@ export default function Analyse() {
       </div>
 
       <div style={{ width: '100%', maxWidth: 420, height: 3, background: '#e5e7eb', borderRadius: 2, overflow: 'hidden', marginBottom: 16 }}>
-        <div style={{ height: '100%', background: '#10b981', borderRadius: 2, width: `${progress}%`, transition: 'width 1.2s ease' }} />
+        <div style={{ height: '100%', background: '#FF5A1F', borderRadius: 2, width: `${progress}%`, transition: 'width 1.2s ease' }} />
       </div>
 
       <p style={{ fontSize: 12, color: '#9ca3af' }}>
