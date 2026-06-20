@@ -49,8 +49,6 @@ export default function JobDetail() {
   const [notFound, setNotFound] = useState(false)
   const [showPopup, setShowPopup] = useState(false)
 
-  const isSignedIn = !!localStorage.getItem('gg_sid')
-
   useEffect(() => {
     if (!id) { setNotFound(true); setLoading(false); return }
     supabase.from('job_results').select('*').eq('id', id).single()
@@ -62,11 +60,8 @@ export default function JobDetail() {
   }, [id])
 
   function handleApply() {
-    if (isSignedIn && job) {
-      window.open(job.redirect_url, '_blank', 'noopener,noreferrer')
-    } else {
-      setShowPopup(true)
-    }
+    // Shared links are a lead-capture surface — always require login to apply.
+    setShowPopup(true)
   }
 
   if (loading) return (
@@ -172,22 +167,6 @@ export default function JobDetail() {
           <p style={{ textAlign: 'center', fontSize: 12, color: '#9ca3af', marginTop: 12 }}>
             Powered by <span style={{ color: '#10b981', fontWeight: 700 }}>GigGrab</span> · Free for workers · 32 languages
           </p>
-        </div>
-
-        {/* GigGrab pitch */}
-        <div
-          style={{ marginTop: 20, background: '#f0fdf4', border: '1px solid #a7f3d0', borderRadius: 14, padding: '18px 20px', animation: 'ggFadeUp .3s ease-out .1s both' }}
-        >
-          <div style={{ fontWeight: 700, fontSize: 14, color: '#065f46', marginBottom: 6 }}>⚡ Get matched to more roles like this</div>
-          <div style={{ fontSize: 13, color: '#374151', lineHeight: 1.6, marginBottom: 14 }}>
-            GigGrab's AI agent Sarah calls you, learns what you're looking for, and delivers a personalised shortlist — no CV, no forms, no waiting.
-          </div>
-          <button
-            onClick={() => navigate('/')}
-            style={{ background: '#10b981', color: '#fff', border: 'none', borderRadius: 9, padding: '9px 20px', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
-          >
-            Create my free profile
-          </button>
         </div>
       </div>
 
