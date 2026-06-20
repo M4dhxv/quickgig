@@ -245,6 +245,17 @@ export default function Dashboard() {
 
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
 
+  // On return from Stripe, confirm the payment directly (no webhook needed)
+  // and activate the plan. This also stores stripe_customer_id so the
+  // billing portal works.
+  useEffect(() => {
+    const csId = new URLSearchParams(window.location.search).get('cs_id')
+    if (!csId) return
+    supabase.functions.invoke('verify-checkout', { body: { csId, sessionId } })
+      .then(({ data }) => { if (data?.active) setPlan('active') })
+      .catch(() => {})
+  }, [sessionId])
+
   useEffect(() => {
     supabase.from('sessions').select('profile, file_name, cv_path, plan').eq('id', sessionId).single()
       .then(({ data }) => {
