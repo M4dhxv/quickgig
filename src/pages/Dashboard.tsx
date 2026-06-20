@@ -147,7 +147,11 @@ export default function Dashboard() {
   const [chatInput, setChatInput] = useState('')
   const [voiceMode, setVoiceMode] = useState(false)
   const [voicePhase, setVoicePhase] = useState<'listening' | 'thinking' | 'speaking'>('listening')
-  const [sessionId] = useState(() => state?.sessionId ?? crypto.randomUUID())
+  const [sessionId] = useState(() => {
+    const params = new URLSearchParams(window.location.search)
+    return params.get('session_id') ?? state?.sessionId ?? localStorage.getItem('gg_sid') ?? crypto.randomUUID()
+  })
+  const [paymentSuccess] = useState(() => new URLSearchParams(window.location.search).get('payment') === 'success')
 
   const [transcript, setTranscript] = useState('')
   const [speakingReply, setSpeakingReply] = useState('')
@@ -470,6 +474,12 @@ export default function Dashboard() {
       </nav>
 
       {/* Body */}
+      {paymentSuccess && (
+        <div style={{ background:'#10b981', color:'#fff', padding:'10px 20px', fontSize:13, fontWeight:600, display:'flex', alignItems:'center', justifyContent:'center', gap:8, flexShrink:0 }}>
+          ✓ Payment successful — you now have full access!
+        </div>
+      )}
+
       <div style={{ flex:1, display:'flex', overflow:'hidden' }}>
 
         {/* Jobs */}

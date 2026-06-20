@@ -18,8 +18,8 @@ Deno.serve(async (req) => {
       mode: 'subscription',
       payment_method_types: ['card'],
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${origin}/dashboard?payment=success&session_id=${sessionId}`,
-      cancel_url:  `${origin}/results`,
+      success_url: `${origin}/dashboard?payment=success&session_id=${sessionId ?? ''}`,
+      cancel_url:  `${origin}/dashboard?session_id=${sessionId ?? ''}`,
       customer_email: email ?? undefined,
       metadata: { sessionId: sessionId ?? '' },
     })
