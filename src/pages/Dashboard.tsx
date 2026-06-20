@@ -169,10 +169,12 @@ export default function Dashboard() {
   const [profileOpen, setProfileOpen] = useState(false)
   const [cvFileName, setCvFileName] = useState(state?.fileName ?? '')
   const [cvViewUrl, setCvViewUrl] = useState('')
+  const [cvUpdating, setCvUpdating] = useState(false)
   const [plan, setPlan] = useState<'free' | 'active'>('free')
   const [portalLoading, setPortalLoading] = useState(false)
   const [checkoutLoading, setCheckoutLoading] = useState('')
 
+  const cvInputRef = useRef<HTMLInputElement>(null)
   const chatEndRef = useRef<HTMLDivElement>(null)
   const dgRef = useRef<DeepgramSTT | null>(null)
   const finalTranscriptRef = useRef('')
@@ -411,6 +413,51 @@ export default function Dashboard() {
       if (data?.url) window.location.href = data.url
     } finally {
       setCheckoutLoading('')
+    }
+  }
+
+  async function updateCv(f: File) {
+    setCvUpdating(true)
+    try {
+      const mediaType = f.type || 'application/octet-stream'
+      const base64 = await new Promise<string>((resolve) => {
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          const result = (e.target?.result as string) ?? ''
+          resolve(result.includes(',') ? result.split(',')[1] : result)
+        }
+        reader.onerror = () => resolve('')
+        reader.readAsDataURL(f)
+      })
+
+      // Replace the stored file (upsert overwrites the old one at the same path)
+      const path = `${sessionId}/${f.name}`
+      const { error: upErr } = await supabase.storage.from('cvs').upload(path, f, { upsert: true })
+      if (upErr) throw upErr
+
+      // Re-parse the new CV
+      const { data } = await supabase.functions.invoke('parse-cv', { body: { fileName: f.name, base64, mediaType } })
+      const newProfile = data?.profile as UserProfile | undefined
+
+      // Persist to the session row
+      await supabase.from('sessions').update({
+        file_name: f.name,
+        cv_path: path,
+        ...(newProfile ? { profile: newProfile } : {}),
+      }).eq('id', sessionId)
+
+      // Reflect in the UI
+      setCvFileName(f.name)
+      const { data: pub } = supabase.storage.from('cvs').getPublicUrl(path)
+      if (pub?.publicUrl) setCvViewUrl(pub.publicUrl)
+      if (newProfile) {
+        setProfile(newProfile)
+        if (newProfile.location) setProfileLocation(newProfile.location)
+      }
+    } catch (e) {
+      console.error('CV update failed:', e)
+    } finally {
+      setCvUpdating(false)
     }
   }
 
@@ -789,6 +836,33 @@ export default function Dashboard() {
                   {profile.phone    && <Row icon="📞" value={profile.phone} />}
                   {profile.email    && <Row icon="✉️"  value={profile.email} />}
                   {!profile.location && !profile.phone && !profile.email && <span style={{ fontSize:13, color:'#9ca3af' }}>No contact details extracted</span>}
+                </div>
+
+                {/* CV file */}
+                <div>
+                  <div style={{ fontSize:11, fontWeight:700, color:'#9ca3af', textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:8 }}>CV / Resume</div>
+                  <div style={{ display:'flex', alignItems:'center', gap:10, background:'#f9fafb', border:'1px solid #e5e7eb', borderRadius:10, padding:'10px 12px' }}>
+                    <span style={{ fontSize:20, flexShrink:0 }}>📄</span>
+                    <div style={{ flex:1, minWidth:0 }}>
+                      <div style={{ fontSize:13, fontWeight:600, color:'#111', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{cvFileName || 'No CV uploaded'}</div>
+                      {cvUpdating && <div style={{ fontSize:11, color:'#10b981', marginTop:2 }}>Updating…</div>}
+                    </div>
+                    {cvViewUrl && !cvUpdating && (
+                      <a href={cvViewUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize:12, fontWeight:600, color:'#374151', textDecoration:'none', border:'1px solid #e5e7eb', borderRadius:8, padding:'5px 10px', flexShrink:0 }}>View</a>
+                    )}
+                    <button
+                      onClick={() => cvInputRef.current?.click()}
+                      disabled={cvUpdating}
+                      style={{ fontSize:12, fontWeight:700, color:'#fff', background:'#10b981', border:'none', borderRadius:8, padding:'5px 12px', cursor: cvUpdating ? 'default' : 'pointer', flexShrink:0, opacity: cvUpdating ? 0.6 : 1 }}
+                    >Update</button>
+                    <input
+                      ref={cvInputRef}
+                      type="file"
+                      accept=".pdf,.doc,.docx,.odt,.rtf,.txt,.png,.jpg,.jpeg,.webp"
+                      style={{ display:'none' }}
+                      onChange={e => { const f = e.target.files?.[0]; if (f) updateCv(f); e.target.value = '' }}
+                    />
+                  </div>
                 </div>
 
                 {/* Summary */}

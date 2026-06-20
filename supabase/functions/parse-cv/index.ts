@@ -25,6 +25,14 @@ If the CV is unreadable, infer reasonable details from the filename. Return only
 
 const EMPTY = { name: '', currentRole: '', location: '', phone: '', email: '', summary: '', skills: [], certifications: [], experience: [] }
 
+function b64ToBytes(base64: string): Uint8Array {
+  return Uint8Array.from(atob(base64), c => c.charCodeAt(0))
+}
+
+function decodeText(base64: string): string {
+  return new TextDecoder('utf-8', { fatal: false }).decode(b64ToBytes(base64))
+}
+
 function decodeEntities(s: string): string {
   return s
     .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
@@ -32,32 +40,56 @@ function decodeEntities(s: string): string {
     .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(+n))
 }
 
-// A .docx is a ZIP archive; the body text lives in word/document.xml inside
-// <w:t> runs, with paragraphs delimited by <w:p>. The Anthropic document
-// block only accepts PDFs, so for Word docs we extract the text ourselves.
-async function docxToText(base64: string): Promise<string> {
-  const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0))
-  const zip = await JSZip.loadAsync(bytes)
-  const file = zip.file('word/document.xml')
+// .docx / .odt are ZIP archives; pull text out of their main XML part.
+async function zipDocToText(base64: string, kind: 'docx' | 'odt'): Promise<string> {
+  const zip = await JSZip.loadAsync(b64ToBytes(base64))
+  const part = kind === 'docx' ? 'word/document.xml' : 'content.xml'
+  const file = zip.file(part)
   if (!file) return ''
   const xml = await file.async('string')
   const text = xml
     .replace(/<w:tab\b[^>]*\/?>/g, '\t')
+    .replace(/<text:tab\b[^>]*\/?>/g, '\t')
     .replace(/<\/w:p>/g, '\n')
+    .replace(/<\/text:p>/g, '\n')
     .replace(/<[^>]+>/g, '')
   return decodeEntities(text).replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim()
 }
 
-function looksLikePdf(base64: string, mediaType?: string, fileName?: string): boolean {
-  if (mediaType === 'application/pdf') return true
-  if (fileName?.toLowerCase().endsWith('.pdf')) return true
-  return base64.startsWith('JVBERi') // "%PDF"
+// Strip RTF control words / groups down to plain text.
+function rtfToText(rtf: string): string {
+  return rtf
+    .replace(/\\par[d]?\b/g, '\n')
+    .replace(/\\'[0-9a-fA-F]{2}/g, '')
+    .replace(/\\[a-zA-Z]+-?\d* ?/g, '')
+    .replace(/[{}]/g, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
 }
 
-function looksLikeDocx(base64: string, mediaType?: string, fileName?: string): boolean {
-  if (mediaType?.includes('wordprocessingml')) return true
-  if (fileName?.toLowerCase().endsWith('.docx')) return true
-  return base64.startsWith('UEsD') // "PK\x03\x04" — ZIP header
+// Last-resort text recovery from a legacy binary .doc — pull printable runs.
+function binaryToText(base64: string): string {
+  const bytes = b64ToBytes(base64)
+  let out = ''
+  let run = ''
+  for (const b of bytes) {
+    if ((b >= 32 && b < 127) || b === 10 || b === 13 || b === 9) {
+      run += String.fromCharCode(b)
+    } else {
+      if (run.length >= 4) out += run + ' '
+      run = ''
+    }
+  }
+  if (run.length >= 4) out += run
+  return out.replace(/\s{3,}/g, '\n').trim()
+}
+
+function ext(fileName?: string): string {
+  return (fileName?.toLowerCase().match(/\.([a-z0-9]+)$/)?.[1]) ?? ''
+}
+
+const IMAGE_MEDIA: Record<string, string> = {
+  png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp', gif: 'image/gif',
 }
 
 Deno.serve(async (req) => {
@@ -65,22 +97,44 @@ Deno.serve(async (req) => {
 
   try {
     const { fileName, base64, mediaType } = await req.json()
-
+    const e = ext(fileName)
     const content: unknown[] = []
 
-    if (base64 && looksLikeDocx(base64, mediaType, fileName)) {
-      // Word doc → extract text and send as plain text
-      let text = ''
-      try { text = await docxToText(base64) } catch (e) { console.error('docx extract failed:', e) }
-      if (text) {
-        content.push({ type: 'text', text: `CV contents (extracted from Word document):\n\n${text}` })
+    if (base64) {
+      if (e === 'pdf' || mediaType === 'application/pdf' || base64.startsWith('JVBERi')) {
+        // PDF → native document block
+        content.push({ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } })
+
+      } else if (IMAGE_MEDIA[e] || (mediaType ?? '').startsWith('image/')) {
+        // Image scan/photo of a CV → vision block
+        const media = IMAGE_MEDIA[e] ?? mediaType
+        content.push({ type: 'image', source: { type: 'base64', media_type: media, data: base64 } })
+
+      } else {
+        // Everything else → extract text and send as text
+        let text = ''
+        try {
+          if (e === 'docx' || (mediaType ?? '').includes('wordprocessingml')) {
+            text = await zipDocToText(base64, 'docx')
+          } else if (e === 'odt' || (mediaType ?? '').includes('opendocument.text')) {
+            text = await zipDocToText(base64, 'odt')
+          } else if (e === 'rtf' || (mediaType ?? '').includes('rtf')) {
+            text = rtfToText(decodeText(base64))
+          } else if (e === 'txt' || e === 'md' || (mediaType ?? '').startsWith('text/')) {
+            text = decodeText(base64)
+          } else if (e === 'doc') {
+            text = binaryToText(base64)
+          } else {
+            // Unknown — try plain text, then a binary salvage
+            text = decodeText(base64)
+            if (!/[a-zA-Z]{3,}/.test(text)) text = binaryToText(base64)
+          }
+        } catch (err) { console.error('text extract failed:', err) }
+
+        if (text && text.trim().length > 20) {
+          content.push({ type: 'text', text: `CV contents (extracted from ${e || 'file'}):\n\n${text.slice(0, 20000)}` })
+        }
       }
-    } else if (base64 && looksLikePdf(base64, mediaType, fileName)) {
-      // PDF → native document block
-      content.push({
-        type: 'document',
-        source: { type: 'base64', media_type: 'application/pdf', data: base64 },
-      })
     }
 
     content.push({
@@ -117,12 +171,9 @@ Deno.serve(async (req) => {
       .replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
 
     let profile
-    try {
-      profile = JSON.parse(raw)
-    } catch (e) {
-      console.error('profile JSON parse failed. raw:', raw.slice(0, 300))
-      profile = EMPTY
-    }
+    try { profile = JSON.parse(raw) }
+    catch { console.error('profile JSON parse failed. raw:', raw.slice(0, 300)); profile = EMPTY }
+
     return new Response(JSON.stringify({ profile }), {
       headers: { ...CORS, 'Content-Type': 'application/json' },
     })

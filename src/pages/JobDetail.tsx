@@ -202,10 +202,10 @@ export default function JobDetail() {
             style={{ background: '#fff', borderRadius: 18, padding: '32px 28px', maxWidth: 380, width: '100%', boxShadow: '0 24px 64px rgba(0,0,0,0.16)', animation: 'ggFadeUp .25s ease-out' }}
           >
             <div style={{ textAlign: 'center', marginBottom: 24 }}>
-              <div style={{ fontSize: 36, marginBottom: 12 }}>⚡</div>
-              <div style={{ fontWeight: 800, fontSize: 20, color: '#111', marginBottom: 8 }}>Create your free profile</div>
+              <div style={{ fontSize: 36, marginBottom: 12 }}>🔒</div>
+              <div style={{ fontWeight: 800, fontSize: 20, color: '#111', marginBottom: 8 }}>Log in to apply</div>
               <div style={{ fontSize: 14, color: '#6b7280', lineHeight: 1.6 }}>
-                Sign up in 2 minutes. Sarah will call you, understand your background, and match you to the best roles — including this one.
+                You need a GigGrab account to apply for this role. It's free — Sarah will call you, learn your background, and match you to roles like this one.
               </div>
             </div>
 
@@ -213,13 +213,13 @@ export default function JobDetail() {
               onClick={() => navigate('/')}
               style={{ width: '100%', background: '#10b981', color: '#fff', border: 'none', borderRadius: 11, padding: '13px 0', fontSize: 15, fontWeight: 700, cursor: 'pointer', marginBottom: 10 }}
             >
-              Get started — it's free
+              Log in / Sign up — it's free
             </button>
             <button
               onClick={() => setShowPopup(false)}
               style={{ width: '100%', background: 'none', border: 'none', color: '#9ca3af', fontSize: 13, cursor: 'pointer', padding: '6px 0' }}
             >
-              Maybe later
+              Cancel
             </button>
           </div>
         </div>
