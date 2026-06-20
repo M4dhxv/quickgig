@@ -49,6 +49,8 @@ export default function JobDetail() {
   const [notFound, setNotFound] = useState(false)
   const [showPopup, setShowPopup] = useState(false)
 
+  const isSignedIn = !!localStorage.getItem('gg_sid')
+
   useEffect(() => {
     if (!id) { setNotFound(true); setLoading(false); return }
     supabase.from('job_results').select('*').eq('id', id).single()
@@ -60,8 +62,12 @@ export default function JobDetail() {
   }, [id])
 
   function handleApply() {
-    // Shared links are a lead-capture surface — always require login to apply.
-    setShowPopup(true)
+    // Signed-in users can apply directly; everyone else gets the login gate.
+    if (isSignedIn && job) {
+      window.open(job.redirect_url, '_blank', 'noopener,noreferrer')
+    } else {
+      setShowPopup(true)
+    }
   }
 
   if (loading) return (
