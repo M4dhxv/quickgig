@@ -16,7 +16,7 @@ const ROLES = [
 const PLANS = [
   {
     id: 'weekly',
-    priceId: 'price_1TjbbqCX4iU4nm420REMahwK',
+    priceId: 'price_1TkKsTCX4iU4nm42nC8aSeTf',
     name: 'WEEKLY',
     price: '$7.99',
     period: 'per week',
@@ -30,7 +30,7 @@ const PLANS = [
   },
   {
     id: 'monthly',
-    priceId: 'price_1TjbcsCX4iU4nm425XmOflkS',
+    priceId: 'price_1TkKsTCX4iU4nm42nC8aSeTf',
     name: 'MONTHLY',
     price: '$19.99',
     period: 'per month',

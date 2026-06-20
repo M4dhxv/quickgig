@@ -831,15 +831,15 @@ export default function Dashboard() {
                     <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
                       <p style={{ fontSize:12, color:'#6b7280', margin:'0 0 4px' }}>Unlock unlimited job matches and priority support.</p>
                       <button
-                        onClick={() => openCheckout('price_1TjbbqCX4iU4nm420REMahwK')}
+                        onClick={() => openCheckout('price_1TkKsTCX4iU4nm42nC8aSeTf')}
                         disabled={!!checkoutLoading}
-                        style={{ width:'100%', padding:'9px 0', border:'1.5px solid #10b981', borderRadius:9, fontSize:13, fontWeight:700, color:'#10b981', background:'#f0fdf4', cursor:'pointer', opacity: checkoutLoading === 'price_1TjbbqCX4iU4nm420REMahwK' ? 0.6 : 1 }}
-                      >{checkoutLoading === 'price_1TjbbqCX4iU4nm420REMahwK' ? 'Loading…' : '$7.99 / week'}</button>
+                        style={{ width:'100%', padding:'9px 0', border:'1.5px solid #10b981', borderRadius:9, fontSize:13, fontWeight:700, color:'#10b981', background:'#f0fdf4', cursor:'pointer', opacity: checkoutLoading === 'price_1TkKsTCX4iU4nm42nC8aSeTf' ? 0.6 : 1 }}
+                      >{checkoutLoading === 'price_1TkKsTCX4iU4nm42nC8aSeTf' ? 'Loading…' : '$7.99 / week'}</button>
                       <button
-                        onClick={() => openCheckout('price_1TjbcsCX4iU4nm425XmOflkS')}
+                        onClick={() => openCheckout('price_1TkKsTCX4iU4nm42nC8aSeTf')}
                         disabled={!!checkoutLoading}
-                        style={{ width:'100%', padding:'9px 0', border:'1.5px solid #10b981', borderRadius:9, fontSize:13, fontWeight:700, color:'#fff', background:'#10b981', cursor:'pointer', opacity: checkoutLoading === 'price_1TjbcsCX4iU4nm425XmOflkS' ? 0.6 : 1 }}
-                      >{checkoutLoading === 'price_1TjbcsCX4iU4nm425XmOflkS' ? 'Loading…' : '$19.99 / month — save 38%'}</button>
+                        style={{ width:'100%', padding:'9px 0', border:'1.5px solid #10b981', borderRadius:9, fontSize:13, fontWeight:700, color:'#fff', background:'#10b981', cursor:'pointer', opacity: checkoutLoading === 'price_1TkKsTCX4iU4nm42nC8aSeTf' ? 0.6 : 1 }}
+                      >{checkoutLoading === 'price_1TkKsTCX4iU4nm42nC8aSeTf' ? 'Loading…' : '$19.99 / month — save 38%'}</button>
                     </div>
                   )}
                 </div>
