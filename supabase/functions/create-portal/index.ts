@@ -20,7 +20,7 @@ Deno.serve(async (req) => {
 
   const { data } = await supabase
     .from('sessions')
-    .select('stripe_customer_id')
+    .select('stripe_customer_id, stripe_subscription_id')
     .eq('id', sessionId)
     .single()
 
@@ -30,9 +30,33 @@ Deno.serve(async (req) => {
     })
   }
 
+  // Resolve the subscription so we can deep-link to the cancel flow.
+  // (The inline "Cancel plan" link doesn't render reliably when plan-switching
+  // is disabled, so we send the user straight to the cancellation screen.)
+  let subId = (data.stripe_subscription_id as string | null) ?? null
+  if (!subId) {
+    const subs = await stripe.subscriptions.list({ customer: data.stripe_customer_id, status: 'active', limit: 1 })
+    subId = subs.data[0]?.id ?? null
+  }
+
+  // Only deep-link to cancel if the sub is actually cancellable — Stripe rejects
+  // a cancel flow for a subscription that's already set to cancel_at_period_end
+  // or is no longer active. Otherwise open the normal portal (where they can
+  // renew / manage payment).
+  let canCancel = false
+  if (subId) {
+    try {
+      const sub = await stripe.subscriptions.retrieve(subId)
+      canCancel = (sub.status === 'active' || sub.status === 'trialing' || sub.status === 'past_due') && !sub.cancel_at_period_end
+    } catch { canCancel = false }
+  }
+
   const portal = await stripe.billingPortal.sessions.create({
     customer: data.stripe_customer_id,
     return_url: `${origin}/dashboard`,
+    ...(canCancel && subId
+      ? { flow_data: { type: 'subscription_cancel', subscription_cancel: { subscription: subId } } }
+      : {}),
   })
 
   return new Response(JSON.stringify({ url: portal.url }), {
