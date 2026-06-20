@@ -829,7 +829,7 @@ export default function Dashboard() {
                     <div>
                       <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:12 }}>
                         <span style={{ width:8, height:8, borderRadius:'50%', background:'#10b981', display:'inline-block' }} />
-                        <span style={{ fontSize:13, fontWeight:600, color:'#059669' }}>Active — Graft Subscription</span>
+                        <span style={{ fontSize:13, fontWeight:600, color:'#059669' }}>Active — GigGrab Subscription</span>
                       </div>
                       <button
                         onClick={openPortal}
@@ -850,6 +850,11 @@ export default function Dashboard() {
                         disabled={!!checkoutLoading}
                         style={{ width:'100%', padding:'9px 0', border:'1.5px solid #10b981', borderRadius:9, fontSize:13, fontWeight:700, color:'#fff', background:'#10b981', cursor:'pointer', opacity: checkoutLoading === 'price_1TkKsTCX4iU4nm42nC8aSeTf' ? 0.6 : 1 }}
                       >{checkoutLoading === 'price_1TkKsTCX4iU4nm42nC8aSeTf' ? 'Loading…' : '$19.99 / month — save 38%'}</button>
+                      <button
+                        onClick={openPortal}
+                        disabled={portalLoading}
+                        style={{ width:'100%', padding:'7px 0', border:'none', background:'none', fontSize:12, color:'#9ca3af', cursor:'pointer', textDecoration:'underline' }}
+                      >{portalLoading ? 'Loading…' : 'Already subscribed? Manage billing'}</button>
                     </div>
                   )}
                 </div>
