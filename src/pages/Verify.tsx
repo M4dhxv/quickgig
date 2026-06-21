@@ -169,6 +169,53 @@ export default function Verify() {
                   </div>
                 </div>
 
+                {/* Read-only: the rest of what we extracted from the CV */}
+                {(profileObj?.summary || (profileObj?.skills?.length ?? 0) > 0 || (profileObj?.certifications?.length ?? 0) > 0 || (profileObj?.experience?.length ?? 0) > 0) && (
+                  <div style={{ borderTop:'1px solid #eef0f5', paddingTop:14, display:'flex', flexDirection:'column', gap:14 }}>
+                    <div style={{ fontSize:12, fontWeight:700, color:'#9ca3af', textTransform:'uppercase', letterSpacing:'0.08em' }}>What we pulled from your CV</div>
+
+                    {profileObj?.summary && (
+                      <p style={{ fontSize:13.5, color:'#374151', lineHeight:1.55, margin:0 }}>{profileObj.summary}</p>
+                    )}
+
+                    {(profileObj?.skills?.length ?? 0) > 0 && (
+                      <div>
+                        <div style={{ fontSize:11, fontWeight:600, color:'#5A6178', marginBottom:7 }}>Skills</div>
+                        <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
+                          {profileObj!.skills!.map(s => (
+                            <span key={s} style={{ fontSize:12, fontWeight:600, background:'#FFF5F0', color:'#E8430A', border:'1px solid #FFD0BD', borderRadius:100, padding:'3px 10px' }}>{s}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {(profileObj?.certifications?.length ?? 0) > 0 && (
+                      <div>
+                        <div style={{ fontSize:11, fontWeight:600, color:'#5A6178', marginBottom:7 }}>Certifications</div>
+                        <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
+                          {profileObj!.certifications!.map(c => (
+                            <span key={c} style={{ fontSize:12, fontWeight:600, background:'#eef2ff', color:'#2E5BFF', border:'1px solid #c7d2fe', borderRadius:100, padding:'3px 10px' }}>{c}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {(profileObj?.experience?.length ?? 0) > 0 && (
+                      <div>
+                        <div style={{ fontSize:11, fontWeight:600, color:'#5A6178', marginBottom:7 }}>Experience</div>
+                        <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+                          {profileObj!.experience!.map((e, i) => (
+                            <div key={i} style={{ borderLeft:'2px solid #e5e7eb', paddingLeft:10 }}>
+                              <div style={{ fontWeight:600, fontSize:13, color:'#111' }}>{e.role}</div>
+                              <div style={{ fontSize:12, color:'#5A6178' }}>{e.company}{e.duration ? ` · ${e.duration}` : ''}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {sendError && <p style={{ fontSize:12.5, color:'#dc2626' }}>{sendError}</p>}
 
                 <button onClick={sendCode} disabled={sending} style={{ width:'100%', background:'#FF5A1F', color:'#fff', border:'none', borderRadius:11, padding:'13px 0', fontSize:15, fontWeight:700, cursor:'pointer', opacity: sending ? 0.7 : 1, fontFamily:'Archivo, sans-serif' }}>
