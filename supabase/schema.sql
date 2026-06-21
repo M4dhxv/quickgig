@@ -125,3 +125,14 @@ alter table sessions add column if not exists last_alert_at timestamptz;
 -- users with a verified phone + location whose last_alert_at is older than
 -- MIN_HOURS, then stamps last_alert_at. Sends no-op until
 -- TWILIO_WHATSAPP_ALERT_TEMPLATE_SID (an approved 4-var template) is set.
+
+-- Reassign an anon-created session (+ its CV) to the verified phone identity.
+-- Called by the claim-session edge function (service role) after OTP verify,
+-- because signInWithOtp creates a new identity that must own the session.
+create or replace function public.claim_session(p_session uuid, p_uid uuid, p_profile jsonb)
+returns void language plpgsql security definer as $$
+begin
+  update public.sessions set user_id = p_uid, profile = p_profile where id = p_session;
+  update storage.objects set owner = p_uid where bucket_id = 'cvs' and name like p_session::text || '/%';
+end $$;
+revoke all on function public.claim_session(uuid,uuid,jsonb) from public, anon, authenticated;

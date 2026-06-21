@@ -80,9 +80,9 @@ export default function Verify() {
     } catch { setSendError('Enter a valid phone number for the selected country.'); return }
 
     setSending(true)
-    // Link the phone to the CURRENT (anonymous) user so it keeps the same
-    // identity that owns this session — then verify with type 'phone_change'.
-    const { error } = await supabase.auth.updateUser({ phone: phoneE164 })
+    // signInWithOtp works for both new AND returning numbers (updateUser 422s
+    // on an existing phone). After verify we reassign the session to this user.
+    const { error } = await supabase.auth.signInWithOtp({ phone: phoneE164 })
     setSending(false)
     if (error) { setSendError(error.message); return }
     setE164(phoneE164)
@@ -93,12 +93,14 @@ export default function Verify() {
     if (code.trim().length < 6) { setCodeError('Enter the 6-digit code.'); return }
     setCodeError('')
     setVerifying(true)
-    const { error } = await supabase.auth.verifyOtp({ phone: e164, token: code.trim(), type: 'phone_change' })
+    const { error } = await supabase.auth.verifyOtp({ phone: e164, token: code.trim(), type: 'sms' })
     if (error) { setVerifying(false); setCodeError('Invalid or expired code — try again.'); return }
 
-    await supabase.from('sessions').update({
-      profile: { ...(profileObj ?? {}), name: name.trim(), email: email.trim(), location: locationField.trim(), currentRole: role.trim(), phone: e164 },
-    }).eq('id', sessionId)
+    // Now authenticated as the phone identity. Reassign the anon-created session
+    // (and CV) to this user + save the reviewed profile, all server-side.
+    const profile = { ...(profileObj ?? {}), name: name.trim(), email: email.trim(), location: locationField.trim(), currentRole: role.trim(), phone: e164 }
+    await supabase.functions.invoke('claim-session', { body: { sessionId, profile } })
+    localStorage.setItem('gg_sid', sessionId)
 
     supabase.functions.invoke('send-whatsapp', { body: { phone: e164, name: name.trim(), role: role.trim(), location: locationField.trim() } }).catch(() => {})
 
