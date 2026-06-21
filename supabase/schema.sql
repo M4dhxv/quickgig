@@ -107,3 +107,21 @@ insert into storage.buckets (id, name, public) values ('cvs', 'cvs', false)
 
 create policy "cvs owner" on storage.objects for all to authenticated
   using (bucket_id = 'cvs' and owner = auth.uid()) with check (bucket_id = 'cvs' and owner = auth.uid());
+
+-- ===== WHATSAPP JOB ALERTS (scheduled) =====
+-- Daily cron -> job-alerts edge function -> WhatsApp digest for PAID users.
+alter table sessions add column if not exists last_alert_at timestamptz;
+
+-- create extension if not exists pg_cron;
+-- create extension if not exists pg_net;
+-- select cron.schedule('gignearby-job-alerts', '0 14 * * *', $$
+--   select net.http_post(
+--     url := 'https://<ref>.supabase.co/functions/v1/job-alerts',
+--     headers := jsonb_build_object('Content-Type','application/json','x-cron-secret','<CRON_SECRET>'),
+--     body := '{}'::jsonb)
+-- $$);
+-- job-alerts is deployed with --no-verify-jwt; it authenticates via the
+-- x-cron-secret header (CRON_SECRET function secret). It sends only to paid
+-- users with a verified phone + location whose last_alert_at is older than
+-- MIN_HOURS, then stamps last_alert_at. Sends no-op until
+-- TWILIO_WHATSAPP_ALERT_TEMPLATE_SID (an approved 4-var template) is set.
