@@ -100,8 +100,8 @@ export default function Verify() {
       profile: { ...(profileObj ?? {}), name: name.trim(), email: email.trim(), location: locationField.trim(), currentRole: role.trim(), phone: fullPhone },
     }).eq('id', sessionId)
 
-    // Fire-and-forget WhatsApp welcome (no-op until Twilio WhatsApp secrets are set).
-    supabase.functions.invoke('send-whatsapp', { body: { phone: fullPhone, name: name.trim(), kind: 'welcome' } }).catch(() => {})
+    // Fire-and-forget: first WhatsApp job digest (no-op if no nearby jobs / not configured).
+    supabase.functions.invoke('send-whatsapp', { body: { phone: fullPhone, name: name.trim(), role: role.trim(), location: locationField.trim() } }).catch(() => {})
 
     setVerifying(false)
     navigate('/results', { state: { fileName, sessionId, jobCount } })

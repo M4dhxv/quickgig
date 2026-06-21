@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { adzunaDigest, digestVars } from '../_shared/digest.ts'
 
 const admin = createClient(
   Deno.env.get('SUPABASE_URL')!,
@@ -10,25 +11,7 @@ const admin = createClient(
 const MIN_HOURS = 20
 const APP_URL = Deno.env.get('APP_URL') ?? 'https://quickgig.vercel.app'
 
-async function adzunaNearby(where: string): Promise<{ count: number; titles: string[] }> {
-  const id = Deno.env.get('ADZUNA_APP_ID')
-  const key = Deno.env.get('ADZUNA_APP_KEY')
-  if (!id || !key) return { count: 0, titles: [] }
-  const city = where.split(',')[0].trim()
-  const params = new URLSearchParams({
-    app_id: id, app_key: key, results_per_page: '5', where: city,
-    what: 'warehouse retail care logistics delivery cleaning hospitality',
-    sort_by: 'date', max_days_old: '3',
-  })
-  try {
-    const res = await fetch(`https://api.adzuna.com/v1/api/jobs/us/search/1?${params}`)
-    if (!res.ok) return { count: 0, titles: [] }
-    const d = await res.json()
-    return { count: d.count ?? 0, titles: (d.results ?? []).slice(0, 3).map((j: any) => j.title).filter(Boolean) }
-  } catch { return { count: 0, titles: [] } }
-}
-
-async function sendWhatsApp(toPhone: string, vars: Record<string, string>): Promise<boolean> {
+async function sendTemplate(toPhone: string, vars: Record<string, string>): Promise<boolean> {
   const sid = Deno.env.get('TWILIO_ACCOUNT_SID')
   const token = Deno.env.get('TWILIO_AUTH_TOKEN')
   const from = Deno.env.get('TWILIO_WHATSAPP_FROM')
@@ -49,14 +32,10 @@ async function sendWhatsApp(toPhone: string, vars: Record<string, string>): Prom
 }
 
 Deno.serve(async (req) => {
-  // Only the scheduler (with the shared secret) can trigger this.
   const secret = req.headers.get('x-cron-secret')
-  if (secret !== Deno.env.get('CRON_SECRET')) {
-    return new Response('forbidden', { status: 401 })
-  }
+  if (secret !== Deno.env.get('CRON_SECRET')) return new Response('forbidden', { status: 401 })
 
   const cutoff = new Date(Date.now() - MIN_HOURS * 3600 * 1000).toISOString()
-  // Paid users due for an alert.
   const { data: users } = await admin
     .from('sessions')
     .select('id, profile, last_alert_at')
@@ -67,21 +46,14 @@ Deno.serve(async (req) => {
   let eligible = 0, sent = 0
   for (const u of users ?? []) {
     const p = (u.profile ?? {}) as Record<string, string>
-    const phone = p.phone, loc = p.location
-    if (!phone || !loc) continue
+    if (!p.phone || !p.location) continue
     eligible++
 
-    const { count, titles } = await adzunaNearby(loc)
-    if (count === 0 || titles.length === 0) continue  // don't send an empty digest
+    const { jobs } = await adzunaDigest(p.location)
+    if (jobs.length === 0) continue  // never send an empty digest
 
-    const ok = await sendWhatsApp(phone, {
-      '1': (p.name || 'there').split(' ')[0],
-      '2': String(count),
-      '3': titles.slice(0, 2).join(', '),
-      '4': APP_URL,
-    })
+    const ok = await sendTemplate(p.phone, digestVars({ name: p.name, role: p.currentRole, location: p.location, jobs, appUrl: APP_URL }))
     if (ok) sent++
-    // Stamp regardless of send success-vs-skip so we respect cadence and don't spin.
     await admin.from('sessions').update({ last_alert_at: new Date().toISOString() }).eq('id', u.id)
   }
 
