@@ -128,20 +128,20 @@ export default function Landing() {
 
   return (
     <div>
-      <nav style={S.nav}>
+      <nav style={S.nav} className="lp-nav">
         <div style={S.logo}>
           <div style={S.logoMark}><svg viewBox="0 0 24 24" width="64%" height="64%" fill="#fff" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.2C8.2 2.2 5.2 5.1 5.2 8.8c0 4.7 6.8 12 6.8 12s6.8-7.3 6.8-12c0-3.7-3-6.6-6.8-6.6Z"/><circle cx="12" cy="8.7" r="2.5" fill="#FF5A1F"/></svg></div>
           GigNearby
         </div>
         <div style={S.navLinks}>
-          <span style={S.navLink} onClick={() => document.getElementById('how')?.scrollIntoView({ behavior: 'smooth' })}>How it works</span>
-          <span style={S.navLink} onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}>Pricing</span>
+          <span style={S.navLink} className="nav-hide" onClick={() => document.getElementById('how')?.scrollIntoView({ behavior: 'smooth' })}>How it works</span>
+          <span style={S.navLink} className="nav-hide" onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}>Pricing</span>
           <span style={S.navLink} onClick={() => navigate('/signin')}>Sign in</span>
           <button style={S.signIn} onClick={() => fileRef.current?.click()}>Get started</button>
         </div>
       </nav>
 
-      <div style={S.hero}>
+      <div style={S.hero} className="lp-hero">
         <div>
           <div className="fade-up">
             <div style={S.badge}>
@@ -237,12 +237,12 @@ export default function Landing() {
       </div>
 
       {/* How it works */}
-      <section id="how" style={{ background: '#fff', borderTop: '1px solid #eef0f5', padding: '72px 40px' }}>
+      <section id="how" className="lp-section" style={{ background: '#fff', borderTop: '1px solid #eef0f5', padding: '72px 40px' }}>
         <div style={{ maxWidth: 1120, margin: '0 auto' }}>
           <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--brand-hover)', marginBottom: 12 }}>How it works</div>
           <h2 style={{ fontFamily: 'Archivo, sans-serif', fontSize: 38, fontWeight: 800, letterSpacing: '-1px', marginBottom: 12 }}>No forms. No waiting. No chasing.</h2>
           <p style={{ color: 'var(--muted)', fontSize: 17, maxWidth: 560, marginBottom: 40 }}>You do one thing — upload your CV. GigNearby does the rest, and gets you to the closest jobs before anyone else.</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 18 }}>
+          <div className="lp-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 18 }}>
             {[
               { n: '01', icon: '📄', t: 'Upload once', d: 'Drop your CV — PDF, Word, even a photo. No account, no forms, no fee.' },
               { n: '02', icon: '📍', t: 'Matched nearby', d: 'We read your background and scan live job listings near you, every minute.' },
@@ -263,12 +263,12 @@ export default function Landing() {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" style={{ background: 'var(--ink)', color: '#fff', padding: '72px 40px' }}>
+      <section id="pricing" className="lp-section" style={{ background: 'var(--ink)', color: '#fff', padding: '72px 40px' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
           <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#ff9c75', marginBottom: 12 }}>Pricing</div>
           <h2 style={{ fontFamily: 'Archivo, sans-serif', fontSize: 38, fontWeight: 800, letterSpacing: '-1px', marginBottom: 12 }}>Unlock every job near you.</h2>
           <p style={{ color: '#aab0c4', fontSize: 17, maxWidth: 560, marginBottom: 40 }}>One simple plan gets you every nearby match, instant WhatsApp alerts, and Sarah on call. Cancel anytime.</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 18, maxWidth: 660 }}>
+          <div className="lp-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 18, maxWidth: 660 }}>
             {[
               { name: 'Weekly', price: '$7.99', period: 'per week', popular: false, feats: ['Every job matched to you', 'Instant WhatsApp alerts', 'Sarah — interview prep & advice'], cta: 'Get Weekly' },
               { name: 'Monthly', price: '$19.99', period: 'per month', popular: true, feats: ['Everything in Weekly', 'New matches the second they post', 'Save 38% vs weekly'], cta: 'Get Monthly' },
@@ -299,7 +299,7 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer style={{ background: '#fff', borderTop: '1px solid #eef0f5', padding: '32px 40px' }}>
+      <footer className="lp-foot" style={{ background: '#fff', borderTop: '1px solid #eef0f5', padding: '32px 40px' }}>
         <div style={{ maxWidth: 1120, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Archivo, sans-serif', fontWeight: 800, fontSize: 18 }}>
             <div style={S.logoMark}><svg viewBox="0 0 24 24" width="64%" height="64%" fill="#fff" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.2C8.2 2.2 5.2 5.1 5.2 8.8c0 4.7 6.8 12 6.8 12s6.8-7.3 6.8-12c0-3.7-3-6.6-6.8-6.6Z"/><circle cx="12" cy="8.7" r="2.5" fill="#FF5A1F"/></svg></div>

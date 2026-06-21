@@ -53,3 +53,20 @@ body {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; }
 }
+
+/* ===== Mobile (inline styles win, so overrides use !important) ===== */
+@media (max-width: 820px) {
+  .lp-hero { grid-template-columns: 1fr !important; gap: 36px !important; padding: 36px 20px !important; }
+  .lp-hero h1 { font-size: 40px !important; }
+  .lp-section { padding: 48px 20px !important; }
+  .lp-grid { grid-template-columns: 1fr !important; }
+  .lp-nav { padding: 14px 18px !important; }
+  .lp-foot { padding: 24px 20px !important; }
+  /* Dashboard: drop the Sarah side panel, jobs go full width */
+  .dash-chat { display: none !important; }
+  .dash-search { max-width: none !important; }
+}
+@media (max-width: 560px) {
+  .lp-hero h1 { font-size: 34px !important; }
+  .nav-hide { display: none !important; }
+}

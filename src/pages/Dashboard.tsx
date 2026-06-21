@@ -517,7 +517,7 @@ export default function Dashboard() {
           GigNearby
         </div>
 
-        <form onSubmit={handleSearch} style={{ flex:1, maxWidth:440, display:'flex', gap:8 }}>
+        <form onSubmit={handleSearch} className="dash-search" style={{ flex:1, maxWidth:440, display:'flex', gap:8 }}>
           <input
             value={searchInput}
             onChange={e => setSearchInput(e.target.value)}
@@ -742,7 +742,7 @@ export default function Dashboard() {
         </div>
 
         {/* Sarah chat */}
-        <div style={{ width:320, borderLeft:'1px solid #e5e7eb', background:'#fff', display:'flex', flexDirection:'column', flexShrink:0 }}>
+        <div className="dash-chat" style={{ width:320, borderLeft:'1px solid #e5e7eb', background:'#fff', display:'flex', flexDirection:'column', flexShrink:0 }}>
           <div style={{ padding:'12px 14px', borderBottom:'1px solid #f3f4f6', display:'flex', alignItems:'center', gap:10 }}>
             <div style={{ position:'relative' }}>
               <div style={{ width:34, height:34, borderRadius:'50%', background:'linear-gradient(135deg,#FF5A1F,#E8430A)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:15 }}>✦</div>

@@ -144,7 +144,7 @@ export default function Results() {
           </div>
         )}
 
-        <div className="fade-up d2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, margin: '36px 0 0' }}>
+        <div className="fade-up d2 lp-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, margin: '36px 0 0' }}>
           {PLANS.map(plan => (
             <div
               key={plan.id}
