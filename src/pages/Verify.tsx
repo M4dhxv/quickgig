@@ -80,8 +80,16 @@ export default function Verify() {
     } catch { setSendError('Enter a valid phone number for the selected country.'); return }
 
     setSending(true)
-    // signInWithOtp works for both new AND returning numbers (updateUser 422s
-    // on an existing phone). After verify we reassign the session to this user.
+    // If this number already has an account, send them to sign in instead of
+    // re-doing the whole profile flow (probe with shouldCreateUser:false — it
+    // only sends a code if the account already exists).
+    const probe = await supabase.auth.signInWithOtp({ phone: phoneE164, options: { shouldCreateUser: false } })
+    if (!probe.error) {
+      setSending(false)
+      navigate('/signin', { state: { e164: phoneE164, sent: true } })
+      return
+    }
+    // New number -> create the account + send the code, continue signup.
     const { error } = await supabase.auth.signInWithOtp({ phone: phoneE164 })
     setSending(false)
     if (error) { setSendError(error.message); return }

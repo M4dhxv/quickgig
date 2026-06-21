@@ -8,6 +8,7 @@ const Verify    = lazy(() => import('./pages/Verify'))
 const Results   = lazy(() => import('./pages/Results'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 const JobDetail = lazy(() => import('./pages/JobDetail'))
+const SignIn    = lazy(() => import('./pages/SignIn'))
 
 export default function App() {
   // Don't render routes (which immediately query Supabase) until we have an auth session.
@@ -22,6 +23,7 @@ export default function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/analyse" element={<Analyse />} />
           <Route path="/verify"  element={<Verify />} />
+          <Route path="/signin"  element={<SignIn />} />
           <Route path="/results" element={<Results />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/jobs/:id"  element={<JobDetail />} />

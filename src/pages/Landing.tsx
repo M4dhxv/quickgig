@@ -136,6 +136,7 @@ export default function Landing() {
         <div style={S.navLinks}>
           <span style={S.navLink} onClick={() => document.getElementById('how')?.scrollIntoView({ behavior: 'smooth' })}>How it works</span>
           <span style={S.navLink} onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}>Pricing</span>
+          <span style={S.navLink} onClick={() => navigate('/signin')}>Sign in</span>
           <button style={S.signIn} onClick={() => fileRef.current?.click()}>Get started</button>
         </div>
       </nav>
