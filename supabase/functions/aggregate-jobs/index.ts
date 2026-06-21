@@ -1,3 +1,5 @@
+import { requireUser } from '../_shared/auth.ts'
+
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -407,6 +409,7 @@ function dedup(jobs: Job[]): Job[] {
 // ─── HANDLER ──────────────────────────────────────────────────────────────────
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS })
+  const gate = await requireUser(req, CORS); if (gate instanceof Response) return gate
 
   try {
     const { what = '', where = '', page = 1, perPage = 20 } = await req.json()

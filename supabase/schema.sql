@@ -64,22 +64,46 @@ create table if not exists chat_messages (
   created_at timestamptz default now()
 );
 
--- Enable RLS (rows visible to everyone for this public prototype)
+-- ===== TRUE PER-USER ISOLATION =====
+-- Every visitor gets a real auth identity (anonymous sign-in, role `authenticated`).
+-- Each row is owned by user_id = auth.uid(); RLS only returns rows you own.
+-- Requires: Auth → "Allow anonymous sign-ins" = ON.
+
+alter table sessions      add column if not exists user_id uuid default auth.uid();
+alter table job_results   add column if not exists user_id uuid default auth.uid();
+alter table job_results   add column if not exists is_shared boolean default false;
+alter table saved_jobs    add column if not exists user_id uuid default auth.uid();
+alter table chat_messages add column if not exists user_id uuid default auth.uid();
+
 alter table sessions      enable row level security;
 alter table job_results   enable row level security;
 alter table saved_jobs    enable row level security;
 alter table chat_messages enable row level security;
 
-create policy "public read/write sessions"      on sessions      for all using (true) with check (true);
-create policy "public read/write job_results"   on job_results   for all using (true) with check (true);
-create policy "public read/write saved_jobs"    on saved_jobs    for all using (true) with check (true);
-create policy "public read/write chat_messages" on chat_messages for all using (true) with check (true);
+-- sessions: owner-only for everything. plan/stripe_* are NOT user-writable
+-- (only the Stripe edge functions, running as service_role, can set them).
+create policy "sessions owner" on sessions for all to authenticated
+  using (user_id = auth.uid()) with check (user_id = auth.uid());
+revoke update on sessions from anon, authenticated;
+grant update (profile, file_name, cv_path, search_term) on sessions to authenticated;
 
--- Storage: 'cvs' bucket holds the raw uploaded CV files (path = <sessionId>/<fileName>).
--- Public so the app's getPublicUrl() "view CV" link works; anon can upload/read but NOT delete.
-insert into storage.buckets (id, name, public) values ('cvs', 'cvs', true)
-  on conflict (id) do update set public = true;
+-- chat_messages + saved_jobs: owner-only.
+create policy "chat owner"  on chat_messages for all to authenticated
+  using (user_id = auth.uid()) with check (user_id = auth.uid());
+create policy "saved owner" on saved_jobs    for all to authenticated
+  using (user_id = auth.uid()) with check (user_id = auth.uid());
 
-create policy "cvs public insert" on storage.objects for insert to anon, authenticated with check (bucket_id = 'cvs');
-create policy "cvs public select" on storage.objects for select to anon, authenticated using (bucket_id = 'cvs');
-create policy "cvs public update" on storage.objects for update to anon, authenticated using (bucket_id = 'cvs') with check (bucket_id = 'cvs');
+-- job_results: you write your own; rows flagged is_shared=true are world-readable
+-- (that's how a shared /jobs/:id link works for other people).
+create policy "jobres insert" on job_results for insert to authenticated with check (user_id = auth.uid());
+create policy "jobres update" on job_results for update to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
+create policy "jobres read shared or own" on job_results for select to anon, authenticated
+  using (is_shared = true or user_id = auth.uid());
+
+-- Storage: 'cvs' is PRIVATE and owner-scoped. Supabase stamps objects.owner =
+-- auth.uid() on authenticated upload; you can only sign/read your own CV.
+insert into storage.buckets (id, name, public) values ('cvs', 'cvs', false)
+  on conflict (id) do update set public = false;
+
+create policy "cvs owner" on storage.objects for all to authenticated
+  using (bucket_id = 'cvs' and owner = auth.uid()) with check (bucket_id = 'cvs' and owner = auth.uid());

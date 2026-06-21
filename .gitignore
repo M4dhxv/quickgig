@@ -13,3 +13,5 @@ dist
 .mcp.json
 skills-lock.json
 gignearby-brand-kit.zip
+
+supabase/.temp/

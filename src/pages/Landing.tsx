@@ -187,7 +187,7 @@ export default function Landing() {
                 Browse
               </button>
             </div>
-            <p style={S.hint}>PDF, DOC, image &amp; more · Free — no account needed</p>
+            <p style={S.hint}>PDF, DOC, image &amp; more · Takes 30 seconds</p>
           </div>
 
           <div style={S.chips} className="fade-up d4">
@@ -259,11 +259,10 @@ export default function Landing() {
       <section id="pricing" style={{ background: 'var(--ink)', color: '#fff', padding: '72px 40px' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
           <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#ff9c75', marginBottom: 12 }}>Pricing</div>
-          <h2 style={{ fontFamily: 'Archivo, sans-serif', fontSize: 38, fontWeight: 800, letterSpacing: '-1px', marginBottom: 12 }}>Free to start. Pay only to unlock every match.</h2>
-          <p style={{ color: '#aab0c4', fontSize: 17, maxWidth: 560, marginBottom: 40 }}>Matching and your first alerts are always free. Upgrade for every nearby job, instant WhatsApp alerts, and Sarah on call.</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 18 }}>
+          <h2 style={{ fontFamily: 'Archivo, sans-serif', fontSize: 38, fontWeight: 800, letterSpacing: '-1px', marginBottom: 12 }}>Unlock every job near you.</h2>
+          <p style={{ color: '#aab0c4', fontSize: 17, maxWidth: 560, marginBottom: 40 }}>One simple plan gets you every nearby match, instant WhatsApp alerts, and Sarah on call. Cancel anytime.</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 18, maxWidth: 660 }}>
             {[
-              { name: 'Free', price: '$0', period: 'forever', popular: false, feats: ['See your top matches', 'Sample WhatsApp alerts', 'No account needed'], cta: 'Start free' },
               { name: 'Weekly', price: '$7.99', period: 'per week', popular: false, feats: ['Every job matched to you', 'Instant WhatsApp alerts', 'Sarah — interview prep & advice'], cta: 'Get Weekly' },
               { name: 'Monthly', price: '$19.99', period: 'per month', popular: true, feats: ['Everything in Weekly', 'New matches the second they post', 'Save 38% vs weekly'], cta: 'Get Monthly' },
             ].map(p => (
@@ -288,7 +287,7 @@ export default function Landing() {
               </div>
             ))}
           </div>
-          <p style={{ color: '#8b91a6', fontSize: 13, marginTop: 20 }}>Cancel anytime from your profile. Free for workers — employers pay to reach you, never you.</p>
+          <p style={{ color: '#8b91a6', fontSize: 13, marginTop: 20 }}>Cancel anytime from your profile. No hidden fees.</p>
         </div>
       </section>
 

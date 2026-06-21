@@ -1,3 +1,5 @@
+import { requireUser } from '../_shared/auth.ts'
+
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -6,6 +8,7 @@ const CORS = {
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS })
+  const gate = await requireUser(req, CORS); if (gate instanceof Response) return gate
 
   try {
     const { what = 'warehouse', where = '', page = 1, perPage = 10 } = await req.json()

@@ -1,4 +1,5 @@
 import JSZip from 'https://esm.sh/jszip@3.10.1'
+import { requireUser } from '../_shared/auth.ts'
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -94,6 +95,7 @@ const IMAGE_MEDIA: Record<string, string> = {
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS })
+  const gate = await requireUser(req, CORS); if (gate instanceof Response) return gate
 
   try {
     const { fileName, base64, mediaType } = await req.json()

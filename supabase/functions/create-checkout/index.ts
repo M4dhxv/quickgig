@@ -2,6 +2,11 @@ import Stripe from 'https://esm.sh/stripe@14'
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, { apiVersion: '2024-04-10' })
 
+// Only our real plans can be checked out — stops arbitrary/probe price IDs.
+const ALLOWED_PRICES = new Set([
+  'price_1TkLsWCvrCGyWAcEIQvPwpr7', // Weekly + Monthly (current)
+])
+
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -13,6 +18,12 @@ Deno.serve(async (req) => {
   try {
     const { priceId, sessionId, email } = await req.json()
     const origin = req.headers.get('origin') ?? 'https://quickgig.vercel.app'
+
+    if (!ALLOWED_PRICES.has(priceId)) {
+      return new Response(JSON.stringify({ error: 'Invalid plan' }), {
+        status: 400, headers: { ...CORS, 'Content-Type': 'application/json' },
+      })
+    }
 
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',

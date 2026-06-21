@@ -5,6 +5,18 @@ export const supabase = createClient(
   import.meta.env.VITE_SUPABASE_KEY as string,
 )
 
+// Every visitor gets a real (anonymous) auth identity so RLS can isolate their
+// data to them. Returning visitors reuse their persisted session. Resolves once
+// an auth session exists — App gates rendering on this so no query runs without a JWT.
+export const authReady: Promise<void> = (async () => {
+  try {
+    const { data } = await supabase.auth.getSession()
+    if (!data.session) await supabase.auth.signInAnonymously()
+  } catch {
+    /* if auth fails the app still renders; queries will simply return nothing */
+  }
+})()
+
 export type JobResult = {
   id?: string
   adzuna_id: string

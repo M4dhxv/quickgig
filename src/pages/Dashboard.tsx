@@ -259,8 +259,9 @@ export default function Dashboard() {
   }, [sessionId])
 
   useEffect(() => {
+    // RLS scopes this to our own row only (owner = auth.uid()).
     supabase.from('sessions').select('profile, file_name, cv_path, plan').eq('id', sessionId).single()
-      .then(({ data }) => {
+      .then(async ({ data }) => {
         if (data?.profile) {
           setProfile(data.profile as UserProfile)
           if (data.profile.location) {
@@ -272,8 +273,8 @@ export default function Dashboard() {
         if (data?.plan === 'active') setPlan('active')
         if (data?.file_name) setCvFileName(data.file_name)
         if (data?.cv_path) {
-          const { data: signed } = supabase.storage.from('cvs').getPublicUrl(data.cv_path)
-          if (signed?.publicUrl) setCvViewUrl(signed.publicUrl)
+          const { data: signed } = await supabase.storage.from('cvs').createSignedUrl(data.cv_path, 3600)
+          if (signed?.signedUrl) setCvViewUrl(signed.signedUrl)
         }
       })
   }, [sessionId])
@@ -334,6 +335,7 @@ export default function Dashboard() {
         category: j.category,
         posted_at: j.posted_at || null,
         score: j.score,
+        is_shared: true,   // make this row publicly readable on the shared link
       }, { onConflict: 'session_id,adzuna_id' })
       .select('id')
       .single()
@@ -446,10 +448,10 @@ export default function Dashboard() {
         ...(newProfile ? { profile: newProfile } : {}),
       }).eq('id', sessionId)
 
-      // Reflect in the UI
+      // Reflect in the UI — signed URL for our own (private) CV
       setCvFileName(f.name)
-      const { data: pub } = supabase.storage.from('cvs').getPublicUrl(path)
-      if (pub?.publicUrl) setCvViewUrl(pub.publicUrl)
+      supabase.storage.from('cvs').createSignedUrl(path, 3600)
+        .then(({ data: s }) => { if (s?.signedUrl) setCvViewUrl(s.signedUrl) })
       if (newProfile) {
         setProfile(newProfile)
         if (newProfile.location) setProfileLocation(newProfile.location)

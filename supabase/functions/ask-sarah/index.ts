@@ -1,3 +1,5 @@
+import { requirePaid } from '../_shared/auth.ts'
+
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -24,6 +26,7 @@ function buildSystem(profile?: any): string {
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS })
+  const gate = await requirePaid(req, CORS); if (gate instanceof Response) return gate
 
   try {
     const { messages, profile } = await req.json()
