@@ -21,12 +21,16 @@ Deno.serve(async (req) => {
   try {
     const { phone, name, text } = await req.json()
     const sid = Deno.env.get('TWILIO_ACCOUNT_SID')
-    const token = Deno.env.get('TWILIO_AUTH_TOKEN')
     const from = Deno.env.get('TWILIO_WHATSAPP_FROM')
     const msgService = Deno.env.get('TWILIO_WHATSAPP_MESSAGING_SERVICE_SID')
     const templateSid = Deno.env.get('TWILIO_WHATSAPP_TEMPLATE_SID')
+    // Auth: prefer an API Key (SID+Secret); fall back to the account Auth Token.
+    const keySid = Deno.env.get('TWILIO_API_KEY_SID')
+    const keySecret = Deno.env.get('TWILIO_API_KEY_SECRET')
+    const authUser = keySid || sid
+    const authPass = keySecret || Deno.env.get('TWILIO_AUTH_TOKEN')
 
-    if (!sid || !token || (!from && !msgService)) {
+    if (!sid || !authUser || !authPass || (!from && !msgService)) {
       return ok({ sent: false, skipped: 'twilio_whatsapp_not_configured' })
     }
     if (!phone) return ok({ sent: false, error: 'no phone' })
@@ -47,7 +51,7 @@ Deno.serve(async (req) => {
     const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`, {
       method: 'POST',
       headers: {
-        Authorization: 'Basic ' + btoa(`${sid}:${token}`),
+        Authorization: 'Basic ' + btoa(`${authUser}:${authPass}`),
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: params,
