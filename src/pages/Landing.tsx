@@ -189,6 +189,12 @@ export default function Landing() {
               </button>
             </div>
             <p style={S.hint}>PDF, DOC, image &amp; more · Takes 30 seconds</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginTop: 4, fontSize: 13.5, color: '#0E1633', fontWeight: 600 }}>
+              <span style={{ width: 22, height: 22, borderRadius: 6, background: '#25D366', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 20l1-4.8A8 8 0 1 1 21 12Z"/></svg>
+              </span>
+              New jobs near you, pushed straight to your WhatsApp.
+            </div>
           </div>
 
           <div style={S.chips} className="fade-up d4">
