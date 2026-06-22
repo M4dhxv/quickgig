@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { isValidPhoneNumber, parsePhoneNumber, getCountryCallingCode, type CountryCode } from 'libphonenumber-js'
 import { supabase } from '../lib/supabase'
 import type { UserProfile } from '../lib/claude'
+import { posthog } from '../lib/posthog'
 
 const COUNTRIES: CountryCode[] = ['US', 'CA', 'GB', 'IE', 'AU', 'NZ', 'IN', 'PH', 'NG', 'ZA', 'MX', 'BR', 'ES', 'FR', 'DE', 'IT', 'PL', 'PT', 'NL']
 const flag = (cc: string) => cc.toUpperCase().replace(/./g, c => String.fromCodePoint(127397 + c.charCodeAt(0)))
@@ -93,6 +94,7 @@ export default function Verify() {
     const { error } = await supabase.auth.signInWithOtp({ phone: phoneE164 })
     setSending(false)
     if (error) { setSendError(error.message); return }
+    posthog.capture('otp_requested', { country, has_profile: !!profileObj })
     setE164(phoneE164)
     setCodeSent(true)
   }
@@ -109,6 +111,18 @@ export default function Verify() {
     const profile = { ...(profileObj ?? {}), name: name.trim(), email: email.trim(), location: locationField.trim(), currentRole: role.trim(), phone: e164 }
     await supabase.functions.invoke('claim-session', { body: { sessionId, profile } })
     localStorage.setItem('gg_sid', sessionId)
+    if (e164) posthog.identify(e164, {
+      name: name.trim(),
+      email: email.trim(),
+      phone: e164,
+      location: locationField.trim(),
+      current_role: role.trim(),
+    })
+    posthog.capture('account_created', {
+      has_email: !!email.trim(),
+      has_location: !!locationField.trim(),
+      has_role: !!role.trim(),
+    })
 
     supabase.functions.invoke('send-whatsapp', { body: { phone: e164, name: name.trim(), role: role.trim(), location: locationField.trim() } }).catch(() => {})
 

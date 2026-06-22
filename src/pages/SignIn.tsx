@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { isValidPhoneNumber, parsePhoneNumber, getCountryCallingCode, type CountryCode } from 'libphonenumber-js'
 import { supabase } from '../lib/supabase'
+import { posthog } from '../lib/posthog'
 
 const COUNTRIES: CountryCode[] = ['US', 'CA', 'GB', 'IE', 'AU', 'NZ', 'IN', 'PH', 'NG', 'ZA', 'MX', 'BR', 'ES', 'FR', 'DE', 'IT', 'PL', 'PT', 'NL']
 const flag = (cc: string) => cc.toUpperCase().replace(/./g, c => String.fromCodePoint(127397 + c.charCodeAt(0)))
@@ -51,6 +52,8 @@ export default function SignIn() {
     // Signed in. Go to their most recent session's dashboard (RLS scopes to them).
     const { data } = await supabase.from('sessions').select('id').order('created_at', { ascending: false }).limit(1)
     const sid = data?.[0]?.id
+    if (e164) posthog.identify(e164, { phone: e164 })
+    posthog.capture('sign_in_completed')
     setVerifying(false)
     if (sid) { localStorage.setItem('gg_sid', sid); navigate('/dashboard', { state: { sessionId: sid } }) }
     else navigate('/')

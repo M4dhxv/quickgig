@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { isValidPhoneNumber, parsePhoneNumber, getCountryCallingCode, type CountryCode } from 'libphonenumber-js'
 import { supabase } from '../lib/supabase'
+import { posthog } from '../lib/posthog'
 
 // US first (primary market), then common worker markets
 const COUNTRIES: CountryCode[] = ['US', 'CA', 'GB', 'IE', 'AU', 'NZ', 'IN', 'PH', 'NG', 'ZA', 'MX', 'BR', 'ES', 'FR', 'DE', 'IT', 'PL', 'PT', 'NL']
@@ -80,7 +81,16 @@ export default function JobDetail() {
   }, [id])
 
   function openJob() {
-    if (job) window.open(job.redirect_url, '_blank', 'noopener,noreferrer')
+    if (job) {
+      posthog.capture('job_applied', {
+        job_title: job.title,
+        company: job.company,
+        location: job.location,
+        job_id: job.id,
+        is_signed_in: signedIn,
+      })
+      window.open(job.redirect_url, '_blank', 'noopener,noreferrer')
+    }
   }
 
   function handleApply() {

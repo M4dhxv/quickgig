@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { posthog } from '../lib/posthog'
 
 const ROLES = [
   { title: 'Senior Warehouse Manager', company: 'Clipper Logistics', location: 'Leeds, LS1', salary: '£34,000 – £40,000', score: 96, badge: 'Top Match' },
@@ -69,6 +70,13 @@ export default function Results() {
   async function openCheckout(priceId: string) {
     setCheckoutLoading(priceId)
     setCheckoutError('')
+    const plan = PLANS.find(p => p.priceId === priceId)
+    posthog.capture('checkout_started', {
+      plan: plan?.id ?? 'unknown',
+      price: plan?.price ?? 'unknown',
+      price_id: priceId,
+      location: 'results_page',
+    })
     try {
       const sid = sessionId ?? crypto.randomUUID()
       const { data, error } = await supabase.functions.invoke('create-checkout', {

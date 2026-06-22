@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { posthog } from '../lib/posthog'
 
 const CATEGORIES = [
   'Construction & Trades', 'Logistics & Warehousing', 'Hospitality & Cleaning',
@@ -91,6 +92,10 @@ export default function Landing() {
 
   async function handleFile(f: File) {
     setFileName(f.name)
+    posthog.capture('cv_uploaded', {
+      file_type: f.type || 'unknown',
+      file_name: f.name,
+    })
     const sessionId = crypto.randomUUID()
     // This is the canonical session — persist it now so a refresh anywhere
     // in the flow (and the post-payment return) resolves the same identity.
@@ -210,7 +215,10 @@ export default function Landing() {
                   ;(e.currentTarget as HTMLElement).style.borderColor = '#e5e7eb'
                   ;(e.currentTarget as HTMLElement).style.background = '#fff'
                 }}
-                onClick={() => navigate('/analyse', { state: { fileName: `${c} roles.pdf` } })}
+                onClick={() => {
+                  posthog.capture('category_selected', { category: c })
+                  navigate('/analyse', { state: { fileName: `${c} roles.pdf` } })
+                }}
               >
                 {c}
               </span>
@@ -288,7 +296,10 @@ export default function Landing() {
                   ))}
                 </ul>
                 <button
-                  onClick={() => fileRef.current?.click()}
+                  onClick={() => {
+                    posthog.capture('pricing_plan_clicked', { plan: p.name.toLowerCase(), price: p.price, location: 'landing_page' })
+                    fileRef.current?.click()
+                  }}
                   style={{ width: '100%', padding: '12px 0', borderRadius: 11, fontSize: 15, fontWeight: 700, cursor: 'pointer', border: 'none', background: p.popular ? '#fff' : 'var(--brand)', color: p.popular ? 'var(--brand)' : '#fff' }}
                 >{p.cta}</button>
               </div>

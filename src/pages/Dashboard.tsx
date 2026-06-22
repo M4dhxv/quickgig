@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { searchJobsMulti, searchJobs, formatSalary, timeAgo, matchScore, getMatchBreakdown, type AdzunaJob } from '../lib/adzuna'
 import { textToSpeech, DeepgramSTT } from '../lib/deepgram'
 import { askSarah, type UserProfile } from '../lib/claude'
+import { posthog } from '../lib/posthog'
 
 const KNOWN_DOMAINS: [string, string][] = [
   ['amazon', 'amazon.com'], ['walmart', 'walmart.com'], ['target', 'target.com'],
@@ -254,7 +255,12 @@ export default function Dashboard() {
     const csId = new URLSearchParams(window.location.search).get('cs_id')
     if (!csId) return
     supabase.functions.invoke('verify-checkout', { body: { csId, sessionId } })
-      .then(({ data }) => { if (data?.active) setPlan('active') })
+      .then(({ data }) => {
+        if (data?.active) {
+          setPlan('active')
+          posthog.capture('payment_succeeded', { session_id: sessionId })
+        }
+      })
       .catch(() => {})
   }, [sessionId])
 
@@ -284,6 +290,7 @@ export default function Dashboard() {
     const userMsg: Message = { from: 'user', text, ts: getTime() }
     setMessages(m => [...m, userMsg])
     setChatInput('')
+    posthog.capture('sarah_chat_sent', { message_length: text.length })
 
     await supabase.from('chat_messages').insert({ session_id: sessionId, role: 'user', content: text })
 
@@ -308,6 +315,12 @@ export default function Dashboard() {
       await supabase.from('saved_jobs').delete().match({ session_id: sessionId, adzuna_id: job.id })
       setSavedIds(s => { const n = new Set(s); n.delete(job.id); return n })
     } else {
+      posthog.capture('job_saved', {
+        job_title: job.title,
+        company: job.company,
+        location: job.location,
+        match_score: job.score,
+      })
       await supabase.from('saved_jobs').upsert({
         session_id: sessionId, adzuna_id: job.id, title: job.title,
         company: job.company, location: job.location,
@@ -342,6 +355,11 @@ export default function Dashboard() {
     if (data?.id) {
       const url = `${window.location.origin}/jobs/${data.id}`
       try { await navigator.clipboard.writeText(url) } catch { /* ignore */ }
+      posthog.capture('job_shared', {
+        job_title: j.title,
+        company: j.company,
+        match_score: j.score,
+      })
       setCopiedId(j.id)
       setTimeout(() => setCopiedId(c => c === j.id ? null : c), 2200)
     }
@@ -408,6 +426,7 @@ export default function Dashboard() {
 
   async function openCheckout(priceId: string) {
     setCheckoutLoading(priceId)
+    posthog.capture('checkout_started', { price_id: priceId, location: 'dashboard' })
     try {
       const { data } = await supabase.functions.invoke('create-checkout', {
         body: { priceId, sessionId, email: profile?.email },
@@ -449,6 +468,7 @@ export default function Dashboard() {
       }).eq('id', sessionId)
 
       // Reflect in the UI — signed URL for our own (private) CV
+      posthog.capture('cv_updated', { file_name: f.name, file_type: f.type || 'unknown' })
       setCvFileName(f.name)
       supabase.storage.from('cvs').createSignedUrl(path, 3600)
         .then(({ data: s }) => { if (s?.signedUrl) setCvViewUrl(s.signedUrl) })
