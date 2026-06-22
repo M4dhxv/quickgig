@@ -134,7 +134,7 @@ export default function JobDetail() {
       await supabase.from('sessions').insert({
         id: sid,
         search_term: `shared_job:${id}`,
-        profile: { name: name.trim(), email: email.trim(), phone },
+        profile: { name: name.trim(), email: email.trim() },
       })
       localStorage.setItem('gg_sid', sid)
       setSignedIn(true)

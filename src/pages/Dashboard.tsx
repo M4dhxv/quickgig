@@ -166,6 +166,7 @@ export default function Dashboard() {
   const [speakingReply, setSpeakingReply] = useState('')
 
   const [profile, setProfile] = useState<UserProfile | null>(null)
+  const [verifiedPhone, setVerifiedPhone] = useState('')
   const [profileLocation, setProfileLocation] = useState('')
   const [profileOpen, setProfileOpen] = useState(false)
   const [cvFileName, setCvFileName] = useState(state?.fileName ?? '')
@@ -263,6 +264,12 @@ export default function Dashboard() {
       })
       .catch(() => {})
   }, [sessionId])
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user?.phone) setVerifiedPhone(data.user.phone)
+    })
+  }, [])
 
   useEffect(() => {
     // RLS scopes this to our own row only (owner = auth.uid()).
@@ -854,10 +861,10 @@ export default function Dashboard() {
                 {/* Contact */}
                 <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
                   <div style={{ fontSize:11, fontWeight:700, color:'#9ca3af', textTransform:'uppercase', letterSpacing:'0.07em' }}>Contact</div>
-                  {profile.location && <Row icon="📍" value={profile.location} />}
-                  {profile.phone    && <Row icon="📞" value={profile.phone} />}
-                  {profile.email    && <Row icon="✉️"  value={profile.email} />}
-                  {!profile.location && !profile.phone && !profile.email && <span style={{ fontSize:13, color:'#9ca3af' }}>No contact details extracted</span>}
+                  {profile.location  && <Row icon="📍" value={profile.location} />}
+                  {verifiedPhone     && <Row icon="📞" value={verifiedPhone} />}
+                  {profile.email     && <Row icon="✉️"  value={profile.email} />}
+                  {!profile.location && !verifiedPhone && !profile.email && <span style={{ fontSize:13, color:'#9ca3af' }}>No contact details extracted</span>}
                 </div>
 
                 {/* CV file */}

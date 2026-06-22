@@ -108,7 +108,7 @@ export default function Verify() {
 
     // Now authenticated as the phone identity. Reassign the anon-created session
     // (and CV) to this user + save the reviewed profile, all server-side.
-    const profile = { ...(profileObj ?? {}), name: name.trim(), email: email.trim(), location: locationField.trim(), currentRole: role.trim(), phone: e164 }
+    const profile = { ...(profileObj ?? {}), name: name.trim(), email: email.trim(), location: locationField.trim(), currentRole: role.trim() }
     await supabase.functions.invoke('claim-session', { body: { sessionId, profile } })
     localStorage.setItem('gg_sid', sessionId)
     if (e164) posthog.identify(e164, {
