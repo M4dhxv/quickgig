@@ -8,10 +8,10 @@ const admin = createClient(
 )
 const APP_URL = Deno.env.get('APP_URL') ?? 'https://gignearby.com'
 
-// Internal-only — called by verify-checkout with service role bearer token.
+// Internal-only — called by verify-checkout with x-internal-secret header.
 Deno.serve(async (req) => {
-  const token = (req.headers.get('Authorization') ?? '').replace(/^Bearer\s+/i, '')
-  if (token !== Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')) {
+  const secret = req.headers.get('x-internal-secret')
+  if (secret !== Deno.env.get('CRON_SECRET')) {
     return new Response('forbidden', { status: 401 })
   }
 

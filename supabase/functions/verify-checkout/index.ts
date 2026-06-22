@@ -52,7 +52,7 @@ Deno.serve(async (req) => {
         const serviceRole = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
         fetch(`${supabaseUrl}/functions/v1/seed-jobs`, {
           method: 'POST',
-          headers: { Authorization: `Bearer ${serviceRole}`, 'Content-Type': 'application/json' },
+          headers: { 'x-internal-secret': Deno.env.get('CRON_SECRET') ?? '', 'Content-Type': 'application/json' },
           body: JSON.stringify({ sessionId: sid, userId }),
         }).catch(e => console.error('seed-jobs fire failed:', e))
       }
