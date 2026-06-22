@@ -11,10 +11,21 @@ Deno.serve(async (req) => {
   const sig  = req.headers.get('stripe-signature')
   const body = await req.text()
 
+  if (!sig) {
+    console.error('stripe-webhook: missing stripe-signature header')
+    return new Response('Missing signature', { status: 400 })
+  }
+  const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET')
+  if (!webhookSecret) {
+    console.error('stripe-webhook: STRIPE_WEBHOOK_SECRET not set')
+    return new Response('Server misconfiguration', { status: 500 })
+  }
+
   let event: Stripe.Event
   try {
-    event = stripe.webhooks.constructEvent(body, sig!, Deno.env.get('STRIPE_WEBHOOK_SECRET')!)
-  } catch {
+    event = stripe.webhooks.constructEvent(body, sig, webhookSecret)
+  } catch (err) {
+    console.error('stripe-webhook: signature verification failed:', err)
     return new Response('Invalid signature', { status: 400 })
   }
 

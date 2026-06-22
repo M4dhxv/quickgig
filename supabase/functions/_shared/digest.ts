@@ -3,13 +3,13 @@
 
 export type Job = { title: string; company: string }
 
-export async function adzunaDigest(location: string): Promise<{ count: number; jobs: Job[] }> {
+export async function adzunaDigest(location: string, limit = 3): Promise<{ count: number; jobs: Job[] }> {
   const id = Deno.env.get('ADZUNA_APP_ID')
   const key = Deno.env.get('ADZUNA_APP_KEY')
   if (!id || !key || !location) return { count: 0, jobs: [] }
   const city = location.split(',')[0].trim()
   const params = new URLSearchParams({
-    app_id: id, app_key: key, results_per_page: '5', where: city,
+    app_id: id, app_key: key, results_per_page: String(Math.min(limit, 50)), where: city,
     // what_or = match ANY of these terms (plain `what` ANDs them -> ~0 results)
     what_or: 'warehouse retail care logistics delivery cleaning hospitality security',
     sort_by: 'date', max_days_old: '14',
@@ -18,7 +18,7 @@ export async function adzunaDigest(location: string): Promise<{ count: number; j
     const res = await fetch(`https://api.adzuna.com/v1/api/jobs/us/search/1?${params}`)
     if (!res.ok) return { count: 0, jobs: [] }
     const d = await res.json()
-    const jobs: Job[] = (d.results ?? []).slice(0, 3).map((j: any) => ({
+    const jobs: Job[] = (d.results ?? []).slice(0, limit).map((j: any) => ({
       title: j.title ?? '', company: j.company?.display_name ?? '',
     })).filter((j: Job) => j.title)
     return { count: d.count ?? jobs.length, jobs }

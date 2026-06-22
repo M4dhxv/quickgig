@@ -2,7 +2,7 @@ import Stripe from 'https://esm.sh/stripe@14'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, { apiVersion: '2024-04-10' })
-const supabase = createClient(
+const admin = createClient(
   Deno.env.get('SUPABASE_URL')!,
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
 )
@@ -23,7 +23,12 @@ Deno.serve(async (req) => {
       })
     }
 
-    // Confirm the payment directly with Stripe — no webhook required.
+    // Get calling user from their JWT
+    const token = (req.headers.get('Authorization') ?? '').replace(/^Bearer\s+/i, '')
+    const { data: { user } } = await admin.auth.getUser(token)
+    const userId = user?.id
+
+    // Confirm payment with Stripe
     const cs = await stripe.checkout.sessions.retrieve(csId)
     const paid = cs.payment_status === 'paid' || cs.status === 'complete'
 
@@ -35,11 +40,22 @@ Deno.serve(async (req) => {
 
     const sid = sessionId || cs.metadata?.sessionId
     if (sid) {
-      await supabase.from('sessions').update({
+      await admin.from('sessions').update({
         plan: 'active',
         stripe_customer_id: cs.customer as string,
         stripe_subscription_id: cs.subscription as string,
       }).eq('id', sid)
+
+      // Fire seed-jobs to fetch job pool and send first WhatsApp immediately
+      if (userId) {
+        const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+        const serviceRole = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+        fetch(`${supabaseUrl}/functions/v1/seed-jobs`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${serviceRole}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId: sid, userId }),
+        }).catch(e => console.error('seed-jobs fire failed:', e))
+      }
     }
 
     return new Response(JSON.stringify({ active: true }), {

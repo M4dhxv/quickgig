@@ -1,35 +1,15 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { adzunaDigest, digestVars } from '../_shared/digest.ts'
+import { adzunaDigest } from '../_shared/digest.ts'
+import { sendJobAlert, buildVars } from '../_shared/whatsapp.ts'
 
 const admin = createClient(
   Deno.env.get('SUPABASE_URL')!,
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
 )
 
-// Per-user minimum gap between alerts. Cron runs daily; this controls cadence.
-// 20h ≈ daily. Change to 44 for every-other-day.
-const MIN_HOURS = 20
-const APP_URL = Deno.env.get('APP_URL') ?? 'https://quickgig.vercel.app'
-
-async function sendTemplate(toPhone: string, vars: Record<string, string>): Promise<boolean> {
-  const sid = Deno.env.get('TWILIO_ACCOUNT_SID')
-  const token = Deno.env.get('TWILIO_AUTH_TOKEN')
-  const from = Deno.env.get('TWILIO_WHATSAPP_FROM')
-  const template = Deno.env.get('TWILIO_WHATSAPP_ALERT_TEMPLATE_SID')
-  if (!sid || !token || !from || !template) return false  // no-op until configured
-  const body = new URLSearchParams()
-  body.set('To', `whatsapp:${toPhone.startsWith('+') ? toPhone : '+' + toPhone}`)
-  body.set('From', from)
-  body.set('ContentSid', template)
-  body.set('ContentVariables', JSON.stringify(vars))
-  const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`, {
-    method: 'POST',
-    headers: { Authorization: 'Basic ' + btoa(`${sid}:${token}`), 'Content-Type': 'application/x-www-form-urlencoded' },
-    body,
-  })
-  if (!res.ok) { console.error('alert send failed', await res.text()); return false }
-  return true
-}
+const MIN_HOURS = 20   // minimum gap between alerts (~daily)
+const DAILY_SEND = 2   // jobs per send
+const APP_URL = Deno.env.get('APP_URL') ?? 'https://gignearby.com'
 
 Deno.serve(async (req) => {
   const secret = req.headers.get('x-cron-secret')
@@ -38,26 +18,58 @@ Deno.serve(async (req) => {
   const cutoff = new Date(Date.now() - MIN_HOURS * 3600 * 1000).toISOString()
   const { data: users } = await admin
     .from('sessions')
-    .select('id, profile, last_alert_at')
+    .select('id, profile, last_alert_at, user_id')
     .eq('plan', 'active')
+    .not('user_id', 'is', null)
     .or(`last_alert_at.is.null,last_alert_at.lt.${cutoff}`)
     .limit(500)
 
-  let eligible = 0, sent = 0
+  let sent = 0
   for (const u of users ?? []) {
     const p = (u.profile ?? {}) as Record<string, string>
-    if (!p.phone || !p.location) continue
-    eligible++
 
-    const { jobs } = await adzunaDigest(p.location)
-    if (jobs.length === 0) continue  // never send an empty digest
+    // Always use verified E.164 phone from Supabase Auth — never profile.phone
+    const { data: { user: authUser } } = await admin.auth.admin.getUserById(u.user_id)
+    const phone = authUser?.phone
+    if (!phone) continue
 
-    const ok = await sendTemplate(p.phone, digestVars({ name: p.name, role: p.currentRole, location: p.location, jobs, appUrl: APP_URL }))
-    if (ok) sent++
-    await admin.from('sessions').update({ last_alert_at: new Date().toISOString() }).eq('id', u.id)
+    // Pick DAILY_SEND unsent jobs from saved pool
+    const { data: pool } = await admin
+      .from('user_jobs')
+      .select('id, title, company')
+      .eq('session_id', u.id)
+      .is('sent_at', null)
+      .order('created_at')
+      .limit(DAILY_SEND)
+
+    let jobs: { id: string; title: string; company: string }[] = pool ?? []
+
+    // Pool exhausted — refill from Adzuna
+    if (jobs.length < DAILY_SEND && p.location) {
+      const { jobs: fresh } = await adzunaDigest(p.location, 20)
+      if (fresh.length > 0) {
+        const { data: refilled } = await admin
+          .from('user_jobs')
+          .insert(fresh.map(j => ({ session_id: u.id, user_id: u.user_id, title: j.title, company: j.company })))
+          .select('id, title, company')
+        jobs = (refilled ?? []).slice(0, DAILY_SEND)
+      }
+    }
+
+    if (jobs.length === 0) continue
+
+    const ok = await sendJobAlert(phone, buildVars({
+      name: p.name, role: p.currentRole, location: p.location, jobs, appUrl: APP_URL,
+    }))
+
+    if (ok) {
+      sent++
+      await admin.from('user_jobs').update({ sent_at: new Date().toISOString() }).in('id', jobs.map(j => j.id))
+      await admin.from('sessions').update({ last_alert_at: new Date().toISOString() }).eq('id', u.id)
+    }
   }
 
-  return new Response(JSON.stringify({ ran: true, due: (users ?? []).length, eligible, sent }), {
+  return new Response(JSON.stringify({ ran: true, due: (users ?? []).length, sent }), {
     headers: { 'Content-Type': 'application/json' },
   })
 })
