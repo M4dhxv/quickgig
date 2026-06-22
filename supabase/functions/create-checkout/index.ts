@@ -4,7 +4,7 @@ const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, { apiVersion: '202
 
 // Only our real plans can be checked out — stops arbitrary/probe price IDs.
 const ALLOWED_PRICES = new Set([
-  'price_1TkLsWCvrCGyWAcEIQvPwpr7', // Weekly + Monthly (current)
+  'price_1TjbbqCX4iU4nm420REMahwK', // Weekly + Monthly (live)
 ])
 
 const CORS = {
