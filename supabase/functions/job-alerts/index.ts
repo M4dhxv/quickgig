@@ -9,7 +9,7 @@ const admin = createClient(
 
 const MIN_HOURS = 20   // minimum gap between alerts (~daily)
 const DAILY_SEND = 2   // jobs per send
-const APP_URL = Deno.env.get('APP_URL') ?? 'https://gignearby.com'
+const APP_URL = (Deno.env.get('APP_URL') ?? 'https://www.gignearby.com').replace(/\/$/, '')
 
 Deno.serve(async (req) => {
   const secret = req.headers.get('x-cron-secret')
@@ -48,10 +48,29 @@ Deno.serve(async (req) => {
     if (jobs.length < DAILY_SEND && p.location) {
       const { jobs: fresh } = await adzunaDigest(p.location, 20)
       if (fresh.length > 0) {
-        const { data: refilled } = await admin
-          .from('user_jobs')
-          .insert(fresh.map(j => ({ session_id: u.id, user_id: u.user_id, title: j.title, company: j.company, url: j.url, location: j.location })))
-          .select('id, title, company, url, location')
+        // Insert into job_results first to get share UUIDs
+        const { data: jobResults } = await admin.from('job_results').insert(
+          fresh.map(j => ({
+            session_id:   u.id,
+            user_id:      u.user_id,
+            adzuna_id:    j.adzunaId,
+            title:        j.title,
+            company:      j.company,
+            location:     j.location,
+            redirect_url: j.redirectUrl,
+            is_shared:    true,
+          }))
+        ).select('id, title, company, location')
+        const { data: refilled } = await admin.from('user_jobs').insert(
+          (jobResults ?? []).map((r: any) => ({
+            session_id: u.id,
+            user_id:    u.user_id,
+            title:      r.title,
+            company:    r.company,
+            location:   r.location,
+            url:        `${APP_URL}/jobs/${r.id}`,
+          }))
+        ).select('id, title, company, url, location')
         jobs = (refilled ?? []).slice(0, DAILY_SEND)
       }
     }

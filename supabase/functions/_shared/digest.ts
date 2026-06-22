@@ -1,7 +1,7 @@
 // Shared job-digest helpers for the WhatsApp alert template `jobalerts`:
 //   {{1}}=first name  {{2}}=role  {{3}}=city  {{4}}=a job line
 
-export type Job = { title: string; company: string; url: string; location: string }
+export type Job = { adzunaId: string; title: string; company: string; redirectUrl: string; location: string }
 
 export async function adzunaDigest(location: string, limit = 3): Promise<{ count: number; jobs: Job[] }> {
   const id = Deno.env.get('ADZUNA_APP_ID')
@@ -18,10 +18,11 @@ export async function adzunaDigest(location: string, limit = 3): Promise<{ count
     if (!res.ok) return { count: 0, jobs: [] }
     const d = await res.json()
     const jobs: Job[] = (d.results ?? []).slice(0, limit).map((j: any) => ({
-      title:    j.title ?? '',
-      company:  j.company?.display_name ?? '',
-      url:      j.redirect_url ?? '',
-      location: j.location?.display_name ?? city,
+      adzunaId:    String(j.id ?? ''),
+      title:       j.title ?? '',
+      company:     j.company?.display_name ?? '',
+      redirectUrl: j.redirect_url ?? '',
+      location:    j.location?.display_name ?? city,
     })).filter((j: Job) => j.title)
     return { count: d.count ?? jobs.length, jobs }
   } catch { return { count: 0, jobs: [] } }
