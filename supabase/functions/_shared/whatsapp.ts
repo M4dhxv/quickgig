@@ -32,15 +32,20 @@ export function buildVars(opts: {
   jobs: { title: string; company?: string; url?: string; location?: string }[]
   appUrl: string
 }): Record<string, string> {
-  const first = (opts.name || 'there').trim().split(/\s+/)[0]
+  const firstName = (opts.name || 'there').trim().split(/\s+/)[0]
   const city  = (opts.location || '').split(',')[0].trim() || 'your area'
-  const jobLine = opts.jobs.map(j => {
-    const loc = j.location ? j.location.split(',')[0].trim() : ''
-    const tag = `${j.title}${loc ? ', ' + loc : ''}${j.company ? ' at ' + j.company : ''}`
-    return j.url ? `${tag} → ${j.url}` : tag
-  }).join('\n')
+  // First job gets the direct link; additional jobs listed briefly after
+  const [first, ...rest] = opts.jobs
+  const firstLoc = first?.location ? first.location.split(',')[0].trim() : ''
+  const firstLine = first
+    ? `${first.title}${firstLoc ? ', ' + firstLoc : ''}${first.company ? ' at ' + first.company : ''}${first.url ? ': ' + first.url : ''}`
+    : `New roles near you: ${opts.appUrl}`
+  const restLine = rest.length > 0
+    ? ' | ' + rest.map(j => `${j.title}${j.location ? ', ' + j.location.split(',')[0].trim() : ''}`).join(' | ')
+    : ''
+  const jobLine = firstLine + restLine
   return {
-    '1': first,
+    '1': firstName,
     '2': (opts.role || 'frontline').trim(),
     '3': city,
     '4': jobLine,
