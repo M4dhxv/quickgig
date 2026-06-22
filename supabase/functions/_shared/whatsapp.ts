@@ -29,14 +29,16 @@ export async function sendJobAlert(toPhone: string, vars: Record<string, string>
 
 export function buildVars(opts: {
   name?: string; role?: string; location?: string
-  jobs: { title: string; company?: string }[]
+  jobs: { title: string; company?: string; url?: string; location?: string }[]
   appUrl: string
 }): Record<string, string> {
   const first = (opts.name || 'there').trim().split(/\s+/)[0]
   const city  = (opts.location || '').split(',')[0].trim() || 'your area'
-  const jobLine = opts.jobs
-    .map(j => `${j.title}${j.company ? ' at ' + j.company : ''}`)
-    .join(' · ') + `. More: ${opts.appUrl}`
+  const jobLine = opts.jobs.map(j => {
+    const loc = j.location ? j.location.split(',')[0].trim() : ''
+    const tag = `${j.title}${loc ? ', ' + loc : ''}${j.company ? ' at ' + j.company : ''}`
+    return j.url ? `${tag} → ${j.url}` : tag
+  }).join('\n')
   return {
     '1': first,
     '2': (opts.role || 'frontline').trim(),

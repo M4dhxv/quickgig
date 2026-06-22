@@ -36,13 +36,13 @@ Deno.serve(async (req) => {
     // Pick DAILY_SEND unsent jobs from saved pool
     const { data: pool } = await admin
       .from('user_jobs')
-      .select('id, title, company')
+      .select('id, title, company, url, location')
       .eq('session_id', u.id)
       .is('sent_at', null)
       .order('created_at')
       .limit(DAILY_SEND)
 
-    let jobs: { id: string; title: string; company: string }[] = pool ?? []
+    let jobs: { id: string; title: string; company: string; url: string; location: string }[] = pool ?? []
 
     // Pool exhausted — refill from Adzuna
     if (jobs.length < DAILY_SEND && p.location) {
@@ -50,8 +50,8 @@ Deno.serve(async (req) => {
       if (fresh.length > 0) {
         const { data: refilled } = await admin
           .from('user_jobs')
-          .insert(fresh.map(j => ({ session_id: u.id, user_id: u.user_id, title: j.title, company: j.company })))
-          .select('id, title, company')
+          .insert(fresh.map(j => ({ session_id: u.id, user_id: u.user_id, title: j.title, company: j.company, url: j.url, location: j.location })))
+          .select('id, title, company, url, location')
         jobs = (refilled ?? []).slice(0, DAILY_SEND)
       }
     }

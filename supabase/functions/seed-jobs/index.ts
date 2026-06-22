@@ -43,8 +43,8 @@ Deno.serve(async (req) => {
 
   // Save pool to user_jobs
   const { data: inserted } = await admin.from('user_jobs')
-    .insert(jobs.map(j => ({ session_id: sessionId, user_id: userId, title: j.title, company: j.company })))
-    .select('id, title, company')
+    .insert(jobs.map(j => ({ session_id: sessionId, user_id: userId, title: j.title, company: j.company, url: j.url, location: j.location })))
+    .select('id, title, company, url, location')
 
   // Send immediately with top 2
   const top2 = (inserted ?? jobs).slice(0, 2)
