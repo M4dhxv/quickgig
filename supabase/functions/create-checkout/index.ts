@@ -4,7 +4,8 @@ const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, { apiVersion: '202
 
 // Only our real plans can be checked out — stops arbitrary/probe price IDs.
 const ALLOWED_PRICES = new Set([
-  'price_1TjbbqCX4iU4nm420REMahwK', // Weekly + Monthly (live)
+  'price_1TjbbqCX4iU4nm420REMahwK', // Weekly $7.99/week
+  'price_1TjbcsCX4iU4nm425XmOflkS', // Monthly $19.99/month
 ])
 
 const CORS = {
@@ -28,6 +29,7 @@ Deno.serve(async (req) => {
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
+      allow_promotion_codes: true,
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${origin}/dashboard?payment=success&session_id=${sessionId ?? ''}&cs_id={CHECKOUT_SESSION_ID}`,
       cancel_url:  `${origin}/dashboard?session_id=${sessionId ?? ''}`,
